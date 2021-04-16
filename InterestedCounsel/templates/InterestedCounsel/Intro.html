@@ -1,0 +1,26 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}Welcome to today's experiment!{% endblock %}
+
+{% block content %}
+
+<div>
+
+
+The purpose of this experiment is to learn about decision making by individuals organized in groups.
+</div><div>The money you earn in this experiment will be paid via automatic bank transfer to your Nem Konto.
+</div><div>How much money you will earn will depend on both your decisions and the decisions of the other participants in this experiment. Each decision you make can be relevant to your earnings. These instructions explain the kind of decisions you can make. To earn money, it is important that you understand these instructions.
+</div><div>In order to make sure the decisions you make during this experiment are your own, please turn off all electronic devices and no not talk to anyone else in this session. If you have any questions during the experiment, or if you have any trouble with the computer, please raise your hand. We will come to you to answer your questions.
+</div><div>The following pages will explain the experiment in detail.
+</div><div>The experiment consists of 30 decision-making rounds.
+</div><div>Each round provides you with the potential to earn money, which is expressed in experimental dollars, displayed as E$. At the end of this experiment, your total earnings in experimental dollars which will be converted to Danish kroner, DKK, and your earnings in DKK will be paid to you. The conversion rate is 1 DKK for 6 E$.
+</div><div>At the end of this experiment, a summary screen will display your total earnings in DKK. Other participants cannot observe how much money you earned.
+</div>
+    <br>
+
+{{ formfields }}
+
+{{ next_button }}
+
+{% endblock %}
