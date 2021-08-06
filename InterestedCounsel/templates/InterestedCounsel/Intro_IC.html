@@ -1,12 +1,18 @@
-{% extends "global/Page.html" %}
-{% load otree %}
+{{ extends "global/Page.html" }}
+{{ load otree }}
 
-{% block title %}Title{% endblock %}
+{{ block title }}Title IC{{ endblock }}
 
-{% block content %}
+{{ block content }}
+
+== Spezial-Infro für IC ==
+
+{{ player.participant.zugeordneteRole }}
+
+=== ENDE
 
 {{ formfields }}
 
 {{ next_button }}
 
-{% endblock %}
+{{ endblock }}
