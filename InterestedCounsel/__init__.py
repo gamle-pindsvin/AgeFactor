@@ -44,7 +44,7 @@ class Group(BaseGroup):
 
 class Player(BasePlayer):
 
-    Entscheidung = models.StringField(choices=[['A', 'A'], ['B', 'B'], ['C', 'C']], widget=widgets.RadioSelect)
+    Entscheidung = models.StringField(choices=[['A', 'A'], ['B', 'B'], ['C', 'C'], ['D', 'D'], ['E', 'E'], ['F', 'F']], widget=widgets.RadioSelect)
 
     # Statistik am Ende
     Fachrichtung = models.StringField(choices=[['Man', 'Management'], ['Eco', 'Economics'], ['Law', 'Law'], ['Cog', 'Cognitive Science'], ['Nat', 'Natural Science or Mathematics'], ['Other', 'Other field'], ['None', "I'm not a student"]], widget=widgets.RadioSelect)
@@ -77,10 +77,10 @@ class Intro(Page):
         # ABWEICHEND vom letzten Experiment keine SPALTEN sondenr Array aus Arrays
         # Auszahlungen in der Form
         # [ Auswahl A - Team | Auswahl A - Oper | Ausw. B - Team | Ausw. B - Opfer | Ausw. C - Team | Ausw.C - Opfer ]
-        angeboteSpiel1 = [60, 180, 180, 60, 240, 0]
-        angeboteSpiel2 = [180, 60, 60, 180, 0, 240]
-        angeboteSpiel3 = [200, 100, 100, 50, 150, 75]
-        angeboteSpiel4 = [100, 50, 200, 100, 150, 75]
+        angeboteSpiel1 = [60, 180, 180, 60, 240, 0, 60, 180, 180, 60, 240, 0]
+        angeboteSpiel2 = [180, 60, 60, 180, 0, 240, 180, 60, 60, 180, 0, 240]
+        angeboteSpiel3 = [200, 100, 100, 50, 150, 75, 200, 100, 100, 50, 150, 75]
+        angeboteSpiel4 = [100, 50, 200, 100, 150, 75, 100, 50, 200, 100, 150, 75]
         session.AngebotsMatrix = [angeboteSpiel1, angeboteSpiel2, angeboteSpiel3, angeboteSpiel4]
 
         # Welche Spielart (Spiel 1 bis 4) kommt wann vor
@@ -123,9 +123,7 @@ def getAuszahlungArray(session: Subsession, round_number):
     posInArray = round_number - 1
     #[1, 4, 2, 1, 3, 2]
     spieleArt = session.Spielarten_Folge[posInArray]
-
     spielAngebote = session.AngebotsMatrix[spieleArt - 1]
-
     return spielAngebote
 
 class Intro_IC(Page):
@@ -305,7 +303,7 @@ class WarteAufDieOpfer(WaitPage):
         session.B_ink = beraterInkrement
         berater.participant.payoff += beraterInkrement
         #berater.payoff = berater.participant.payoff
-        session.B_neu = beraterInkrement
+        session.B_neu = berater.participant.payoff
 
         entscheider = group.get_player_by_role(Constants.entscheider_role)
         entscheider.participant.payoff += entscheiderInkrement
