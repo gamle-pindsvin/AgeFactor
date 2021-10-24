@@ -116,15 +116,43 @@ class Intro(Page):
 # Pro Spiel wird die Runde aus der Session gelesen
 # Zurück kommt der Auszahlungsarray  
 #   [ Auswahl A - Team | Auswahl A - Oper | Ausw. B - Team | Ausw. B - Opfer | Ausw. C - Team | Ausw.C - Opfer ]
-#### HAT FUNKTIONIERT !!!
 def getAuszahlungArray(session: Subsession, round_number):
-##    session = player.session
-##    posInArray = player.round_number - 1
     posInArray = round_number - 1
     #[1, 4, 2, 1, 3, 2]
     spieleArt = session.Spielarten_Folge[posInArray]
     spielAngebote = session.AngebotsMatrix[spieleArt - 1]
     return spielAngebote
+
+# Für gegebenes Auszahlungsarray (Spielart) und den ausgewählten Buchstaben wird hier
+# die Auszahlung für das Team (Berater / Entscheider) geliefert.
+def getTeamAuszahlung(auswahlChar, auszahlungsArray):
+    txtT = "Das Team kriegt für die Auswahl {} den Betrag von {} Punkten."
+    letterArray = ["A", "B", "C", "D", "E", "F"]
+    resultFound = False
+    for i in range(6):
+        if letterArray[i] == auswahlChar:
+            result = auszahlungsArray[2*i]
+            resultFound = True
+            print(txtT.format(auswahlChar, result))
+    if (not resultFound):
+        print("Something gets wrong. group.EndgueltigeEntscheidung: " + auswahlChar)
+    return result
+
+
+# Für gegebenes Auszahlungsarray (Spielart) und den ausgewählten Buchstaben wird hier
+# die Auszahlung für das Team (Berater / Entscheider) geliefert.
+def getOpferAuszahlung(auswahlChar, auszahlungsArray):
+    txtO = "Das Opfer kriegt für die Auswahl {} den Betrag von {} Punkten."
+    letterArray = ["A", "B", "C", "D", "E", "F"]
+    resultFound = False
+    for i in range(6):
+        if letterArray[i] == auswahlChar:
+            result = auszahlungsArray[2*i+1]
+            resultFound = True
+            print(txtO.format(auswahlChar, result))
+    if (not resultFound):
+        print("Something gets wrong. group.EndgueltigeEntscheidung: " + auswahlChar)
+    return result
 
 class Intro_IC(Page):
    # timeout_seconds = Constants.timeOutSeconds
@@ -144,8 +172,6 @@ class SeiteFuerDenBerater(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
-
-       ## auszahlung = getAuszahlungArray(player)
         auszahlung = getAuszahlungArray(player.session, player.round_number)
 
         return {
@@ -153,15 +179,13 @@ class SeiteFuerDenBerater(Page):
             'opferPart': (player.participant.zugeordneteRole == Constants.opfer_role),
             'beraterPart': (player.participant.zugeordneteRole == Constants.berater_role),
             'entscheiderPart': (player.participant.zugeordneteRole == Constants.entscheider_role),
-            'B_alt': player.session.B_alt,
-            'B_ink': player.session.B_ink,
-            'B_neu': player.session.B_neu
         }
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
         group = player.group
         group.BeraterEmpfehlung = player.Entscheidung
+        #print("Berater Empfehlung: player.Entscheidung: ", player.Entscheidung, " group.BeraterEmpfehlung: ", group.BeraterEmpfehlung)
 
 
 # Auswahl des Beraters. Opfer und Entscheider warten
@@ -259,37 +283,60 @@ class WarteAufDieOpfer(WaitPage):
         # Zuerst die Werte
         #[ Auswahl A - Team | Auswahl A - Oper | Ausw. B - Team | Ausw. B - Opfer | Ausw. C - Team | Ausw.C - Opfer ]
 
+
         ## auszahlung = getAuszahlungArray(player)
         auszahlung = getAuszahlungArray(session, round_number)
 
         #  Jetzt - wer bekommt aus dem Team - Entscheider oder Berater z.B. [1, 1, 2, 2, 1, 2]
         # 1 - Berater, 2 - Entscheider
-
         AuszahlungImTeamFolge = session.AuszahlungImTeamFolge
         posInArray = round_number - 1
         auszahlungAnBerater = (AuszahlungImTeamFolge[posInArray] == 1)
 
         # Jetzt schauen wir, ob A, B oder C und weisen die Zuwächse zu
-        if (group.EndgueltigeEntscheidung is not None) and (group.EndgueltigeEntscheidung == "A"):
-            opferInkrement = auszahlung[1]
+        ########### FUNKTIIONIERT, aber recht unübersichtlich
+
+        #if (group.EndgueltigeEntscheidung is not None) and (group.EndgueltigeEntscheidung == "A"):
+        #    opferInkrement = auszahlung[1]
+        #    if auszahlungAnBerater:
+        #        beraterInkrement = auszahlung[0]
+        #    else:
+        #        entscheiderInkrement = auszahlung[0]
+        #elif (group.EndgueltigeEntscheidung is not None) and (group.EndgueltigeEntscheidung == "B"):
+        #    opferInkrement = auszahlung[3]
+        #    if auszahlungAnBerater:
+        #        beraterInkrement = auszahlung[2]
+        #    else:
+        #        entscheiderInkrement = auszahlung[2]
+        #elif (group.EndgueltigeEntscheidung is not None) and (group.EndgueltigeEntscheidung == "C"):
+        #    opferInkrement = auszahlung[5]
+        #    if auszahlungAnBerater:
+        #        beraterInkrement = auszahlung[4]
+        #    else:
+        #        entscheiderInkrement = auszahlung[4]
+        #elif (group.EndgueltigeEntscheidung is not None) and (group.EndgueltigeEntscheidung == "D"):
+        #    opferInkrement = auszahlung[7]
+        #    if auszahlungAnBerater:
+        #        beraterInkrement = auszahlung[6]
+        #    else:
+        #        entscheiderInkrement = auszahlung[6]
+        #elif (group.EndgueltigeEntscheidung is not None) and (group.EndgueltigeEntscheidung == "E"):
+        #    opferInkrement = auszahlung[9]
+        #    if auszahlungAnBerater:
+        #        beraterInkrement = auszahlung[8]
+        #    else:
+        #        entscheiderInkrement = auszahlung[8]
+        #else:
+        #    print("Something gets wrong. group.EndgueltigeEntscheidung: " + group.EndgueltigeEntscheidung)
+
+        # Je nach Auswahl werden die Zuwächse zugewiesen
+        # Zuest schauen wir, ob überhaupt etwas übergeben
+        if (group.EndgueltigeEntscheidung is not None):
+            opferInkrement = getOpferAuszahlung(group.EndgueltigeEntscheidung, auszahlung)
             if auszahlungAnBerater:
-                beraterInkrement = auszahlung[0]
+                beraterInkrement = getTeamAuszahlung(group.EndgueltigeEntscheidung, auszahlung)
             else:
-                entscheiderInkrement = auszahlung[0]
-        elif (group.EndgueltigeEntscheidung is not None) and (group.EndgueltigeEntscheidung == "B"):
-            opferInkrement = auszahlung[3]
-            if auszahlungAnBerater:
-                beraterInkrement = auszahlung[2]
-            else:
-                entscheiderInkrement = auszahlung[2]
-        elif (group.EndgueltigeEntscheidung is not None) and (group.EndgueltigeEntscheidung == "C"):
-            if auszahlungAnBerater:
-                beraterInkrement = auszahlung[4]
-            else:
-                entscheiderInkrement = auszahlung[4]
-            opferInkrement = auszahlung[5]
-        else:
-            print("Something gets wrong. group.EndgueltigeEntscheidung: " + group.EndgueltigeEntscheidung)
+                entscheiderInkrement = getTeamAuszahlung(group.EndgueltigeEntscheidung, auszahlung)
 
 
         # Payoffs werden erhöht
@@ -299,11 +346,11 @@ class WarteAufDieOpfer(WaitPage):
         #opfer.payoff = opfer.participant.payoff
 
         berater = group.get_player_by_role(Constants.berater_role)
-        session.B_alt = berater.participant.payoff
-        session.B_ink = beraterInkrement
+        #session.B_alt = berater.participant.payoff
+        #session.B_ink = beraterInkrement
         berater.participant.payoff += beraterInkrement
         #berater.payoff = berater.participant.payoff
-        session.B_neu = berater.participant.payoff
+        #session.B_neu = berater.participant.payoff
 
         entscheider = group.get_player_by_role(Constants.entscheider_role)
         entscheider.participant.payoff += entscheiderInkrement
