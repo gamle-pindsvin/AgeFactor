@@ -4,8 +4,9 @@ import copy
 import string
 
 class Constants(BaseConstants):
-    name_in_url = 'Disinterested_Counsel'
-    players_per_group = 3
+    name_in_url = 'Computer_Counsel'
+    # nur 2, weil Berater jetzt ein Computer ist
+    players_per_group = 2
     num_rounds = 6
 
     # REIHENFOLGE der Rollen wichtig - wird später in player.role übernommen!!!
@@ -40,9 +41,11 @@ class Subsession(BaseSubsession):
 
 
 class Group(BaseGroup):
-    BeraterEmpfehlung = models.StringField(initial="NOVALUE")
+    # BeraterEmpfehlung wie bei IC und DC gibt es nicht, stattdessen wird eine Folge aus eines menschlichen Beraters
+    #       gezogen und nach dem Aufruf von Intro muss in der Session gespeichert werden. Hier geht nicht, weil
+    #       models keine Dictionary speichern können
+
     EntscheiderEmpfehlung = models.StringField(initial="NOVALUE")
-    EntscheiderEmpfehlungFalsch = models.StringField(initial="NOVALUE")
     EndgueltigeEntscheidung = models.StringField(initial="NOVALUE")
 
 class Player(BasePlayer):
@@ -96,6 +99,32 @@ class Intro(Page):
         player.payoff = 0
         player.participant.payoff = 0
 
+        # Die Klick-Vorschläge des Computer-Beraters werden hier gezogen
+        # encoding='utf-8-sig' !!!! ist wichtig! Sonst wird erstes nicht sichtbare Zeichen als '\ufeff dazugeklebt
+        import csv
+        with open('ComputerCouncil\it.csv', encoding='utf-8-sig') as file:
+            rows = list(csv.DictReader(file))
+
+        # Anzahl der Alternativen, die Computer spielen kann (aus dem Experiment mit normalen Menschen)
+        #     automatisch als Anzahl der Zeilen in der CSV-Datei
+        member_count = 0
+
+        # gespeicherteClickFolgen ist  ein Dictionary mit 1->erste Auswahl des menschlichen Beraters (z.B. "A"),
+        #         2->zweite Auswahl des Beraters usw.
+        for gespeicherteClickFolgen in rows:
+            if member_count == 0:
+                print(f'Column names are {", ".join(gespeicherteClickFolgen)}')
+            print(f'\t{gespeicherteClickFolgen["1"]} , {gespeicherteClickFolgen["2"]} , {gespeicherteClickFolgen["3"]}.')
+            member_count += 1
+
+        # wir ziehen eine davon aus 1 bis member_count (technisch 0 bis member_count.
+        #        -2 und nicht -1, weil die erste Zeile Header ist und rows den nicht mehr hat
+        zufallKlickFolgeIndex = random.randint(0,member_count-2)
+        zufallKlickFolge = rows[zufallKlickFolgeIndex]
+        print("zufallKlickFolge: ", zufallKlickFolge, " index: ", zufallKlickFolgeIndex)
+
+        player.session.BeraterEmpfehlungFolge  = zufallKlickFolge
+
 
 
 # Pro Spiel wird die Runde aus der Session gelesen
@@ -139,49 +168,12 @@ def getOpferAuszahlung(auswahlChar, auszahlungsArray):
         print("Something gets wrong. getOpferAuszahlung group.EndgueltigeEntscheidung: " + auswahlChar)
     return result
 
-class Intro_DC(Page):
+class Intro_CC(Page):
    # timeout_seconds = Constants.timeOutSeconds
     form_model = 'player'
     def is_displayed(player: Player):
        return player.round_number == 1
 
-
-class SeiteFuerDenBerater(Page):
-   # timeout_seconds = Constants.timeOutSeconds
-    form_model = 'player'
-    form_fields = ["Entscheidung"]
-
-    @staticmethod
-    def is_displayed(player: Player):
-        return player.participant.zugeordneteRole == Constants.berater_role
-
-    @staticmethod
-    def vars_for_template(player: Player):
-        auszahlung = getAuszahlungArray(player.session, player.round_number)
-
-        return {
-            'auszahlung': auszahlung,
-            'opferPart': (player.participant.zugeordneteRole == Constants.opfer_role),
-            'beraterPart': (player.participant.zugeordneteRole == Constants.berater_role),
-            'entscheiderPart': (player.participant.zugeordneteRole == Constants.entscheider_role),
-        }
-
-    @staticmethod
-    def before_next_page(player: Player, timeout_happened):
-        group = player.group
-        group.BeraterEmpfehlung = player.Entscheidung
-        #print("Berater Empfehlung: player.Entscheidung: ", player.Entscheidung, " group.BeraterEmpfehlung: ", group.BeraterEmpfehlung)
-
-
-# Auswahl des Beraters. Opfer und Entscheider warten
-class WarteAufDenBerater(WaitPage):
-    body_text = "Waiting for the other participants"
-
-    def after_all_players_arrive(group: Group):
-        pass
-        # Auswahl des Beraters
-        #berater = group.get_player_by_role(Constants.berater_role)
-        #group.BeraterEmpfehlung = berater.Entscheidung
 
 
 # Nur für den Entscheider
@@ -197,11 +189,18 @@ class SeiteFuerDenEntscheider(Page):
     @staticmethod
     def vars_for_template(player: Player):
 
-        ## auszahlung = getAuszahlungArray(player)
+        # auszahlung = getAuszahlungArray(player)
         auszahlung = getAuszahlungArray(player.session, player.round_number)
 
+        # Wir müssen die Berater-Empfehlung, die vom Computer kommt zeigen. D
+        #   Dazu wird aus dem Dictionary BeraterEmpfehlungFolge die für die
+        #   konkrete Runde dazugehörige Empfehlung gezogen
+        ###schluessel = ''.join(player.round_number)
+        empfehlung = player.session.BeraterEmpfehlungFolge[str(player.round_number)]
+        print("runde: ", player.round_number, " mit der Empfehlung: ", empfehlung)
+
         return {
-            'beraterEmpfehlung': player.group.BeraterEmpfehlung,
+            'beraterEmpfehlung': empfehlung,
             'opferPart': (player.participant.zugeordneteRole == Constants.opfer_role),
             'beraterPart': (player.participant.zugeordneteRole == Constants.berater_role),
             'entscheiderPart': (player.participant.zugeordneteRole == Constants.entscheider_role),
@@ -277,21 +276,16 @@ class WarteAufDieOpfer(WaitPage):
         # Entscheider bekommt die ganze Team-Auszahlung
         if (group.EndgueltigeEntscheidung is not None):
             opferInkrement = getOpferAuszahlung(group.EndgueltigeEntscheidung, auszahlung)
-            beraterInkrement = Constants.berater_auszahlung_pro_Runde
             entscheiderInkrement = getTeamAuszahlung(group.EndgueltigeEntscheidung, auszahlung)
 
         # Payoffs werden erhöht
 
         opfer = group.get_player_by_role(Constants.opfer_role)
         opfer.participant.payoff = opfer.participant.payoff + opferInkrement
-        #opfer.payoff = opfer.participant.payoff
-
-        berater = group.get_player_by_role(Constants.berater_role)
-        berater.participant.payoff += beraterInkrement
 
         entscheider = group.get_player_by_role(Constants.entscheider_role)
         entscheider.participant.payoff += entscheiderInkrement
-        #entscheider.payoff = entscheider.participant.payoff
+
 
 
 # Auszahlung und Statistik werden vorbereitet
@@ -317,10 +311,6 @@ class AuszahlungUmfrage(Page):
         name = ''.join(random.sample(string.ascii_uppercase, 6))
         opfer.AuszahlungUserName = copy.deepcopy(name)
 
-        berater = group.get_player_by_role(Constants.berater_role).participant
-        name = ''.join(random.sample(string.ascii_uppercase, 6))
-        berater.AuszahlungUserName = copy.deepcopy(name)
-
         entscheider = group.get_player_by_role(Constants.entscheider_role).participant
         name = ''.join(random.sample(string.ascii_uppercase, 6))
         entscheider.AuszahlungUserName = copy.deepcopy(name)
@@ -329,7 +319,7 @@ class AuszahlungUmfrage(Page):
 
 # Ergebnis des Entscheidungsvorlage-Games wird angezeigt
 # Auszahlungsinformationen
-class ErgebnisDisinterestedCouncil(Page):
+class ErgebnisComputerCouncil(Page):
 
     def is_displayed(player: Player):
         # FEST die letzte 12. Runde des letzten Spiels
@@ -340,10 +330,9 @@ class ErgebnisDisinterestedCouncil(Page):
     def vars_for_template(player: Player):
         return {
             'opferPart': (player.participant.zugeordneteRole == Constants.opfer_role),
-            'beraterPart': (player.participant.zugeordneteRole == Constants.berater_role),
             'entscheiderPart': (player.participant.zugeordneteRole == Constants.entscheider_role)
 
         }
 
 
-page_sequence = [Intro, Intro_DC, SeiteFuerDenBerater, WarteAufDenBerater, SeiteFuerDenEntscheider, WarteAufDenEntscheider, SeiteFuerDieOpfer, WarteAufDieOpfer, AuszahlungUmfrage, ErgebnisDisinterestedCouncil]
+page_sequence = [Intro, Intro_CC, SeiteFuerDenEntscheider, WarteAufDenEntscheider, SeiteFuerDieOpfer, WarteAufDieOpfer, AuszahlungUmfrage, ErgebnisComputerCouncil]

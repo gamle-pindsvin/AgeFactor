@@ -107,10 +107,6 @@ class Intro(Page):
         player.participant.payoff = 0
 
 
-        player.session.B_alt = 0
-        player.session.B_ink = 0
-        player.session.B_neu = 0
-
 
 
 # Pro Spiel wird die Runde aus der Session gelesen
@@ -346,11 +342,7 @@ class WarteAufDieOpfer(WaitPage):
         #opfer.payoff = opfer.participant.payoff
 
         berater = group.get_player_by_role(Constants.berater_role)
-        #session.B_alt = berater.participant.payoff
-        #session.B_ink = beraterInkrement
         berater.participant.payoff += beraterInkrement
-        #berater.payoff = berater.participant.payoff
-        #session.B_neu = berater.participant.payoff
 
         entscheider = group.get_player_by_role(Constants.entscheider_role)
         entscheider.participant.payoff += entscheiderInkrement
