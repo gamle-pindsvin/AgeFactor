@@ -139,11 +139,6 @@ def getOpferAuszahlung(auswahlChar, auszahlungsArray):
         print("Something gets wrong. getOpferAuszahlung group.EndgueltigeEntscheidung: " + auswahlChar)
     return result
 
-class Intro_DC(Page):
-   # timeout_seconds = Constants.timeOutSeconds
-    form_model = 'player'
-    def is_displayed(player: Player):
-       return player.round_number == 1
 
 
 class SeiteFuerDenBerater(Page):
@@ -346,4 +341,4 @@ class ErgebnisDisinterestedCouncil(Page):
         }
 
 
-page_sequence = [Intro, Intro_DC, SeiteFuerDenBerater, WarteAufDenBerater, SeiteFuerDenEntscheider, WarteAufDenEntscheider, SeiteFuerDieOpfer, WarteAufDieOpfer, AuszahlungUmfrage, ErgebnisDisinterestedCouncil]
+page_sequence = [Intro, SeiteFuerDenBerater, WarteAufDenBerater, SeiteFuerDenEntscheider, WarteAufDenEntscheider, SeiteFuerDieOpfer, WarteAufDieOpfer, AuszahlungUmfrage, ErgebnisDisinterestedCouncil]
