@@ -14,6 +14,7 @@ class Constants(BaseConstants):
     berater_role = 'Berater'
 
     timeOutSeconds = 600
+    waehrungsFaktorDKK = 1.0
 
 class Subsession(BaseSubsession):
     pass
@@ -41,10 +42,37 @@ class Group(BaseGroup):
     EntscheiderEmpfehlung = models.StringField(initial="NOVALUE")
     EntscheiderEmpfehlungFalsch = models.StringField(initial="NOVALUE")
     EndgueltigeEntscheidung = models.StringField(initial="NOVALUE")
+    # mit Participants hackt, also zwischenspeicherung hier
+    BeraterKennung = models.StringField(initial="NOVALUE")
+    BeraterAuszahlungDKK = models.CurrencyField()
+    BeraterAuszahlungPunkte = models.CurrencyField()
+    EntscheiderKennung = models.StringField(initial="NOVALUE")
+    EntscheiderAuszahlungDKK = models.CurrencyField()
+    EntscheiderAuszahlungPunkte = models.CurrencyField()
+    OpferKennung = models.StringField(initial="NOVALUE")
+    OpferAuszahlungDKK = models.CurrencyField()
+    OpferAuszahlungPunkte = models.CurrencyField()
+
 
 class Player(BasePlayer):
 
     Entscheidung = models.StringField(choices=[['A', 'A'], ['B', 'B'], ['C', 'C'], ['D', 'D'], ['E', 'E'], ['F', 'F']], widget=widgets.RadioSelect)
+
+    # Für die Umfrage des Beraters
+    Frage1A = models.IntegerField(min=0, max=100)
+    Frage1B = models.IntegerField(min=0, max=100)
+    Frage1C = models.IntegerField(min=0, max=100)
+    Frage1D = models.IntegerField(min=0, max=100)
+    Frage1E = models.IntegerField(min=0, max=100)
+    Frage1F = models.IntegerField(min=0, max=100)
+    Frage2 = models.StringField(choices=[['1', 'Yes'], ['0', 'No']], widget=widgets.RadioSelectHorizontal)
+    Frage3 = models.StringField()
+    Frage4 = models.StringField(choices=[['5', 'Very responsible'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'Not responsible at all']], widget=widgets.RadioSelectHorizontal)
+    Frage5 = models.StringField(choices=[['5', 'I would feel very guilty'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'I would not feel guilty at all']], widget=widgets.RadioSelectHorizontal)
+    Frage61 = models.StringField(choices=[['5', 'I am fully responsible'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'I am not responsible']], widget=widgets.RadioSelectHorizontal)
+    Frage62 = models.StringField(choices=[['5', 'Player Y is fully responsible'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'Player Y is not responsible']], widget=widgets.RadioSelectHorizontal)
+    Frage63 = models.StringField(choices=[['5', 'Player Z is fully responsible'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'Player Z is not responsible']], widget=widgets.RadioSelectHorizontal)
+
 
     # Statistik am Ende
     Fachrichtung = models.StringField(choices=[['Man', 'Management'], ['Eco', 'Economics'], ['Law', 'Law'], ['Cog', 'Cognitive Science'], ['Nat', 'Natural Science or Mathematics'], ['Other', 'Other field'], ['None', "I'm not a student"]], widget=widgets.RadioSelect)
@@ -334,14 +362,59 @@ class WarteAufDieOpfer(WaitPage):
 
         opfer = group.get_player_by_role(Constants.opfer_role)
         opfer.participant.payoff = opfer.participant.payoff + opferInkrement
+        nameOpfer = ''.join(random.sample(string.ascii_uppercase, 6))
+        group.OpferKennung = copy.deepcopy(nameOpfer)
+        group.OpferAuszahlungPunkte = opfer.participant.payoff
+        group.OpferAuszahlungDKK = opfer.participant.payoff / Constants.waehrungsFaktorDKK
         #opfer.payoff = opfer.participant.payoff
 
         berater = group.get_player_by_role(Constants.berater_role)
         berater.participant.payoff += beraterInkrement
+        nameBerater = ''.join(random.sample(string.ascii_uppercase, 6))
+        group.BeraterKennung = copy.deepcopy(nameBerater)
+        group.BeraterAuszahlungPunkte = berater.participant.payoff
+        group.BeraterAuszahlungDKK = berater.participant.payoff / Constants.waehrungsFaktorDKK
 
         entscheider = group.get_player_by_role(Constants.entscheider_role)
         entscheider.participant.payoff += entscheiderInkrement
+        nameEntscheider = ''.join(random.sample(string.ascii_uppercase, 6))
+        group.EntscheiderKennung = copy.deepcopy(nameEntscheider)
+        group.EntscheiderAuszahlungPunkte = entscheider.participant.payoff
+        group.EntscheiderAuszahlungDKK = entscheider.participant.payoff / Constants.waehrungsFaktorDKK
         #entscheider.payoff = entscheider.participant.payoff
+
+
+
+# Umfrage - nur für den Berater
+class SeiteFragenAnDenBerater(Page):
+    # timeout_seconds = Constants.timeOutSeconds
+    form_model = 'player'
+    form_fields = ["Frage1A", "Frage1B", "Frage1C", "Frage1D","Frage1E", "Frage1F", "Frage2", "Frage3", "Frage4", "Frage5", "Frage61", "Frage62", "Frage63"]
+
+    @staticmethod
+    def is_displayed(player: Player):
+        # Nur für den Berater und nur in der letzten Runde 6
+        return (player.participant.zugeordneteRole == Constants.berater_role) and (player.round_number == 6)
+
+    @staticmethod
+    def vars_for_template(player: Player):
+        #TODO fest 6, weil in der letzten Runde!!!!
+        auszahlung = getAuszahlungArray(player.session, 6)
+        group = player.group
+        return {
+            'auszahlung': auszahlung,
+            'empfehlung': group.BeraterEmpfehlung,
+            'opferPart': (player.participant.zugeordneteRole == Constants.opfer_role),
+            'beraterPart': (player.participant.zugeordneteRole == Constants.berater_role),
+            'entscheiderPart': (player.participant.zugeordneteRole == Constants.entscheider_role),
+        }
+
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened):
+        group = player.group
+        group.BeraterEmpfehlung = player.Entscheidung
+        #print("Berater Empfehlung: player.Entscheidung: ", player.Entscheidung, " group.BeraterEmpfehlung: ", group.BeraterEmpfehlung)
+
 
 
 # Auszahlung und Statistik werden vorbereitet
@@ -396,4 +469,4 @@ class ErgebnisInterestedCounsel(Page):
         }
 
 
-page_sequence = [Intro, SeiteFuerDenBerater, WarteAufDenBerater, SeiteFuerDenEntscheider, WarteAufDenEntscheider, SeiteFuerDieOpfer, WarteAufDieOpfer, AuszahlungUmfrage, ErgebnisInterestedCounsel]
+page_sequence = [Intro, SeiteFuerDenBerater, WarteAufDenBerater, SeiteFuerDenEntscheider, WarteAufDenEntscheider, SeiteFuerDieOpfer, WarteAufDieOpfer, SeiteFragenAnDenBerater, AuszahlungUmfrage, ErgebnisInterestedCounsel]
