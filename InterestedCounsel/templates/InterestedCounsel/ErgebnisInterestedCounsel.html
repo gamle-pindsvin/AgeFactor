@@ -10,7 +10,7 @@
 <div>
     Your participant ID for payment is <b>{{ group.OpferKennung }}</b>. <br>
 </div>
-Your earnings are <b>{{ group.OpferAuszahlungPunkte }}</b> E$ corresponding to <b>{{group.OpferAuszahlungDKK}}</b> kr.<br>
+Your earnings are <b>{{ session.OpferAuszahlungPunkte }}</b> E$ corresponding to <b>{{ group.OpferAuszahlungDKK|to0 }}</b> kr.<br>
 <div><b> Please note down your participant ID {{ group.OpferKennung }} and your earnings in kr. in the receipt!</b> </div>
 {% endif %}
 
@@ -18,7 +18,7 @@ Your earnings are <b>{{ group.OpferAuszahlungPunkte }}</b> E$ corresponding to <
 <div>
     Your participant ID for payment is <b>{{ group.BeraterKennung }}</b>. <br>
 </div>
-Your earnings are <b>{{ group.BeraterAuszahlungPunkte }}</b> E$ corresponding to <b>{{group.BeraterAuszahlungDKK}}</b> kr.<br>
+Your earnings are <b>{{ session.BeraterAuszahlungPunkte }}</b> E$ corresponding to <b>{{ group.BeraterAuszahlungDKK|to0 }}</b> kr.<br>
 <div><b> Please note down your participant ID {{ group.BeraterKennung }} and your earnings in kr. in the receipt!</b> </div>
 {% endif %}
 
@@ -26,7 +26,7 @@ Your earnings are <b>{{ group.BeraterAuszahlungPunkte }}</b> E$ corresponding to
 <div>
     Your participant ID for payment is <b>{{ group.EntscheiderKennung }}</b>. <br>
 </div>
-Your earnings are <b>{{ group.EntscheiderAuszahlungPunkte }}</b> E$ corresponding to <b>{{group.EntscheiderAuszahlungDKK}}</b> kr.<br>
+Your earnings are <b>{{ session.EntscheiderAuszahlungPunkte }}</b> E$ corresponding to <b>{{ group.EntscheiderAuszahlungDKK|to0 }}</b> kr.<br>
 <div><b> Please note down your participant ID {{ group.EntscheiderKennung }} and your earnings in kr. in the receipt!</b> </div>
 {% endif %}
 

@@ -14,7 +14,7 @@ class Constants(BaseConstants):
     berater_role = 'Berater'
 
     timeOutSeconds = 600
-    waehrungsFaktorDKK = 1.0
+    waehrungsFaktorDKK = 7.0
 
 class Subsession(BaseSubsession):
     pass
@@ -44,14 +44,14 @@ class Group(BaseGroup):
     EndgueltigeEntscheidung = models.StringField(initial="NOVALUE")
     # mit Participants hackt, also zwischenspeicherung hier
     BeraterKennung = models.StringField(initial="NOVALUE")
-    BeraterAuszahlungDKK = models.CurrencyField()
-    BeraterAuszahlungPunkte = models.CurrencyField()
+    BeraterAuszahlungDKK = models.FloatField()
+    BeraterAuszahlungPunkte = models.IntegerField()
     EntscheiderKennung = models.StringField(initial="NOVALUE")
-    EntscheiderAuszahlungDKK = models.CurrencyField()
-    EntscheiderAuszahlungPunkte = models.CurrencyField()
+    EntscheiderAuszahlungDKK = models.FloatField()
+    EntscheiderAuszahlungPunkte = models.IntegerField()
     OpferKennung = models.StringField(initial="NOVALUE")
-    OpferAuszahlungDKK = models.CurrencyField()
-    OpferAuszahlungPunkte = models.CurrencyField()
+    OpferAuszahlungDKK = models.FloatField()
+    OpferAuszahlungPunkte = models.IntegerField()
 
 
 class Player(BasePlayer):
@@ -133,6 +133,11 @@ class Intro(Page):
         # Neues Spiel - neue Auszahlung.
         player.payoff = 0
         player.participant.payoff = 0
+
+        # Payoff macht Probleme in der Anzeige, entweder POINTS oder Kr für beides. Daher über die Session
+        session.EntscheiderAuszahlungPunkte = 0
+        session.BeraterAuszahlungPunkte = 0
+        session.OpferAuszahlungPunkte = 0
 
 
 
@@ -312,42 +317,6 @@ class WarteAufDieOpfer(WaitPage):
         posInArray = round_number - 1
         auszahlungAnBerater = (AuszahlungImTeamFolge[posInArray] == 1)
 
-        # Jetzt schauen wir, ob A, B oder C und weisen die Zuwächse zu
-        ########### FUNKTIIONIERT, aber recht unübersichtlich
-
-        #if (group.EndgueltigeEntscheidung is not None) and (group.EndgueltigeEntscheidung == "A"):
-        #    opferInkrement = auszahlung[1]
-        #    if auszahlungAnBerater:
-        #        beraterInkrement = auszahlung[0]
-        #    else:
-        #        entscheiderInkrement = auszahlung[0]
-        #elif (group.EndgueltigeEntscheidung is not None) and (group.EndgueltigeEntscheidung == "B"):
-        #    opferInkrement = auszahlung[3]
-        #    if auszahlungAnBerater:
-        #        beraterInkrement = auszahlung[2]
-        #    else:
-        #        entscheiderInkrement = auszahlung[2]
-        #elif (group.EndgueltigeEntscheidung is not None) and (group.EndgueltigeEntscheidung == "C"):
-        #    opferInkrement = auszahlung[5]
-        #    if auszahlungAnBerater:
-        #        beraterInkrement = auszahlung[4]
-        #    else:
-        #        entscheiderInkrement = auszahlung[4]
-        #elif (group.EndgueltigeEntscheidung is not None) and (group.EndgueltigeEntscheidung == "D"):
-        #    opferInkrement = auszahlung[7]
-        #    if auszahlungAnBerater:
-        #        beraterInkrement = auszahlung[6]
-        #    else:
-        #        entscheiderInkrement = auszahlung[6]
-        #elif (group.EndgueltigeEntscheidung is not None) and (group.EndgueltigeEntscheidung == "E"):
-        #    opferInkrement = auszahlung[9]
-        #    if auszahlungAnBerater:
-        #        beraterInkrement = auszahlung[8]
-        #    else:
-        #        entscheiderInkrement = auszahlung[8]
-        #else:
-        #    print("Something gets wrong. group.EndgueltigeEntscheidung: " + group.EndgueltigeEntscheidung)
-
         # Je nach Auswahl werden die Zuwächse zugewiesen
         # Zuest schauen wir, ob überhaupt etwas übergeben
         if (group.EndgueltigeEntscheidung is not None):
@@ -359,28 +328,37 @@ class WarteAufDieOpfer(WaitPage):
 
 
         # Payoffs werden erhöht
-
+        # Problem mit direkten Payoffs ist die Anzeige der Punkte - entweder beides als KR oder beides in POINTS
+        # Daher noch einmal extra über die Gruppe
         opfer = group.get_player_by_role(Constants.opfer_role)
         opfer.participant.payoff = opfer.participant.payoff + opferInkrement
-        nameOpfer = ''.join(random.sample(string.ascii_uppercase, 6))
-        group.OpferKennung = copy.deepcopy(nameOpfer)
-        group.OpferAuszahlungPunkte = opfer.participant.payoff
-        group.OpferAuszahlungDKK = opfer.participant.payoff / Constants.waehrungsFaktorDKK
+        #group.OpferAuszahlungPunkte = group.OpferAuszahlungPunkte + opferInkrement
+        session.OpferAuszahlungPunkte += opferInkrement
+
+        # NUR IN DER LETZTEN RUNDE
+        #nameOpfer = ''.join(random.sample(string.ascii_uppercase, 6))
+        #group.OpferKennung = copy.deepcopy(nameOpfer)
+        #group.OpferAuszahlungDKK = group.OpferAuszahlungPunkte / Constants.waehrungsFaktorDKK
         #opfer.payoff = opfer.participant.payoff
 
         berater = group.get_player_by_role(Constants.berater_role)
         berater.participant.payoff += beraterInkrement
-        nameBerater = ''.join(random.sample(string.ascii_uppercase, 6))
-        group.BeraterKennung = copy.deepcopy(nameBerater)
-        group.BeraterAuszahlungPunkte = berater.participant.payoff
-        group.BeraterAuszahlungDKK = berater.participant.payoff / Constants.waehrungsFaktorDKK
+        #group.BeraterAuszahlungPunkte += beraterInkrement
+        session.BeraterAuszahlungPunkte += beraterInkrement
+
+        #nameBerater = ''.join(random.sample(string.ascii_uppercase, 6))
+        #group.BeraterKennung = copy.deepcopy(nameBerater)
+        #group.BeraterAuszahlungPunkte = berater.participant.payoff
+        #group.BeraterAuszahlungDKK = berater.participant.payoff / Constants.waehrungsFaktorDKK
 
         entscheider = group.get_player_by_role(Constants.entscheider_role)
         entscheider.participant.payoff += entscheiderInkrement
-        nameEntscheider = ''.join(random.sample(string.ascii_uppercase, 6))
-        group.EntscheiderKennung = copy.deepcopy(nameEntscheider)
-        group.EntscheiderAuszahlungPunkte = entscheider.participant.payoff
-        group.EntscheiderAuszahlungDKK = entscheider.participant.payoff / Constants.waehrungsFaktorDKK
+        #group.EntscheiderAuszahlungPunkte += entscheiderInkrement
+        session.EntscheiderAuszahlungPunkte += entscheiderInkrement
+
+        #nameEntscheider = ''.join(random.sample(string.ascii_uppercase, 6))
+        #group.EntscheiderKennung = copy.deepcopy(nameEntscheider)
+        #group.EntscheiderAuszahlungDKK = entscheider.participant.payoff / Constants.waehrungsFaktorDKK
         #entscheider.payoff = entscheider.participant.payoff
 
 
@@ -395,6 +373,11 @@ class SeiteFragenAnDenBerater(Page):
     def is_displayed(player: Player):
         # Nur für den Berater und nur in der letzten Runde 6
         return (player.participant.zugeordneteRole == Constants.berater_role) and (player.round_number == 6)
+
+    @staticmethod
+    def error_message(player, values):
+        if values['Frage1A'] + values['Frage1B'] + values['Frage1C'] + values['Frage1E'] + values['Frage1E'] + values['Frage1F'] != 100:
+            return 'ERROR: The sum of the likelihoods for question 1) must add up to 100.'
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -431,22 +414,32 @@ class AuszahlungUmfrage(Page):
     def vars_for_template(player: Player):
 
         group = player.group
+        session = player.session
 
         # ToDO GGF Auszahlungskorrektur
         # if Auszahlung_Punkte_Opfer > 4900:
         #     Auszahlung_Punkte_Opfer = random.randint(135, 246)*20
 
         opfer = group.get_player_by_role(Constants.opfer_role).participant
-        name = ''.join(random.sample(string.ascii_uppercase, 6))
-        opfer.AuszahlungUserName = copy.deepcopy(name)
+        nameOpfer = ''.join(random.sample(string.ascii_uppercase, 6))
+        opfer.AuszahlungUserName = copy.deepcopy(nameOpfer)
+        group.OpferKennung = copy.deepcopy(nameOpfer)
+        # HIER über die Session!
+        group.OpferAuszahlungDKK = round(session.OpferAuszahlungPunkte / Constants.waehrungsFaktorDKK, 0)
 
         berater = group.get_player_by_role(Constants.berater_role).participant
-        name = ''.join(random.sample(string.ascii_uppercase, 6))
-        berater.AuszahlungUserName = copy.deepcopy(name)
+        nameBerater = ''.join(random.sample(string.ascii_uppercase, 6))
+        berater.AuszahlungUserName = copy.deepcopy(nameBerater)
+        group.BeraterKennung = copy.deepcopy(nameBerater)
+        group.BeraterAuszahlungDKK = round(session.BeraterAuszahlungPunkte / Constants.waehrungsFaktorDKK,0)
 
         entscheider = group.get_player_by_role(Constants.entscheider_role).participant
-        name = ''.join(random.sample(string.ascii_uppercase, 6))
-        entscheider.AuszahlungUserName = copy.deepcopy(name)
+        nameEntscheider = ''.join(random.sample(string.ascii_uppercase, 6))
+        entscheider.AuszahlungUserName = copy.deepcopy(nameEntscheider)
+        group.EntscheiderKennung = copy.deepcopy(nameEntscheider)
+        ## TODO NUR GANZE KRONEN - für andere Währungen könnte man hier auch mit 2 Nachkommastellen arbeiten (auf der Seite dann |to2 statt |to0)
+        group.EntscheiderAuszahlungDKK = round(session.EntscheiderAuszahlungPunkte / Constants.waehrungsFaktorDKK, 0)
+
 
 
 

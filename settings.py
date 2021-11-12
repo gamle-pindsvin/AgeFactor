@@ -7,7 +7,7 @@ USE_POINTS = True
 #real_world_currency_per_point = - hier UMRECHNEN!!!
 DEMO_PAGE_INTRO_HTML = ''
 PARTICIPANT_FIELDS = ['zugeordneteRole', 'AuszahlungUserName']
-SESSION_FIELDS = ['AngebotsMatrix', 'Spielarten_Folge', 'AuszahlungInPunktenFuerDasOpfer', 'AuszahlungImTeamFolge', 'BeraterEmpfehlungFolge']
+SESSION_FIELDS = ['AngebotsMatrix', 'Spielarten_Folge', 'AuszahlungInPunktenFuerDasOpfer', 'AuszahlungImTeamFolge', 'BeraterEmpfehlungFolge', 'EntscheiderAuszahlungPunkte', 'BeraterAuszahlungPunkte', 'OpferAuszahlungPunkte']
 ROOMS = []
 
 ADMIN_USERNAME = 'admin'
