@@ -4,7 +4,7 @@ import copy
 import string
 
 class Constants(BaseConstants):
-    name_in_url = 'Disinterested_Counsel'
+    name_in_url = 'DisinterestedCouncil'
     players_per_group = 3
     num_rounds = 6
 
@@ -17,6 +17,7 @@ class Constants(BaseConstants):
     berater_auszahlung_pro_Runde = 60
 
     timeOutSeconds = 600
+    waehrungsFaktorDKK = 7.0
 
 class Subsession(BaseSubsession):
     pass
@@ -44,10 +45,37 @@ class Group(BaseGroup):
     EntscheiderEmpfehlung = models.StringField(initial="NOVALUE")
     EntscheiderEmpfehlungFalsch = models.StringField(initial="NOVALUE")
     EndgueltigeEntscheidung = models.StringField(initial="NOVALUE")
+    # mit Participants hackt, also zwischenspeicherung hier
+    BeraterKennung = models.StringField(initial="NOVALUE")
+    BeraterAuszahlungDKK = models.FloatField()
+    BeraterAuszahlungPunkte = models.IntegerField()
+    EntscheiderKennung = models.StringField(initial="NOVALUE")
+    EntscheiderAuszahlungDKK = models.FloatField()
+    EntscheiderAuszahlungPunkte = models.IntegerField()
+    OpferKennung = models.StringField(initial="NOVALUE")
+    OpferAuszahlungDKK = models.FloatField()
+    OpferAuszahlungPunkte = models.IntegerField()
+
 
 class Player(BasePlayer):
 
     Entscheidung = models.StringField(choices=[['A', 'A'], ['B', 'B'], ['C', 'C'], ['D', 'D'], ['E', 'E'], ['F', 'F']], widget=widgets.RadioSelect)
+
+    # Für die Umfrage des Beraters
+    Frage1A = models.IntegerField(min=0, max=100)
+    Frage1B = models.IntegerField(min=0, max=100)
+    Frage1C = models.IntegerField(min=0, max=100)
+    Frage1D = models.IntegerField(min=0, max=100)
+    Frage1E = models.IntegerField(min=0, max=100)
+    Frage1F = models.IntegerField(min=0, max=100)
+    Frage2 = models.StringField(choices=[['1', 'Yes'], ['0', 'No']], widget=widgets.RadioSelectHorizontal)
+    Frage3 = models.StringField()
+    Frage4 = models.StringField(choices=[['5', 'Very responsible'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'Not responsible at all']], widget=widgets.RadioSelectHorizontal)
+    Frage5 = models.StringField(choices=[['5', 'I would feel very guilty'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'I would not feel guilty at all']], widget=widgets.RadioSelectHorizontal)
+    Frage61 = models.StringField(choices=[['5', 'I am fully responsible'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'I am not responsible']], widget=widgets.RadioSelectHorizontal)
+    Frage62 = models.StringField(choices=[['5', 'Player Y is fully responsible'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'Player Y is not responsible']], widget=widgets.RadioSelectHorizontal)
+    Frage63 = models.StringField(choices=[['5', 'Player Z is fully responsible'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'Player Z is not responsible']], widget=widgets.RadioSelectHorizontal)
+
 
     # Statistik am Ende
     Fachrichtung = models.StringField(choices=[['Man', 'Management'], ['Eco', 'Economics'], ['Law', 'Law'], ['Cog', 'Cognitive Science'], ['Nat', 'Natural Science or Mathematics'], ['Other', 'Other field'], ['None', "I'm not a student"]], widget=widgets.RadioSelect)
@@ -89,12 +117,31 @@ class Intro(Page):
         # Welche Spielart (Spiel 1 bis 4) kommt wann vor
         session.Spielarten_Folge = [1, 4, 2, 1, 3, 2]
 
+        # Folge der Auszahlungen für das Team (das, was in der Runde erhalten wurde, wird diesem Team-Spieler zugeschlagen.
+        # SPÄTER EVTL. echte Zufall-Zuordnung
+        # 1 - Berater, 2 - Entscheider
+        session.AuszahlungImTeamFolge = [1, 1, 2, 2, 1, 2]
+
+
+        # oTree will then automatically assign each role to a different player (sequentially according to id_in_group).
+        # Rollen WERDEN von Otree Automatisch festgelegt also Quasi
+
+        #  group.get_player_by_id(1).role = Constants.opfer_role
+        #  group.get_player_by_id(2).role = Constants.berater_role
+        #  group.get_player_by_id(3).role = Constants.entscheider_role
+
         # Speichern im "Participant" ist wichtig, weil derselbe Spieler in wetieren Runden evtl. eine andere Nummer hat
         player.participant.zugeordneteRole = player.role
 
         # Neues Spiel - neue Auszahlung.
         player.payoff = 0
         player.participant.payoff = 0
+
+        # Payoff macht Probleme in der Anzeige, entweder POINTS oder Kr für beides. Daher über die Session
+        session.EntscheiderAuszahlungPunkte = 0
+        session.BeraterAuszahlungPunkte = 0
+        session.OpferAuszahlungPunkte = 0
+
 
 
 
@@ -120,7 +167,7 @@ def getTeamAuszahlung(auswahlChar, auszahlungsArray):
             resultFound = True
             print(txtT.format(auswahlChar, result))
     if (not resultFound):
-        print("Something gets wrong. getTeamAuszahlung group.EndgueltigeEntscheidung: " + auswahlChar)
+        print("Something gets wrong. group.EndgueltigeEntscheidung: " + auswahlChar)
     return result
 
 
@@ -136,7 +183,7 @@ def getOpferAuszahlung(auswahlChar, auszahlungsArray):
             resultFound = True
             print(txtO.format(auswahlChar, result))
     if (not resultFound):
-        print("Something gets wrong. getOpferAuszahlung group.EndgueltigeEntscheidung: " + auswahlChar)
+        print("Something gets wrong. group.EndgueltigeEntscheidung: " + auswahlChar)
     return result
 
 
@@ -275,18 +322,78 @@ class WarteAufDieOpfer(WaitPage):
             beraterInkrement = Constants.berater_auszahlung_pro_Runde
             entscheiderInkrement = getTeamAuszahlung(group.EndgueltigeEntscheidung, auszahlung)
 
-        # Payoffs werden erhöht
 
+        # Payoffs werden erhöht
+        # Problem mit direkten Payoffs ist die Anzeige der Punkte - entweder beides als KR oder beides in POINTS
+        # Daher noch einmal extra über die Gruppe
         opfer = group.get_player_by_role(Constants.opfer_role)
         opfer.participant.payoff = opfer.participant.payoff + opferInkrement
+        #group.OpferAuszahlungPunkte = group.OpferAuszahlungPunkte + opferInkrement
+        session.OpferAuszahlungPunkte += opferInkrement
+
+        # NUR IN DER LETZTEN RUNDE
+        #nameOpfer = ''.join(random.sample(string.ascii_uppercase, 6))
+        #group.OpferKennung = copy.deepcopy(nameOpfer)
+        #group.OpferAuszahlungDKK = group.OpferAuszahlungPunkte / Constants.waehrungsFaktorDKK
         #opfer.payoff = opfer.participant.payoff
 
         berater = group.get_player_by_role(Constants.berater_role)
         berater.participant.payoff += beraterInkrement
+        #group.BeraterAuszahlungPunkte += beraterInkrement
+        session.BeraterAuszahlungPunkte += beraterInkrement
+
+        #nameBerater = ''.join(random.sample(string.ascii_uppercase, 6))
+        #group.BeraterKennung = copy.deepcopy(nameBerater)
+        #group.BeraterAuszahlungPunkte = berater.participant.payoff
+        #group.BeraterAuszahlungDKK = berater.participant.payoff / Constants.waehrungsFaktorDKK
 
         entscheider = group.get_player_by_role(Constants.entscheider_role)
         entscheider.participant.payoff += entscheiderInkrement
+        #group.EntscheiderAuszahlungPunkte += entscheiderInkrement
+        session.EntscheiderAuszahlungPunkte += entscheiderInkrement
+
+        #nameEntscheider = ''.join(random.sample(string.ascii_uppercase, 6))
+        #group.EntscheiderKennung = copy.deepcopy(nameEntscheider)
+        #group.EntscheiderAuszahlungDKK = entscheider.participant.payoff / Constants.waehrungsFaktorDKK
         #entscheider.payoff = entscheider.participant.payoff
+
+
+
+# Umfrage - nur für den Berater
+class SeiteFragenAnDenBerater(Page):
+    # timeout_seconds = Constants.timeOutSeconds
+    form_model = 'player'
+    form_fields = ["Frage1A", "Frage1B", "Frage1C", "Frage1D","Frage1E", "Frage1F", "Frage2", "Frage3", "Frage4", "Frage5", "Frage61", "Frage62", "Frage63"]
+
+    @staticmethod
+    def is_displayed(player: Player):
+        # Nur für den Berater und nur in der letzten Runde 6
+        return (player.participant.zugeordneteRole == Constants.berater_role) and (player.round_number == 6)
+
+    @staticmethod
+    def error_message(player, values):
+        if values['Frage1A'] + values['Frage1B'] + values['Frage1C'] + values['Frage1E'] + values['Frage1E'] + values['Frage1F'] != 100:
+            return 'ERROR: The sum of the likelihoods for question 1) must add up to 100.'
+
+    @staticmethod
+    def vars_for_template(player: Player):
+        #TODO fest 6, weil in der letzten Runde!!!!
+        auszahlung = getAuszahlungArray(player.session, 6)
+        group = player.group
+        return {
+            'auszahlung': auszahlung,
+            'empfehlung': group.BeraterEmpfehlung,
+            'opferPart': (player.participant.zugeordneteRole == Constants.opfer_role),
+            'beraterPart': (player.participant.zugeordneteRole == Constants.berater_role),
+            'entscheiderPart': (player.participant.zugeordneteRole == Constants.entscheider_role),
+        }
+
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened):
+        group = player.group
+        group.BeraterEmpfehlung = player.Entscheidung
+        #print("Berater Empfehlung: player.Entscheidung: ", player.Entscheidung, " group.BeraterEmpfehlung: ", group.BeraterEmpfehlung)
+
 
 
 # Auszahlung und Statistik werden vorbereitet
@@ -303,22 +410,32 @@ class AuszahlungUmfrage(Page):
     def vars_for_template(player: Player):
 
         group = player.group
+        session = player.session
 
         # ToDO GGF Auszahlungskorrektur
         # if Auszahlung_Punkte_Opfer > 4900:
         #     Auszahlung_Punkte_Opfer = random.randint(135, 246)*20
 
         opfer = group.get_player_by_role(Constants.opfer_role).participant
-        name = ''.join(random.sample(string.ascii_uppercase, 6))
-        opfer.AuszahlungUserName = copy.deepcopy(name)
+        nameOpfer = ''.join(random.sample(string.ascii_uppercase, 6))
+        opfer.AuszahlungUserName = copy.deepcopy(nameOpfer)
+        group.OpferKennung = copy.deepcopy(nameOpfer)
+        # HIER über die Session!
+        group.OpferAuszahlungDKK = round(session.OpferAuszahlungPunkte / Constants.waehrungsFaktorDKK, 0)
 
         berater = group.get_player_by_role(Constants.berater_role).participant
-        name = ''.join(random.sample(string.ascii_uppercase, 6))
-        berater.AuszahlungUserName = copy.deepcopy(name)
+        nameBerater = ''.join(random.sample(string.ascii_uppercase, 6))
+        berater.AuszahlungUserName = copy.deepcopy(nameBerater)
+        group.BeraterKennung = copy.deepcopy(nameBerater)
+        group.BeraterAuszahlungDKK = round(session.BeraterAuszahlungPunkte / Constants.waehrungsFaktorDKK,0)
 
         entscheider = group.get_player_by_role(Constants.entscheider_role).participant
-        name = ''.join(random.sample(string.ascii_uppercase, 6))
-        entscheider.AuszahlungUserName = copy.deepcopy(name)
+        nameEntscheider = ''.join(random.sample(string.ascii_uppercase, 6))
+        entscheider.AuszahlungUserName = copy.deepcopy(nameEntscheider)
+        group.EntscheiderKennung = copy.deepcopy(nameEntscheider)
+        ## TODO NUR GANZE KRONEN - für andere Währungen könnte man hier auch mit 2 Nachkommastellen arbeiten (auf der Seite dann |to2 statt |to0)
+        group.EntscheiderAuszahlungDKK = round(session.EntscheiderAuszahlungPunkte / Constants.waehrungsFaktorDKK, 0)
+
 
 
 
@@ -341,4 +458,4 @@ class ErgebnisDisinterestedCouncil(Page):
         }
 
 
-page_sequence = [Intro, SeiteFuerDenBerater, WarteAufDenBerater, SeiteFuerDenEntscheider, WarteAufDenEntscheider, SeiteFuerDieOpfer, WarteAufDieOpfer, AuszahlungUmfrage, ErgebnisDisinterestedCouncil]
+page_sequence = [Intro, SeiteFuerDenBerater, WarteAufDenBerater, SeiteFuerDenEntscheider, WarteAufDenEntscheider, SeiteFuerDieOpfer, WarteAufDieOpfer, SeiteFragenAnDenBerater, AuszahlungUmfrage, ErgebnisDisinterestedCouncil]
