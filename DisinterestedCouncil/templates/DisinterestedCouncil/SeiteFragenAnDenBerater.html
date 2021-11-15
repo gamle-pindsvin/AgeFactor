@@ -2,7 +2,7 @@
 {{ extends "global/CSS_Page.html" }}
 {{ load otree }}
 
-{{ block title }} ////////// UMFRAGE /////////////{{ endblock }}
+{{ block title }}Questions{{ endblock }}
 
 {{ block app_scripts }}
 <!-- Soll nicht zurück springen können -->
@@ -97,7 +97,7 @@ window.onhashchange=function(){window.location.hash="no-back-button";}
     <tr><td colspan="12" class="td4">{{formfield 'Frage4' label=" "}}</td></tr>
     <tr><td colspan="12" class="td3"><b>5)</b> Project <b>{{empfehlung}}</b> will be implemented if Player Z implements this project. Please adjust the slide control, so that it shows how guilty you would feel if this happens?</td></tr>
     <tr><td colspan="12" class="td4">{{formfield 'Frage5' label=" "}}</td></tr>
-    <tr><td colspan="12" class="td3"><b>6)</b> Project <b>{{empfehlung}}</b> will be implemented if Player Z implements this project. Please adjust the slide control, so that it shows how you would perceive your responsibility as well as the responsibility of player Y and player Z in a scenario in which Project <b>{{empfehlung}}</b> is implemented. </td></tr>
+    <tr><td colspan="12" class="td3"><b>6)</b> Project <b>{{empfehlung}}</b> will be implemented if Player Z implements this project. Please adjust the slide control, so that it shows how you would perceive your responsibility as well as the responsibility of player X and player Z in a scenario in which Project <b>{{empfehlung}}</b> is implemented. </td></tr>
     <tr><td colspan="12" class="td4">{{formfield 'Frage61' label=" "}}</td></tr>
     <tr><td colspan="12" class="td4">{{formfield 'Frage62' label=" "}}</td></tr>
     <tr><td colspan="12" class="td4">{{formfield 'Frage63' label=" "}}</td></tr>
