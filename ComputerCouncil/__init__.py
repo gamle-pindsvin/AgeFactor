@@ -118,7 +118,7 @@ class Intro(Page):
             member_count += 1
 
         # wir ziehen eine davon aus 1 bis member_count (technisch 0 bis member_count.
-        #        -2 und nicht -1, weil die erste Zeile Header ist und rows den nicht mehr hat
+        #      es wird -2 und nicht -1 abgezogen, weil die erste Zeile Header ist und rows den nicht mehr hat
         zufallKlickFolgeIndex = random.randint(0,member_count-2)
         zufallKlickFolge = rows[zufallKlickFolgeIndex]
         print("zufallKlickFolge: ", zufallKlickFolge, " index: ", zufallKlickFolgeIndex)

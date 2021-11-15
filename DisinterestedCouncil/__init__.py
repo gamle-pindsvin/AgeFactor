@@ -2,6 +2,7 @@ from otree.api import *
 import random
 import copy
 import string
+import io
 
 class Constants(BaseConstants):
     name_in_url = 'DisinterestedCouncil'
@@ -55,6 +56,7 @@ class Group(BaseGroup):
     OpferKennung = models.StringField(initial="NOVALUE")
     OpferAuszahlungDKK = models.FloatField()
     OpferAuszahlungPunkte = models.IntegerField()
+    BeraterKlickfolge = models.StringField(initial="NOVALUE")
 
 
 class Player(BasePlayer):
@@ -73,8 +75,11 @@ class Player(BasePlayer):
     Frage4 = models.StringField(choices=[['5', 'Very responsible'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'Not responsible at all']], widget=widgets.RadioSelectHorizontal)
     Frage5 = models.StringField(choices=[['5', 'I would feel very guilty'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'I would not feel guilty at all']], widget=widgets.RadioSelectHorizontal)
     Frage61 = models.StringField(choices=[['5', 'I am fully responsible'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'I am not responsible']], widget=widgets.RadioSelectHorizontal)
-    Frage62 = models.StringField(choices=[['5', 'Player X is fully responsible'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'Player X is not responsible']], widget=widgets.RadioSelectHorizontal)
+    Frage62e = models.StringField(choices=[['5', 'Player Y is fully responsible'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'Player Y is not responsible']], widget=widgets.RadioSelectHorizontal)
+    Frage62b = models.StringField(choices=[['5', 'Player X is fully responsible'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'Player X is not responsible']], widget=widgets.RadioSelectHorizontal)
     Frage63 = models.StringField(choices=[['5', 'Player Z is fully responsible'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'Player Z is not responsible']], widget=widgets.RadioSelectHorizontal)
+    # FRAGE 7 steht nur beim Entscheider und zwar als die NUMMER 4 auf der Liste!!!
+    Frage7 = models.StringField(choices=[['5', 'Very important'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'Not important at all']], widget=widgets.RadioSelectHorizontal)
 
 
     # Statistik am Ende
@@ -165,7 +170,7 @@ def getTeamAuszahlung(auswahlChar, auszahlungsArray):
         if letterArray[i] == auswahlChar:
             result = auszahlungsArray[2*i]
             resultFound = True
-            print(txtT.format(auswahlChar, result))
+            #print(txtT.format(auswahlChar, result))
     if (not resultFound):
         print("Something gets wrong. group.EndgueltigeEntscheidung: " + auswahlChar)
     return result
@@ -181,7 +186,7 @@ def getOpferAuszahlung(auswahlChar, auszahlungsArray):
         if letterArray[i] == auswahlChar:
             result = auszahlungsArray[2*i+1]
             resultFound = True
-            print(txtO.format(auswahlChar, result))
+            #print(txtO.format(auswahlChar, result))
     if (not resultFound):
         print("Something gets wrong. group.EndgueltigeEntscheidung: " + auswahlChar)
     return result
@@ -212,6 +217,15 @@ class SeiteFuerDenBerater(Page):
     def before_next_page(player: Player, timeout_happened):
         group = player.group
         group.BeraterEmpfehlung = player.Entscheidung
+        session = player.session
+        if player.round_number == 1:
+            session.BeraterKlickfolge = ""
+        session.BeraterKlickfolge += player.Entscheidung
+        if player.round_number != 6:
+            session.BeraterKlickfolge += ","
+        else:
+            group.BeraterKlickfolge = session.BeraterKlickfolge
+
         #print("Berater Empfehlung: player.Entscheidung: ", player.Entscheidung, " group.BeraterEmpfehlung: ", group.BeraterEmpfehlung)
 
 
@@ -255,6 +269,7 @@ class SeiteFuerDenEntscheider(Page):
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
         player.group.EntscheiderEmpfehlung = player.Entscheidung
+
 
 # Auswahl des Entscheiders. Opfer und Berater warten
 class WarteAufDenEntscheider(WaitPage):
@@ -363,7 +378,7 @@ class WarteAufDieOpfer(WaitPage):
 class SeiteFragenAnDenBerater(Page):
     # timeout_seconds = Constants.timeOutSeconds
     form_model = 'player'
-    form_fields = ["Frage1A", "Frage1B", "Frage1C", "Frage1D","Frage1E", "Frage1F", "Frage2", "Frage3", "Frage4", "Frage5", "Frage61", "Frage62", "Frage63"]
+    form_fields = ["Frage1A", "Frage1B", "Frage1C", "Frage1D","Frage1E", "Frage1F", "Frage2", "Frage3", "Frage4", "Frage5", "Frage61", "Frage62b", "Frage63"]
 
     @staticmethod
     def is_displayed(player: Player):
@@ -372,7 +387,7 @@ class SeiteFragenAnDenBerater(Page):
 
     @staticmethod
     def error_message(player, values):
-        if values['Frage1A'] + values['Frage1B'] + values['Frage1C'] + values['Frage1E'] + values['Frage1E'] + values['Frage1F'] != 100:
+        if values['Frage1A'] + values['Frage1B'] + values['Frage1C'] + values['Frage1D'] + values['Frage1E'] + values['Frage1F'] != 100:
             return 'ERROR: The sum of the likelihoods for question 1) must add up to 100.'
 
     @staticmethod
@@ -393,6 +408,38 @@ class SeiteFragenAnDenBerater(Page):
         group = player.group
         group.BeraterEmpfehlung = player.Entscheidung
         #print("Berater Empfehlung: player.Entscheidung: ", player.Entscheidung, " group.BeraterEmpfehlung: ", group.BeraterEmpfehlung)
+
+# Umfrage - nur für den Entscheider
+class SeiteFragenAnDenEntscheider(Page):
+    # timeout_seconds = Constants.timeOutSeconds
+    form_model = 'player'
+    # FRAGE 7 steht auf der Form unter der Nummer 4) !!!!!!!!!!!!!!!!!! Die anderen verschieben sich um eine Frage4 ist also 5) usw. "Frage4" ist dagegen nicht drin - Sonst knallt die Vlidierung
+    form_fields = ["Frage1A", "Frage1B", "Frage1C", "Frage1D","Frage1E", "Frage1F", "Frage2", "Frage3",  "Frage5", "Frage61", "Frage62e", "Frage63", "Frage7"]
+
+    @staticmethod
+    def is_displayed(player: Player):
+        # Nur für den Berater und nur in der letzten Runde 6
+        return (player.participant.zugeordneteRole == Constants.entscheider_role) and (player.round_number == 6)
+
+    @staticmethod
+    def error_message(player, values):
+        if values['Frage1A'] + values['Frage1B'] + values['Frage1C'] + values['Frage1D'] + values['Frage1E'] + values['Frage1F'] != 100:
+            #print(values['Frage1A'] + values['Frage1B'] + values['Frage1C'] + values['Frage1D'] + values['Frage1E'] + values['Frage1F'])
+            return 'ERROR: The sum of the likelihoods for question 1) must add up to 100.'
+
+    @staticmethod
+    def vars_for_template(player: Player):
+        #TODO fest 6, weil in der letzten Runde!!!!
+        auszahlung = getAuszahlungArray(player.session, 6)
+        group = player.group
+        return {
+            'auszahlung': auszahlung,
+            'empfehlungBerater': group.BeraterEmpfehlung,
+            'empfehlung': group.EntscheiderEmpfehlung,
+            'opferPart': (player.participant.zugeordneteRole == Constants.opfer_role),
+            'beraterPart': (player.participant.zugeordneteRole == Constants.berater_role),
+            'entscheiderPart': (player.participant.zugeordneteRole == Constants.entscheider_role),
+        }
 
 
 
@@ -458,4 +505,4 @@ class ErgebnisDisinterestedCouncil(Page):
         }
 
 
-page_sequence = [Intro, SeiteFuerDenBerater, WarteAufDenBerater, SeiteFuerDenEntscheider, WarteAufDenEntscheider, SeiteFuerDieOpfer, WarteAufDieOpfer, SeiteFragenAnDenBerater, AuszahlungUmfrage, ErgebnisDisinterestedCouncil]
+page_sequence = [Intro, SeiteFuerDenBerater, WarteAufDenBerater, SeiteFuerDenEntscheider, WarteAufDenEntscheider, SeiteFuerDieOpfer, WarteAufDieOpfer, SeiteFragenAnDenBerater, SeiteFragenAnDenEntscheider, AuszahlungUmfrage, ErgebnisDisinterestedCouncil]

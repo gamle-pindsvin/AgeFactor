@@ -379,7 +379,7 @@ class SeiteFragenAnDenBerater(Page):
 
     @staticmethod
     def error_message(player, values):
-        if values['Frage1A'] + values['Frage1B'] + values['Frage1C'] + values['Frage1E'] + values['Frage1E'] + values['Frage1F'] != 100:
+        if values['Frage1A'] + values['Frage1B'] + values['Frage1C'] + values['Frage1D'] + values['Frage1E'] + values['Frage1F'] != 100:
             return 'ERROR: The sum of the likelihoods for question 1) must add up to 100.'
 
     @staticmethod
@@ -416,7 +416,7 @@ class SeiteFragenAnDenEntscheider(Page):
 
     @staticmethod
     def error_message(player, values):
-        if values['Frage1A'] + values['Frage1B'] + values['Frage1C'] + values['Frage1E'] + values['Frage1E'] + values['Frage1F'] != 100:
+        if values['Frage1A'] + values['Frage1B'] + values['Frage1C'] + values['Frage1D'] + values['Frage1E'] + values['Frage1F'] != 100:
             return 'ERROR: The sum of the likelihoods for question 1) must add up to 100.'
 
     @staticmethod
