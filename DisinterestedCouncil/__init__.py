@@ -20,6 +20,8 @@ class Constants(BaseConstants):
     timeOutSeconds = 600
     waehrungsFaktorDKK = 7.0
 
+
+
 class Subsession(BaseSubsession):
     pass
         #subsession.A_Team_Werte = [60, 180, 200, 100]
@@ -469,12 +471,14 @@ class AuszahlungUmfrage(Page):
         group.OpferKennung = copy.deepcopy(nameOpfer)
         # HIER über die Session!
         group.OpferAuszahlungDKK = round(session.OpferAuszahlungPunkte / Constants.waehrungsFaktorDKK, 0)
+        group.OpferAuszahlungPunkte = session.OpferAuszahlungPunkte
 
         berater = group.get_player_by_role(Constants.berater_role).participant
         nameBerater = ''.join(random.sample(string.ascii_uppercase, 6))
         berater.AuszahlungUserName = copy.deepcopy(nameBerater)
         group.BeraterKennung = copy.deepcopy(nameBerater)
         group.BeraterAuszahlungDKK = round(session.BeraterAuszahlungPunkte / Constants.waehrungsFaktorDKK,0)
+        group.BeraterAuszahlungPunkte = session.BeraterAuszahlungPunkte
 
         entscheider = group.get_player_by_role(Constants.entscheider_role).participant
         nameEntscheider = ''.join(random.sample(string.ascii_uppercase, 6))
@@ -482,6 +486,8 @@ class AuszahlungUmfrage(Page):
         group.EntscheiderKennung = copy.deepcopy(nameEntscheider)
         ## TODO NUR GANZE KRONEN - für andere Währungen könnte man hier auch mit 2 Nachkommastellen arbeiten (auf der Seite dann |to2 statt |to0)
         group.EntscheiderAuszahlungDKK = round(session.EntscheiderAuszahlungPunkte / Constants.waehrungsFaktorDKK, 0)
+        group.EntscheiderAuszahlungPunkte = session.EntscheiderAuszahlungPunkte
+
 
 
 
