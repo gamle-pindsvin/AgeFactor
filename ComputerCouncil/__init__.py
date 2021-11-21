@@ -8,7 +8,7 @@ import os
 class Constants(BaseConstants):
     name_in_url = 'Computer_Counsel'
     players_per_group = 2
-    num_rounds = 6
+    num_rounds = 10
 
     # REIHENFOLGE der Rollen wichtig - wird später in player.role übernommen!!!
     opfer_role = 'Opfer'

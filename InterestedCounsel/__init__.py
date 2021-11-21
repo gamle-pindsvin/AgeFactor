@@ -6,7 +6,7 @@ import string
 class Constants(BaseConstants):
     name_in_url = 'Interested_Counsel'
     players_per_group = 3
-    num_rounds = 6
+    num_rounds = 10
 
     # REIHENFOLGE der Rollen wichtig - wird später in player.role übernommen!!!
     opfer_role = 'Opfer'
@@ -16,26 +16,11 @@ class Constants(BaseConstants):
     timeOutSeconds = 600
     waehrungsFaktorDKK = 7.0
 
+    # Prozentualler Anteil des Beraters am Ertrag des Entscheiders, in %
+    berater_anteil_in_prozent = 80
+
 class Subsession(BaseSubsession):
     pass
-        #subsession.A_Team_Werte = [60, 180, 200, 100]
-        #subsession.A_Opfer_Werte = [180, 60, 100, 50]
-        #subsession.B_Team_Werte = [180, 60, 100, 200]
-        #subsession.B_Opfer_Werte = [60, 180, 50, 100]
-        #subsession.C_Team_Werte = [240, 0, 150, 150]
-        #subsession.C_Opfer_Werte = [0, 240, 75, 75]
-
-        # Welcher Spielart kommt wann
-        #subsession.Wertigkeit_Folge = [1, 4, 2, 1, 3, 2]
-
-
-        # Auszahlungen werden hier zwischengespeichert. Für das Opfer direkt und für das Team als Array
-        #subsession.AuszahlungInPunktenFuerDasOpfer = 0
-
-        # Folge der Auszahlungen für das Team (das, was in der Runde erhalten wurde, wird diesem Team-Spieler zugeschlagen.
-        # SPÄTER EVTL. echte Zufall-Zuordnung
-        #subsession.Auszahlung_Folge = [1, 1, 2, 2, 1, 2]
-
 
 class Group(BaseGroup):
     BeraterEmpfehlung = models.StringField(initial="NOVALUE")
@@ -117,10 +102,12 @@ class Intro(Page):
         # Welche Spielart (Spiel 1 bis 4) kommt wann vor
         session.Spielarten_Folge = [1, 4, 2, 1, 3, 2]
 
+        # BERATER VERDIENT JETZT ANTEILIG
+
         # Folge der Auszahlungen für das Team (das, was in der Runde erhalten wurde, wird diesem Team-Spieler zugeschlagen.
         # SPÄTER EVTL. echte Zufall-Zuordnung
         # 1 - Berater, 2 - Entscheider
-        session.AuszahlungImTeamFolge = [1, 1, 2, 2, 1, 2]
+        #session.AuszahlungImTeamFolge = [1, 1, 2, 2, 1, 2]
 
 
         # oTree will then automatically assign each role to a different player (sequentially according to id_in_group).
@@ -206,6 +193,7 @@ class SeiteFuerDenBerater(Page):
             'opferPart': (player.participant.zugeordneteRole == Constants.opfer_role),
             'beraterPart': (player.participant.zugeordneteRole == Constants.berater_role),
             'entscheiderPart': (player.participant.zugeordneteRole == Constants.entscheider_role),
+            'berater_anteil_in_prozent': Constants.berater_anteil_in_prozent
         }
 
     @staticmethod
@@ -314,21 +302,20 @@ class WarteAufDieOpfer(WaitPage):
         ## auszahlung = getAuszahlungArray(player)
         auszahlung = getAuszahlungArray(session, round_number)
 
+        # BERATER VERDIENT JETZT ANTEILIG
+
         #  Jetzt - wer bekommt aus dem Team - Entscheider oder Berater z.B. [1, 1, 2, 2, 1, 2]
         # 1 - Berater, 2 - Entscheider
-        AuszahlungImTeamFolge = session.AuszahlungImTeamFolge
-        posInArray = round_number - 1
-        auszahlungAnBerater = (AuszahlungImTeamFolge[posInArray] == 1)
+        # AuszahlungImTeamFolge = session.AuszahlungImTeamFolge
+        # posInArray = round_number - 1
+        # auszahlungAnBerater = (AuszahlungImTeamFolge[posInArray] == 1)
 
         # Je nach Auswahl werden die Zuwächse zugewiesen
         # Zuest schauen wir, ob überhaupt etwas übergeben
         if (group.EndgueltigeEntscheidung is not None):
             opferInkrement = getOpferAuszahlung(group.EndgueltigeEntscheidung, auszahlung)
-            if auszahlungAnBerater:
-                beraterInkrement = getTeamAuszahlung(group.EndgueltigeEntscheidung, auszahlung)
-            else:
-                entscheiderInkrement = getTeamAuszahlung(group.EndgueltigeEntscheidung, auszahlung)
-
+            entscheiderInkrement = getTeamAuszahlung(group.EndgueltigeEntscheidung, auszahlung)
+            beraterInkrement = round((entscheiderInkrement*Constants.berater_anteil_in_prozent)/ 100, 0)
 
         # Payoffs werden erhöht
         # Problem mit direkten Payoffs ist die Anzeige der Punkte - entweder beides als KR oder beides in POINTS
@@ -338,31 +325,16 @@ class WarteAufDieOpfer(WaitPage):
         #group.OpferAuszahlungPunkte = group.OpferAuszahlungPunkte + opferInkrement
         session.OpferAuszahlungPunkte += opferInkrement
 
-        # NUR IN DER LETZTEN RUNDE
-        #nameOpfer = ''.join(random.sample(string.ascii_uppercase, 6))
-        #group.OpferKennung = copy.deepcopy(nameOpfer)
-        #group.OpferAuszahlungDKK = group.OpferAuszahlungPunkte / Constants.waehrungsFaktorDKK
-        #opfer.payoff = opfer.participant.payoff
-
         berater = group.get_player_by_role(Constants.berater_role)
         berater.participant.payoff += beraterInkrement
         #group.BeraterAuszahlungPunkte += beraterInkrement
         session.BeraterAuszahlungPunkte += beraterInkrement
-
-        #nameBerater = ''.join(random.sample(string.ascii_uppercase, 6))
-        #group.BeraterKennung = copy.deepcopy(nameBerater)
-        #group.BeraterAuszahlungPunkte = berater.participant.payoff
-        #group.BeraterAuszahlungDKK = berater.participant.payoff / Constants.waehrungsFaktorDKK
 
         entscheider = group.get_player_by_role(Constants.entscheider_role)
         entscheider.participant.payoff += entscheiderInkrement
         #group.EntscheiderAuszahlungPunkte += entscheiderInkrement
         session.EntscheiderAuszahlungPunkte += entscheiderInkrement
 
-        #nameEntscheider = ''.join(random.sample(string.ascii_uppercase, 6))
-        #group.EntscheiderKennung = copy.deepcopy(nameEntscheider)
-        #group.EntscheiderAuszahlungDKK = entscheider.participant.payoff / Constants.waehrungsFaktorDKK
-        #entscheider.payoff = entscheider.participant.payoff
 
 
 

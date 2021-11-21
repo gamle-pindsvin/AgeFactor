@@ -7,7 +7,7 @@ import io
 class Constants(BaseConstants):
     name_in_url = 'DisinterestedCouncil'
     players_per_group = 3
-    num_rounds = 6
+    num_rounds = 10
 
     # REIHENFOLGE der Rollen wichtig - wird später in player.role übernommen!!!
     opfer_role = 'Opfer'
