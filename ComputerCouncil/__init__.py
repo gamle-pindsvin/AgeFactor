@@ -15,7 +15,7 @@ class Constants(BaseConstants):
     entscheider_role = 'Entscheider'
 
     timeOutSeconds = 600
-    waehrungsFaktorDKK = 7.0
+    waehrungsFaktorDKK = 10.0
 
 
 
@@ -93,14 +93,15 @@ class Intro(Page):
         # ABWEICHEND vom letzten Experiment keine SPALTEN sondenr Array aus Arrays
         # Auszahlungen in der Form
         # [ Auswahl A - Team | Auswahl A - Oper | Ausw. B - Team | Ausw. B - Opfer | Ausw. C - Team | Ausw.C - Opfer ]
-        angeboteSpiel1 = [60, 180, 180, 60, 240, 0, 60, 180, 180, 60, 240, 0]
-        angeboteSpiel2 = [180, 60, 60, 180, 0, 240, 180, 60, 60, 180, 0, 240]
-        angeboteSpiel3 = [200, 100, 100, 50, 150, 75, 200, 100, 100, 50, 150, 75]
-        angeboteSpiel4 = [100, 50, 200, 100, 150, 75, 100, 50, 200, 100, 150, 75]
-        session.AngebotsMatrix = [angeboteSpiel1, angeboteSpiel2, angeboteSpiel3, angeboteSpiel4]
+        angeboteSpiel1 = [60, 180, 210, 30, 150, 90, 180, 60, 30, 210, 90, 150]
+        angeboteSpiel2 = [210, 30, 150, 90, 180, 60, 30, 210, 90, 150, 60, 180]
+        angeboteSpiel3 = [30, 210, 90, 150, 60, 180, 210, 30, 150, 90, 180, 60]
+        angeboteSpiel4 = [90, 90, 30, 30, 120, 120, 80, 80, 100, 100, 60, 60]
+        angeboteSpiel5 = [80, 80, 100, 100, 60, 60, 90, 90, 30, 30, 120, 120]
+        session.AngebotsMatrix = [angeboteSpiel1, angeboteSpiel2, angeboteSpiel3, angeboteSpiel4, angeboteSpiel5]
 
         # Welche Spielart (Spiel 1 bis 4) kommt wann vor
-        session.Spielarten_Folge = [1, 4, 2, 1, 3, 2]
+        session.Spielarten_Folge = [1, 4, 2, 5, 3, 2, 5, 4, 1, 3]
 
         # Speichern im "Participant" ist wichtig, weil derselbe Spieler in wetieren Runden evtl. eine andere Nummer hat
         player.participant.zugeordneteRole = player.role

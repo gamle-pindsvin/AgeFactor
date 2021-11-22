@@ -15,32 +15,15 @@ class Constants(BaseConstants):
     berater_role = 'Berater'
 
     # Flat-Auszahlung für den Berater
-    berater_auszahlung_pro_Runde = 60
+    berater_auszahlung_pro_Runde = 70
 
     timeOutSeconds = 600
-    waehrungsFaktorDKK = 7.0
+    waehrungsFaktorDKK = 10.0
 
 
 
 class Subsession(BaseSubsession):
     pass
-        #subsession.A_Team_Werte = [60, 180, 200, 100]
-        #subsession.A_Opfer_Werte = [180, 60, 100, 50]
-        #subsession.B_Team_Werte = [180, 60, 100, 200]
-        #subsession.B_Opfer_Werte = [60, 180, 50, 100]
-        #subsession.C_Team_Werte = [240, 0, 150, 150]
-        #subsession.C_Opfer_Werte = [0, 240, 75, 75]
-
-        # Welcher Spielart kommt wann
-        #subsession.Wertigkeit_Folge = [1, 4, 2, 1, 3, 2]
-
-
-        # Auszahlungen werden hier zwischengespeichert. Für das Opfer direkt und für das Team als Array
-        #subsession.AuszahlungInPunktenFuerDasOpfer = 0
-
-        # Folge der Auszahlungen für das Team (das, was in der Runde erhalten wurde, wird diesem Team-Spieler zugeschlagen.
-        # SPÄTER EVTL. echte Zufall-Zuordnung
-        #subsession.Auszahlung_Folge = [1, 1, 2, 2, 1, 2]
 
 
 class Group(BaseGroup):
@@ -64,6 +47,10 @@ class Group(BaseGroup):
 class Player(BasePlayer):
 
     Entscheidung = models.StringField(choices=[['A', 'A'], ['B', 'B'], ['C', 'C'], ['D', 'D'], ['E', 'E'], ['F', 'F']], widget=widgets.RadioSelect)
+
+    # Für den Berater-Quiz
+    Quiz1 = models.StringField(choices=[['1', 'Auswahl 1'], ['2', 'Auswahl 2'], ['3', 'Auswahl 3']], widget=widgets.RadioSelect)
+    Quiz2 = models.StringField(choices=[['1', 'Auswahl A'], ['2', 'Auswahl B'], ['3', 'Auswahl C']], widget=widgets.RadioSelect)
 
     # Für die Umfrage des Beraters
     Frage1A = models.IntegerField(min=0, max=100)
@@ -97,63 +84,8 @@ class Player(BasePlayer):
     AuszahlungInDKK = models.CurrencyField(initial=0)
     AuszahlungUserName = models.StringField()
 
-
-class Intro(Page):
-    # timeout_seconds = Constants.timeOutSeconds
-    form_model = 'player'
-
-    @staticmethod
-    def is_displayed(player: Player):
-        return player.round_number == 1
-
-    @staticmethod
-    def before_next_page(player: Player, timeout_happened):
-
-        session = player.session
-
-        # Hier wird die "Angebotsmatrix" festgelegt - welche Prämie für welche Entscheidung
-        # ABWEICHEND vom letzten Experiment keine SPALTEN sondenr Array aus Arrays
-        # Auszahlungen in der Form
-        # [ Auswahl A - Team | Auswahl A - Oper | Ausw. B - Team | Ausw. B - Opfer | Ausw. C - Team | Ausw.C - Opfer ]
-        angeboteSpiel1 = [60, 180, 180, 60, 240, 0, 60, 180, 180, 60, 240, 0]
-        angeboteSpiel2 = [180, 60, 60, 180, 0, 240, 180, 60, 60, 180, 0, 240]
-        angeboteSpiel3 = [200, 100, 100, 50, 150, 75, 200, 100, 100, 50, 150, 75]
-        angeboteSpiel4 = [100, 50, 200, 100, 150, 75, 100, 50, 200, 100, 150, 75]
-        session.AngebotsMatrix = [angeboteSpiel1, angeboteSpiel2, angeboteSpiel3, angeboteSpiel4]
-
-        # Welche Spielart (Spiel 1 bis 4) kommt wann vor
-        session.Spielarten_Folge = [1, 4, 2, 1, 3, 2]
-
-        # Folge der Auszahlungen für das Team (das, was in der Runde erhalten wurde, wird diesem Team-Spieler zugeschlagen.
-        # SPÄTER EVTL. echte Zufall-Zuordnung
-        # 1 - Berater, 2 - Entscheider
-        session.AuszahlungImTeamFolge = [1, 1, 2, 2, 1, 2]
-
-
-        # oTree will then automatically assign each role to a different player (sequentially according to id_in_group).
-        # Rollen WERDEN von Otree Automatisch festgelegt also Quasi
-
-        #  group.get_player_by_id(1).role = Constants.opfer_role
-        #  group.get_player_by_id(2).role = Constants.berater_role
-        #  group.get_player_by_id(3).role = Constants.entscheider_role
-
-        # Speichern im "Participant" ist wichtig, weil derselbe Spieler in wetieren Runden evtl. eine andere Nummer hat
-        player.participant.zugeordneteRole = player.role
-
-        # Neues Spiel - neue Auszahlung.
-        player.payoff = 0
-        player.participant.payoff = 0
-
-        # Payoff macht Probleme in der Anzeige, entweder POINTS oder Kr für beides. Daher über die Session
-        session.EntscheiderAuszahlungPunkte = 0
-        session.BeraterAuszahlungPunkte = 0
-        session.OpferAuszahlungPunkte = 0
-
-
-
-
 # Pro Spiel wird die Runde aus der Session gelesen
-# Zurück kommt der Auszahlungsarray  
+# Zurück kommt der Auszahlungsarray
 #   [ Auswahl A - Team | Auswahl A - Oper | Ausw. B - Team | Ausw. B - Opfer | Ausw. C - Team | Ausw.C - Opfer ]
 def getAuszahlungArray(session: Subsession, round_number):
     posInArray = round_number - 1
@@ -194,6 +126,101 @@ def getOpferAuszahlung(auswahlChar, auszahlungsArray):
     return result
 
 
+class Intro(Page):
+    # timeout_seconds = Constants.timeOutSeconds
+    form_model = 'player'
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
+
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened):
+
+        session = player.session
+
+        # Hier wird die "Angebotsmatrix" festgelegt - welche Prämie für welche Entscheidung
+        # ABWEICHEND vom letzten Experiment keine SPALTEN sondenr Array aus Arrays
+        # Auszahlungen in der Form
+        # [ Auswahl A - Team | Auswahl A - Oper | Ausw. B - Team | Ausw. B - Opfer | Ausw. C - Team | Ausw.C - Opfer ]
+        angeboteSpiel1 = [60, 180, 210, 30, 150, 90, 180, 60, 30, 210, 90, 150]
+        angeboteSpiel2 = [210, 30, 150, 90, 180, 60, 30, 210, 90, 150, 60, 180]
+        angeboteSpiel3 = [30, 210, 90, 150, 60, 180, 210, 30, 150, 90, 180, 60]
+        angeboteSpiel4 = [90, 90, 30, 30, 120, 120, 80, 80, 100, 100, 60, 60]
+        angeboteSpiel5 = [80, 80, 100, 100, 60, 60, 90, 90, 30, 30, 120, 120]
+        session.AngebotsMatrix = [angeboteSpiel1, angeboteSpiel2, angeboteSpiel3, angeboteSpiel4, angeboteSpiel5]
+
+        # Welche Spielart (Spiel 1 bis 4) kommt wann vor
+        session.Spielarten_Folge = [1, 4, 2, 5, 3, 2, 5, 4, 1, 3]
+
+        # Folge der Auszahlungen für das Team (das, was in der Runde erhalten wurde, wird diesem Team-Spieler zugeschlagen.
+        # SPÄTER EVTL. echte Zufall-Zuordnung
+        # 1 - Berater, 2 - Entscheider
+        session.AuszahlungImTeamFolge = [1, 1, 2, 2, 1, 2, 1, 1, 2, 1]
+
+#TODO: Berater verdient flat
+
+        # oTree will then automatically assign each role to a different player (sequentially according to id_in_group).
+        # Rollen WERDEN von Otree Automatisch festgelegt also Quasi
+
+        #  group.get_player_by_id(1).role = Constants.opfer_role
+        #  group.get_player_by_id(2).role = Constants.berater_role
+        #  group.get_player_by_id(3).role = Constants.entscheider_role
+
+        # Speichern im "Participant" ist wichtig, weil derselbe Spieler in wetieren Runden evtl. eine andere Nummer hat
+        player.participant.zugeordneteRole = player.role
+
+        # Neues Spiel - neue Auszahlung.
+        player.payoff = 0
+        player.participant.payoff = 0
+
+        # Payoff macht Probleme in der Anzeige, entweder POINTS oder Kr für beides. Daher über die Session
+        session.EntscheiderAuszahlungPunkte = 0
+        session.BeraterAuszahlungPunkte = 0
+        session.OpferAuszahlungPunkte = 0
+
+
+class RoleBerater(Page):
+    # timeout_seconds = Constants.timeOutSeconds
+    form_model = 'player'
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return (player.participant.zugeordneteRole == Constants.berater_role) and (player.round_number == 1)
+
+
+# Verständnis-Quiz
+class QuizBerater(Page):
+    # timeout_seconds = Constants.timeOutSeconds
+    form_model = 'player'
+    form_fields = ["Quiz1", "Quiz2"]
+
+    @staticmethod
+    def is_displayed(player: Player):
+        # Nur für den Berater und nur in der ersten Runde
+        return (player.participant.zugeordneteRole == Constants.berater_role) and (player.round_number == 1)
+
+    @staticmethod
+    def vars_for_template(player: Player):
+        #TODO Auszahlung in der echten 1. Runde!!!! Ggf. andere Auszahlungen?
+        auszahlung = getAuszahlungArray(player.session, 1)
+        group = player.group
+        return {
+            'auszahlung': auszahlung,
+            'empfehlung': group.BeraterEmpfehlung,
+            'opferPart': (player.participant.zugeordneteRole == Constants.opfer_role),
+            'beraterPart': (player.participant.zugeordneteRole == Constants.berater_role),
+            'entscheiderPart': (player.participant.zugeordneteRole == Constants.entscheider_role),
+        }
+
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened):
+        pass
+        #group = player.group
+        #group.BeraterEmpfehlung = player.Entscheidung
+        #print("Berater Empfehlung: player.Entscheidung: ", player.Entscheidung, " group.BeraterEmpfehlung: ", group.BeraterEmpfehlung)
+
+
 
 class SeiteFuerDenBerater(Page):
    # timeout_seconds = Constants.timeOutSeconds
@@ -223,7 +250,7 @@ class SeiteFuerDenBerater(Page):
         if player.round_number == 1:
             session.BeraterKlickfolge = ""
         session.BeraterKlickfolge += player.Entscheidung
-        if player.round_number != 6:
+        if player.round_number != 10:
             session.BeraterKlickfolge += ","
         else:
             group.BeraterKlickfolge = session.BeraterKlickfolge
@@ -311,7 +338,7 @@ class SeiteFuerDieOpfer(Page):
 
 # Auswahl des Opfer. Berater und Entscheider warten
 class WarteAufDieOpfer(WaitPage):
-    body_text = "Waiting for the other participants ???? ggf. schreiben, dass gerade der I-Participant entscheidet?"
+    body_text = "Waiting for the other participants"
     @staticmethod
     def after_all_players_arrive(group: Group):
 
@@ -384,8 +411,8 @@ class SeiteFragenAnDenBerater(Page):
 
     @staticmethod
     def is_displayed(player: Player):
-        # Nur für den Berater und nur in der letzten Runde 6
-        return (player.participant.zugeordneteRole == Constants.berater_role) and (player.round_number == 6)
+        # Nur für den Berater und nur in der letzten Runde
+        return (player.participant.zugeordneteRole == Constants.berater_role) and (player.round_number == Constants.num_rounds)
 
     @staticmethod
     def error_message(player, values):
@@ -394,8 +421,7 @@ class SeiteFragenAnDenBerater(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
-        #TODO fest 6, weil in der letzten Runde!!!!
-        auszahlung = getAuszahlungArray(player.session, 6)
+        auszahlung = getAuszahlungArray(player.session, Constants.num_rounds)
         group = player.group
         return {
             'auszahlung': auszahlung,
@@ -420,8 +446,8 @@ class SeiteFragenAnDenEntscheider(Page):
 
     @staticmethod
     def is_displayed(player: Player):
-        # Nur für den Berater und nur in der letzten Runde 6
-        return (player.participant.zugeordneteRole == Constants.entscheider_role) and (player.round_number == 6)
+        # Nur für den Berater und nur in der letzten Runde
+        return (player.participant.zugeordneteRole == Constants.entscheider_role) and (player.round_number == Constants.num_rounds)
 
     @staticmethod
     def error_message(player, values):
@@ -431,8 +457,7 @@ class SeiteFragenAnDenEntscheider(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
-        #TODO fest 6, weil in der letzten Runde!!!!
-        auszahlung = getAuszahlungArray(player.session, 6)
+        auszahlung = getAuszahlungArray(player.session, Constants.num_rounds)
         group = player.group
         return {
             'auszahlung': auszahlung,
@@ -452,9 +477,8 @@ class AuszahlungUmfrage(Page):
     form_fields = ['Fachrichtung', 'Altersgruppe', 'Geschlecht']
 
     def is_displayed(player: Player):
-        # FEST die letzte 12. Runde des letzten Spiels
-        # NATÜRLICH AM ENDE - 12 nicht 6 ################################ !!!! ###############################################
-        return player.round_number == 6
+        # Nur in der letzten Runde
+        return player.round_number == Constants.num_rounds
 
     def vars_for_template(player: Player):
 
@@ -466,7 +490,7 @@ class AuszahlungUmfrage(Page):
         #     Auszahlung_Punkte_Opfer = random.randint(135, 246)*20
 
         opfer = group.get_player_by_role(Constants.opfer_role).participant
-        nameOpfer = ''.join(random.sample(string.ascii_uppercase, 6))
+        nameOpfer = ''.join(random.sample(string.ascii_uppercase, 10))
         opfer.AuszahlungUserName = copy.deepcopy(nameOpfer)
         group.OpferKennung = copy.deepcopy(nameOpfer)
         # HIER über die Session!
@@ -474,14 +498,14 @@ class AuszahlungUmfrage(Page):
         group.OpferAuszahlungPunkte = session.OpferAuszahlungPunkte
 
         berater = group.get_player_by_role(Constants.berater_role).participant
-        nameBerater = ''.join(random.sample(string.ascii_uppercase, 6))
+        nameBerater = ''.join(random.sample(string.ascii_uppercase, 10))
         berater.AuszahlungUserName = copy.deepcopy(nameBerater)
         group.BeraterKennung = copy.deepcopy(nameBerater)
         group.BeraterAuszahlungDKK = round(session.BeraterAuszahlungPunkte / Constants.waehrungsFaktorDKK,0)
         group.BeraterAuszahlungPunkte = session.BeraterAuszahlungPunkte
 
         entscheider = group.get_player_by_role(Constants.entscheider_role).participant
-        nameEntscheider = ''.join(random.sample(string.ascii_uppercase, 6))
+        nameEntscheider = ''.join(random.sample(string.ascii_uppercase, 10))
         entscheider.AuszahlungUserName = copy.deepcopy(nameEntscheider)
         group.EntscheiderKennung = copy.deepcopy(nameEntscheider)
         ## TODO NUR GANZE KRONEN - für andere Währungen könnte man hier auch mit 2 Nachkommastellen arbeiten (auf der Seite dann |to2 statt |to0)
@@ -497,9 +521,7 @@ class AuszahlungUmfrage(Page):
 class ErgebnisDisinterestedCouncil(Page):
 
     def is_displayed(player: Player):
-        # FEST die letzte 12. Runde des letzten Spiels
-        # NATÜRLICH AM ENDE - 12 nicht 6 ################################ !!!! ###############################################
-        return player.round_number == 6
+        return player.round_number == Constants.num_rounds
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -511,4 +533,4 @@ class ErgebnisDisinterestedCouncil(Page):
         }
 
 
-page_sequence = [Intro, SeiteFuerDenBerater, WarteAufDenBerater, SeiteFuerDenEntscheider, WarteAufDenEntscheider, SeiteFuerDieOpfer, WarteAufDieOpfer, SeiteFragenAnDenBerater, SeiteFragenAnDenEntscheider, AuszahlungUmfrage, ErgebnisDisinterestedCouncil]
+page_sequence = [Intro, RoleBerater, QuizBerater, SeiteFuerDenBerater, WarteAufDenBerater, SeiteFuerDenEntscheider, WarteAufDenEntscheider, SeiteFuerDieOpfer, WarteAufDieOpfer, SeiteFragenAnDenBerater, SeiteFragenAnDenEntscheider, AuszahlungUmfrage, ErgebnisDisinterestedCouncil]

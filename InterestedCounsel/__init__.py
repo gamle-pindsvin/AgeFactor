@@ -14,7 +14,7 @@ class Constants(BaseConstants):
     berater_role = 'Berater'
 
     timeOutSeconds = 600
-    waehrungsFaktorDKK = 7.0
+    waehrungsFaktorDKK = 10.0
 
     # Prozentualler Anteil des Beraters am Ertrag des Entscheiders, in %
     berater_anteil_in_prozent = 80
@@ -93,22 +93,22 @@ class Intro(Page):
         # ABWEICHEND vom letzten Experiment keine SPALTEN sondenr Array aus Arrays
         # Auszahlungen in der Form
         # [ Auswahl A - Team | Auswahl A - Oper | Ausw. B - Team | Ausw. B - Opfer | Ausw. C - Team | Ausw.C - Opfer ]
-        angeboteSpiel1 = [60, 180, 180, 60, 240, 0, 60, 180, 180, 60, 240, 0]
-        angeboteSpiel2 = [180, 60, 60, 180, 0, 240, 180, 60, 60, 180, 0, 240]
-        angeboteSpiel3 = [200, 100, 100, 50, 150, 75, 200, 100, 100, 50, 150, 75]
-        angeboteSpiel4 = [100, 50, 200, 100, 150, 75, 100, 50, 200, 100, 150, 75]
-        session.AngebotsMatrix = [angeboteSpiel1, angeboteSpiel2, angeboteSpiel3, angeboteSpiel4]
+        angeboteSpiel1 = [60, 180, 210, 30, 150, 90, 180, 60, 30, 210, 90, 150]
+        angeboteSpiel2 = [210, 30, 150, 90, 180, 60, 30, 210, 90, 150, 60, 180]
+        angeboteSpiel3 = [30, 210, 90, 150, 60, 180, 210, 30, 150, 90, 180, 60]
+        angeboteSpiel4 = [90, 90, 30, 30, 120, 120, 80, 80, 100, 100, 60, 60]
+        angeboteSpiel5 = [80, 80, 100, 100, 60, 60, 90, 90, 30, 30, 120, 120]
+        session.AngebotsMatrix = [angeboteSpiel1, angeboteSpiel2, angeboteSpiel3, angeboteSpiel4, angeboteSpiel5]
 
         # Welche Spielart (Spiel 1 bis 4) kommt wann vor
-        session.Spielarten_Folge = [1, 4, 2, 1, 3, 2]
-
-        # BERATER VERDIENT JETZT ANTEILIG
+        session.Spielarten_Folge = [1, 4, 2, 5, 3, 2, 5, 4, 1, 3]
 
         # Folge der Auszahlungen für das Team (das, was in der Runde erhalten wurde, wird diesem Team-Spieler zugeschlagen.
         # SPÄTER EVTL. echte Zufall-Zuordnung
         # 1 - Berater, 2 - Entscheider
-        #session.AuszahlungImTeamFolge = [1, 1, 2, 2, 1, 2]
+        #session.AuszahlungImTeamFolge = [1, 1, 2, 2, 1, 2, 1, 1, 2, 1]
 
+        # BERATER VERDIENT JETZT ANTEILIG
 
         # oTree will then automatically assign each role to a different player (sequentially according to id_in_group).
         # Rollen WERDEN von Otree Automatisch festgelegt also Quasi
@@ -347,7 +347,7 @@ class SeiteFragenAnDenBerater(Page):
     @staticmethod
     def is_displayed(player: Player):
         # Nur für den Berater und nur in der letzten Runde 6
-        return (player.participant.zugeordneteRole == Constants.berater_role) and (player.round_number == 6)
+        return (player.participant.zugeordneteRole == Constants.berater_role) and (player.round_number == 10)
 
     @staticmethod
     def error_message(player, values):
@@ -357,7 +357,7 @@ class SeiteFragenAnDenBerater(Page):
     @staticmethod
     def vars_for_template(player: Player):
         #TODO fest 6, weil in der letzten Runde!!!!
-        auszahlung = getAuszahlungArray(player.session, 6)
+        auszahlung = getAuszahlungArray(player.session, 10)
         group = player.group
         return {
             'auszahlung': auszahlung,
@@ -384,7 +384,7 @@ class SeiteFragenAnDenEntscheider(Page):
     @staticmethod
     def is_displayed(player: Player):
         # Nur für den Berater und nur in der letzten Runde 6
-        return (player.participant.zugeordneteRole == Constants.entscheider_role) and (player.round_number == 6)
+        return (player.participant.zugeordneteRole == Constants.entscheider_role) and (player.round_number == 10)
 
     @staticmethod
     def error_message(player, values):
@@ -394,7 +394,7 @@ class SeiteFragenAnDenEntscheider(Page):
     @staticmethod
     def vars_for_template(player: Player):
         #TODO fest 6, weil in der letzten Runde!!!!
-        auszahlung = getAuszahlungArray(player.session, 6)
+        auszahlung = getAuszahlungArray(player.session, 10)
         group = player.group
         return {
             'auszahlung': auszahlung,
@@ -422,7 +422,7 @@ class AuszahlungUmfrage(Page):
     def is_displayed(player: Player):
         # FEST die letzte 12. Runde des letzten Spiels
         # NATÜRLICH AM ENDE - 12 nicht 6 ################################ !!!! ###############################################
-        return player.round_number == 6
+        return player.round_number == 10
 
     def vars_for_template(player: Player):
 
@@ -434,20 +434,20 @@ class AuszahlungUmfrage(Page):
         #     Auszahlung_Punkte_Opfer = random.randint(135, 246)*20
 
         opfer = group.get_player_by_role(Constants.opfer_role).participant
-        nameOpfer = ''.join(random.sample(string.ascii_uppercase, 6))
+        nameOpfer = ''.join(random.sample(string.ascii_uppercase, 10))
         opfer.AuszahlungUserName = copy.deepcopy(nameOpfer)
         group.OpferKennung = copy.deepcopy(nameOpfer)
         # HIER über die Session!
         group.OpferAuszahlungDKK = round(session.OpferAuszahlungPunkte / Constants.waehrungsFaktorDKK, 0)
 
         berater = group.get_player_by_role(Constants.berater_role).participant
-        nameBerater = ''.join(random.sample(string.ascii_uppercase, 6))
+        nameBerater = ''.join(random.sample(string.ascii_uppercase, 10))
         berater.AuszahlungUserName = copy.deepcopy(nameBerater)
         group.BeraterKennung = copy.deepcopy(nameBerater)
         group.BeraterAuszahlungDKK = round(session.BeraterAuszahlungPunkte / Constants.waehrungsFaktorDKK,0)
 
         entscheider = group.get_player_by_role(Constants.entscheider_role).participant
-        nameEntscheider = ''.join(random.sample(string.ascii_uppercase, 6))
+        nameEntscheider = ''.join(random.sample(string.ascii_uppercase, 10))
         entscheider.AuszahlungUserName = copy.deepcopy(nameEntscheider)
         group.EntscheiderKennung = copy.deepcopy(nameEntscheider)
         ## TODO NUR GANZE KRONEN - für andere Währungen könnte man hier auch mit 2 Nachkommastellen arbeiten (auf der Seite dann |to2 statt |to0)
@@ -463,7 +463,7 @@ class ErgebnisInterestedCounsel(Page):
     def is_displayed(player: Player):
         # FEST die letzte 12. Runde des letzten Spiels
         # NATÜRLICH AM ENDE - 12 nicht 6 ################################ !!!! ###############################################
-        return player.round_number == 6
+        return player.round_number == 10
 
     @staticmethod
     def vars_for_template(player: Player):
