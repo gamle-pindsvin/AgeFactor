@@ -49,8 +49,10 @@ class Player(BasePlayer):
     Entscheidung = models.StringField(choices=[['A', 'A'], ['B', 'B'], ['C', 'C'], ['D', 'D'], ['E', 'E'], ['F', 'F']], widget=widgets.RadioSelect)
 
     # Für den Berater-Quiz
-    Quiz1 = models.StringField(choices=[['1', 'This depends on the Project implemented by Player Z'], ['2', 'My payoff is 50.'], ['3', 'My payoff is 70, no matter which Project is implemented.']], widget=widgets.RadioSelect)
-    Quiz2 = models.StringField(choices=[['1', 'Player X earns 50 and Player Z earns 190'], ['2', 'Player X earns 190 and Player X earns 50'], ['3', 'This depends on the Message sent by Player X.']], widget=widgets.RadioSelect)
+    Quiz1b = models.StringField(choices=[['1', 'This depends on the Project implemented by Player Z'], ['2', 'My payoff is 50.'], ['3', 'My payoff is 70, no matter which Project is implemented.']], widget=widgets.RadioSelect)
+    Quiz2b = models.StringField(choices=[['1', 'Player X earns 50 and Player Z earns 190'], ['2', 'Player X earns 190 and Player Z earns 50'], ['3', 'This depends on the Message sent by Player X.']], widget=widgets.RadioSelect)
+    Quiz1e = models.StringField(choices=[['1', 'This depends on the Project implemented by Player Z'], ['2', 'My payoff is 50.'], ['3', 'My payoff is 70, no matter which Project is implemented.']], widget=widgets.RadioSelect)
+    Quiz2e = models.StringField(choices=[['1', 'Player X earns 50 and Player Z earns 190'], ['2', 'Player X earns 190 and Player Z earns 50'], ['3', 'This depends on the Message sent by Player X.']], widget=widgets.RadioSelect)
 
     # Für die Umfrage des Beraters
     Frage1A = models.IntegerField(min=0, max=100)
@@ -181,19 +183,33 @@ class Intro(Page):
 
 
 class RoleBerater(Page):
-    # timeout_seconds = Constants.timeOutSeconds
     form_model = 'player'
 
     @staticmethod
     def is_displayed(player: Player):
         return (player.participant.zugeordneteRole == Constants.berater_role) and (player.round_number == 1)
 
+class RoleEntscheider(Page):
+    form_model = 'player'
 
-# Verständnis-Quiz
+    @staticmethod
+    def is_displayed(player: Player):
+        return (player.participant.zugeordneteRole == Constants.entscheider_role) and (player.round_number == 1)
+
+class RoleOpfer(Page):
+    form_model = 'player'
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return (player.participant.zugeordneteRole == Constants.opfer_role) and (player.round_number == 1)
+
+
+
+# Verständnis-Quiz für den Berater
 class QuizBerater(Page):
     # timeout_seconds = Constants.timeOutSeconds
     form_model = 'player'
-    form_fields = ["Quiz1", "Quiz2"]
+    form_fields = ["Quiz1b", "Quiz2b"]
 
     @staticmethod
     def is_displayed(player: Player):
@@ -202,7 +218,7 @@ class QuizBerater(Page):
 
     @staticmethod
     def error_message(player, values):
-        if not ((values['Quiz1'] == '3') and (values['Quiz2'] == '1')):
+        if not ((values['Quiz1b'] == '3') and (values['Quiz2b'] == '1')):
             return 'Try again. One or both answers are not yet correct.'
 
     @staticmethod
@@ -218,12 +234,30 @@ class QuizBerater(Page):
             'entscheiderPart': (player.participant.zugeordneteRole == Constants.entscheider_role),
         }
 
+# Verständnis-Quiz für den Entscheider
+class QuizEntscheider(Page):
+    # timeout_seconds = Constants.timeOutSeconds
+    form_model = 'player'
+    form_fields = ["Quiz1e", "Quiz2e"]
+
+    @staticmethod
+    def is_displayed(player: Player):
+        # Nur für den Berater und nur in der ersten Runde
+        return (player.participant.zugeordneteRole == Constants.entscheider_role) and (player.round_number == 1)
+
+    @staticmethod
+    def error_message(player, values):
+        if not ((values['Quiz1e'] == '3') and (values['Quiz2e'] == '1')):
+            return 'Try again. One or both answers are not yet correct.'
+
+    @staticmethod
+    def vars_for_template(player: Player):
+        pass
+
+
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
         pass
-        #group = player.group
-        #group.BeraterEmpfehlung = player.Entscheidung
-        #print("Berater Empfehlung: player.Entscheidung: ", player.Entscheidung, " group.BeraterEmpfehlung: ", group.BeraterEmpfehlung)
 
 
 
@@ -495,7 +529,7 @@ class AuszahlungUmfrage(Page):
         #     Auszahlung_Punkte_Opfer = random.randint(135, 246)*20
 
         opfer = group.get_player_by_role(Constants.opfer_role).participant
-        nameOpfer = ''.join(random.sample(string.ascii_uppercase, 10))
+        nameOpfer = ''.join(random.sample(string.ascii_uppercase, 6))
         opfer.AuszahlungUserName = copy.deepcopy(nameOpfer)
         group.OpferKennung = copy.deepcopy(nameOpfer)
         # HIER über die Session!
@@ -503,14 +537,14 @@ class AuszahlungUmfrage(Page):
         group.OpferAuszahlungPunkte = session.OpferAuszahlungPunkte
 
         berater = group.get_player_by_role(Constants.berater_role).participant
-        nameBerater = ''.join(random.sample(string.ascii_uppercase, 10))
+        nameBerater = ''.join(random.sample(string.ascii_uppercase, 6))
         berater.AuszahlungUserName = copy.deepcopy(nameBerater)
         group.BeraterKennung = copy.deepcopy(nameBerater)
         group.BeraterAuszahlungDKK = round(session.BeraterAuszahlungPunkte / Constants.waehrungsFaktorDKK,0)
         group.BeraterAuszahlungPunkte = session.BeraterAuszahlungPunkte
 
         entscheider = group.get_player_by_role(Constants.entscheider_role).participant
-        nameEntscheider = ''.join(random.sample(string.ascii_uppercase, 10))
+        nameEntscheider = ''.join(random.sample(string.ascii_uppercase, 6))
         entscheider.AuszahlungUserName = copy.deepcopy(nameEntscheider)
         group.EntscheiderKennung = copy.deepcopy(nameEntscheider)
         ## TODO NUR GANZE KRONEN - für andere Währungen könnte man hier auch mit 2 Nachkommastellen arbeiten (auf der Seite dann |to2 statt |to0)
@@ -538,4 +572,4 @@ class ErgebnisDisinterestedCouncil(Page):
         }
 
 
-page_sequence = [Intro, RoleBerater, QuizBerater, SeiteFuerDenBerater, WarteAufDenBerater, SeiteFuerDenEntscheider, WarteAufDenEntscheider, SeiteFuerDieOpfer, WarteAufDieOpfer, SeiteFragenAnDenBerater, SeiteFragenAnDenEntscheider, AuszahlungUmfrage, ErgebnisDisinterestedCouncil]
+page_sequence = [Intro, RoleBerater, RoleEntscheider, RoleOpfer, QuizBerater, QuizEntscheider, SeiteFuerDenBerater, WarteAufDenBerater, SeiteFuerDenEntscheider, WarteAufDenEntscheider, SeiteFuerDieOpfer, WarteAufDieOpfer, SeiteFragenAnDenBerater, SeiteFragenAnDenEntscheider, AuszahlungUmfrage, ErgebnisDisinterestedCouncil]
