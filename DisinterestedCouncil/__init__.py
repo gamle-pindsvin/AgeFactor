@@ -49,8 +49,8 @@ class Player(BasePlayer):
     Entscheidung = models.StringField(choices=[['A', 'A'], ['B', 'B'], ['C', 'C'], ['D', 'D'], ['E', 'E'], ['F', 'F']], widget=widgets.RadioSelect)
 
     # Für den Berater-Quiz
-    Quiz1 = models.StringField(choices=[['1', 'Auswahl 1'], ['2', 'Auswahl 2'], ['3', 'Auswahl 3']], widget=widgets.RadioSelect)
-    Quiz2 = models.StringField(choices=[['1', 'Auswahl A'], ['2', 'Auswahl B'], ['3', 'Auswahl C']], widget=widgets.RadioSelect)
+    Quiz1 = models.StringField(choices=[['1', 'This depends on the Project implemented by Player Z'], ['2', 'My payoff is 50.'], ['3', 'My payoff is 70, no matter which Project is implemented.']], widget=widgets.RadioSelect)
+    Quiz2 = models.StringField(choices=[['1', 'Player X earns 50 and Player Z earns 190'], ['2', 'Player X earns 190 and Player X earns 50'], ['3', 'This depends on the Message sent by Player X.']], widget=widgets.RadioSelect)
 
     # Für die Umfrage des Beraters
     Frage1A = models.IntegerField(min=0, max=100)
@@ -199,6 +199,11 @@ class QuizBerater(Page):
     def is_displayed(player: Player):
         # Nur für den Berater und nur in der ersten Runde
         return (player.participant.zugeordneteRole == Constants.berater_role) and (player.round_number == 1)
+
+    @staticmethod
+    def error_message(player, values):
+        if not ((values['Quiz1'] == '3') and (values['Quiz2'] == '1')):
+            return 'Try again. One or both answers are not yet correct.'
 
     @staticmethod
     def vars_for_template(player: Player):

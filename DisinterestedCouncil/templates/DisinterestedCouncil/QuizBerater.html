@@ -16,7 +16,10 @@ window.onhashchange=function(){window.location.hash="no-back-button";}
 {{ block content }}
 
 <table style="width:1000px;">
-    <tr><td colspan="12" class="td2">///Project information ////</td></tr>
+    <tr><td colspan="12" class="td2nichtbold">Here you see <b>example information</b> on six Projects A-F, similar to the screen you will see in a decision-making round.</td></tr>
+
+    <tr><td colspan="12" class="td2nichtbold">Please select the correct answers to the two questions below to check your understanding. <br> After the quiz, the ten decision-making rounds will start.</td></tr><br>
+    <tr><td colspan="12" class="td3">&nbsp;</td></tr>
     <tr style="border-top: 3px solid #000;">
 
         <td colspan="2" style="border-left: 3px solid #000;">
@@ -53,34 +56,56 @@ window.onhashchange=function(){window.location.hash="no-back-button";}
         <td>Player Z</td>
     </tr>
     <tr style="border-bottom: 3px solid #000;">
-        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">{{auszahlung.0}}</td>
-        <td>{{auszahlung.1}}</td>
-        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">{{auszahlung.2}}</td>
-        <td>{{auszahlung.3}}</td>
-        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">{{auszahlung.4}}</td>
-        <td>{{auszahlung.5}}</td>
-        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">{{auszahlung.6}}</td>
-        <td>{{auszahlung.7}}</td>
-        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">{{auszahlung.8}}</td>
-        <td>{{auszahlung.9}}</td>
-        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">{{auszahlung.10}}</td>
-        <td>{{auszahlung.11}}</td>
+        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">{{50}}</td>
+        <td>{{190}}</td>
+        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">{{80}}</td>
+        <td>{{140}}</td>
+        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">{{200}}</td>
+        <td>{{40}}</td>
+        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">{{140}}</td>
+        <td>{{80}}</td>
+        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">{{40}}</td>
+        <td>{{200}}</td>
+        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">{{190}}</td>
+        <td>{{50}}</td>
+    </tr>
+    <tr><td colspan="12" class="td2">What message do you recommend to Player X?</td></tr>
+    <tr style="border: 3px transparent;">
+
+        <td colspan="2" style="border: 3px solid #FFF;">
+            <b>Message A</b>
+        </td>
+        <td colspan="2" style="border: 3px solid #FFF;">
+            <b>Message B</b>
+        </td>
+        <td colspan="2" style="border: 3px solid #FFF;">
+            <b>Message C</b>
+        </td>
+        <td colspan="2" style="border: 3px solid #FFF;">
+            <b>Message D</b>
+        </td>
+        <td colspan="2" style="border: 3px solid #FFF;">
+            <b>Message E</b>
+        </td>
+        <td colspan="2" style="border: 3px solid #FFF;">
+            <b>Message F</b>
+        </td>
     </tr>
     <tr><td colspan="12" class="td3">&nbsp;</td></tr>
-    <tr><td colspan="12" class="td3"><b>1)</b> If you recommended <b>Message A</b>, your earnings are:</td></tr>
+    <tr><td colspan="12" class="td3"><b>1)</b> If you recommend <b>Message A</b>, your payoff in that round is:</td></tr>
     <tr style="border-top: 3px none #000;">
 
-        <td colspan="3" class="td4">
+        <td colspan="6" class="td4">
             <b>{{formfield 'Quiz1' label=" "}}</b>
         </td>
-        <td colspan="9" class="td4">
+        <td colspan="6" class="td4">
             &nbsp;
         </td>
-    <tr><td colspan="12" class="td3"><b>2)</b> If Player Z implements <b>Project A</b> you earnings are: </td></tr>
-    <td colspan="3" class="td4">
+    <tr><td colspan="12" class="td3"><b>2)</b> If Player Z implements <b>Project A</b> </td></tr>
+    <td colspan="6" class="td4">
         <b>{{formfield 'Quiz2' label=" "}}</b>
     </td>
-    <td colspan="9" class="td4">
+    <td colspan="6" class="td4">
         &nbsp;
     </td>
 
