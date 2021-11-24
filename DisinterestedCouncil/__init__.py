@@ -51,8 +51,8 @@ class Player(BasePlayer):
     # Für den Berater-Quiz
     Quiz1b = models.StringField(choices=[['1', 'This depends on the Project implemented by Player Z'], ['2', 'My payoff is 50.'], ['3', 'My payoff is 70, no matter which Project is implemented.']], widget=widgets.RadioSelect)
     Quiz2b = models.StringField(choices=[['1', 'Player X earns 50 and Player Z earns 190'], ['2', 'Player X earns 190 and Player Z earns 50'], ['3', 'This depends on the Message sent by Player X.']], widget=widgets.RadioSelect)
-    Quiz1e = models.StringField(choices=[['1', 'This depends on the Project implemented by Player Z'], ['2', 'My payoff is 50.'], ['3', 'My payoff is 70, no matter which Project is implemented.']], widget=widgets.RadioSelect)
-    Quiz2e = models.StringField(choices=[['1', 'Player X earns 50 and Player Z earns 190'], ['2', 'Player X earns 190 and Player Z earns 50'], ['3', 'This depends on the Message sent by Player X.']], widget=widgets.RadioSelect)
+    Quiz1e = models.StringField(choices=[['1', 'My payoff is 190, no matter which Project is implemented.'], ['2', 'My payoff is 50.'], ['3', 'My payoff depends on the Project implemented by Player Z.']], widget=widgets.RadioSelect)
+    Quiz2e = models.StringField(choices=[['1', 'My payoff is 50, Player Z`s payoff is 190 and Player Y`s payoff is 70.'], ['2', 'I earn 190 and Player Z earns 50'], ['3', 'My payoff is independent of which Project is implemented.']], widget=widgets.RadioSelect)
 
     # Für die Umfrage des Beraters
     Frage1A = models.IntegerField(min=0, max=100)
@@ -219,7 +219,7 @@ class QuizBerater(Page):
     @staticmethod
     def error_message(player, values):
         if not ((values['Quiz1b'] == '3') and (values['Quiz2b'] == '1')):
-            return 'Try again. One or both answers are not yet correct.'
+            return 'Try again please. One or both answers are not yet correct.'
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -248,7 +248,7 @@ class QuizEntscheider(Page):
     @staticmethod
     def error_message(player, values):
         if not ((values['Quiz1e'] == '3') and (values['Quiz2e'] == '1')):
-            return 'Try again. One or both answers are not yet correct.'
+            return 'Try again please. One or both answers are not yet correct.'
 
     @staticmethod
     def vars_for_template(player: Player):
