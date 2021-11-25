@@ -153,7 +153,7 @@ class Intro(Page):
         session.AngebotsMatrix = [angeboteSpiel1, angeboteSpiel2, angeboteSpiel3, angeboteSpiel4, angeboteSpiel5]
 
         # Welche Spielart (Spiel 1 bis 4) kommt wann vor
-        session.Spielarten_Folge = [1, 4, 2, 5, 3, 2, 5, 4, 1, 3]
+        session.Spielarten_Folge = [1, 4, 2, 5, 3, 2, 5, 4, 3, 1]
 
         # Folge der Auszahlungen für das Team (das, was in der Runde erhalten wurde, wird diesem Team-Spieler zugeschlagen.
         # SPÄTER EVTL. echte Zufall-Zuordnung
