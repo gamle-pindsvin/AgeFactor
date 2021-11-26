@@ -15,15 +15,12 @@ window.onhashchange=function(){window.location.hash="no-back-button";}
 {{ block content }}
 
 <div>
-    Here you see six different Projects. The Projects differ in the payoffs for you and Player Z.
+    Here you see six different Projects. The Projects differ in the payoffs for Player X and Player Z. Your payoff is 80 percent of Player X's payoff from the implemented Project.
 </div>
 
 <div>
-    Which Project is implemented is decided by Player Z after receiving your message. Player Z has no information about the Projects. <br> Your decision determines whether Message A, B, C, D, E, or F will be sent to Player Z.
+    Which Project is implemented is decided by Player Z after receiving a message from Player X. <br> You make a recommendation whether Player X should send Message A, B, C, D, E, or F will be sent to Player Z.
 </div>
-
-
-
 
 <table style="width:1000px;">
     <tr><td colspan="12" class="td2">Project information</td></tr>
@@ -49,17 +46,17 @@ window.onhashchange=function(){window.location.hash="no-back-button";}
         </td>
     </tr>
     <tr style="border-top: 3px solid #000;">
-        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">You= Player X</td>
+        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">Player X</td>
         <td>Player Z</td>
-        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">You= Player X</td>
+        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">Player X</td>
         <td>Player Z</td>
-        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">You= Player X</td>
+        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">Player X</td>
         <td>Player Z</td>
-        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">You= Player X</td>
+        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">Player X</td>
         <td>Player Z</td>
-        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">You= Player X</td>
+        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">Player X</td>
         <td>Player Z</td>
-        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">You= Player X</td>
+        <td style="border-left: 3px solid #000;border-right: 1px solid #000;">Player X</td>
         <td>Player Z</td>
     </tr>
     <tr style="border-bottom: 3px solid #000;">
@@ -76,11 +73,8 @@ window.onhashchange=function(){window.location.hash="no-back-button";}
         <td style="border-left: 3px solid #000;border-right: 1px solid #000;">{{auszahlung.10}}</td>
         <td>{{auszahlung.11}}</td>
     </tr>
-
-    <tr><td colspan="12" class="td2"> </td></tr>
-    <tr><td colspan="12" class="td3">Player Y recommends that you send <b>Message {{ beraterEmpfehlung }}</b>.</td></tr>
-
-     <tr><td colspan="12" class="td2">Which message do you want to send to Player Z?</td></tr>
+    <tr><td colspan="12" class="td2">The project with at least three votes will be recommended to the I-participant. {{berater_anteil_in_prozent}}</td></tr>
+    <tr><td colspan="12" class="td2">Which message will you vote to send to the ????? -> I-participant?</td></tr>
     <tr style="border: 3px transparent;">
 
         <td colspan="2" style="border: 3px solid #FFF;">
@@ -104,22 +98,22 @@ window.onhashchange=function(){window.location.hash="no-back-button";}
     </tr>
     <tr>
         <td colspan="2" style="border: 3px solid #FFF;padding-top:10px;padding-bottom:10px">
-            <button name="Entscheidung" value="A" class="btn btn-primary btn-large">Project A earns you most.</button>
+            <button name="Entscheidung" value="A" class="btn btn-primary btn-large">Project A earns you more ...</button>
         </td>
         <td colspan="2" style="border: 3px solid #FFF;">
-            <button name="Entscheidung" value="B" class="btn btn-primary btn-large">Project B earns you most.</button>
+            <button name="Entscheidung" value="B" class="btn btn-primary btn-large">Project B earns you more ...</button>
         </td>
         <td colspan="2" style="border: 3px solid #FFF;">
-            <button name="Entscheidung" value="C" class="btn btn-primary btn-large">Project C earns you most.</button>
+            <button name="Entscheidung" value="C" class="btn btn-primary btn-large">Project C earns you more ...</button>
         </td>
         <td colspan="2" style="border: 3px solid #FFF;">
-            <button name="Entscheidung" value="D" class="btn btn-primary btn-large">Project D earns you most..</button>
+            <button name="Entscheidung" value="D" class="btn btn-primary btn-large">Project D earns you more ...</button>
         </td>
         <td colspan="2" style="border: 3px solid #FFF;">
-            <button name="Entscheidung" value="E" class="btn btn-primary btn-large">Project E earns you most.</button>
+            <button name="Entscheidung" value="E" class="btn btn-primary btn-large">Project E earns you more ...</button>
         </td>
         <td colspan="2" style="border: 3px solid #FFF;">
-            <button name="Entscheidung" value="F" class="btn btn-primary btn-large">Project F earns you most.</button>
+            <button name="Entscheidung" value="F" class="btn btn-primary btn-large">Project F earns you more ...</button>
         </td>
     </tr>
 </table>

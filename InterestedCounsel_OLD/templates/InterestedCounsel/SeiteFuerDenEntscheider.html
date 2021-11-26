@@ -19,11 +19,13 @@ window.onhashchange=function(){window.location.hash="no-back-button";}
 </div>
 
 <div>
-    Which Project is implemented is decided by Player Z after receiving your message. Player Z has no information about the Projects. <br> Your decision determines whether Message A, B, C, D, E, or F will be sent to Player Z.
+    Which Project is implemented is decided by Player Z after receiving your message. <br> Your decision determines whether Message A, B, C, D, E, or F will be sent to Player Z.
 </div>
 
 
-
+<div>
+    Player Y suggests that you send <b>Message {{ beraterEmpfehlung }}.</b>
+</div>
 
 <table style="width:1000px;">
     <tr><td colspan="12" class="td2">Project information</td></tr>
@@ -77,10 +79,7 @@ window.onhashchange=function(){window.location.hash="no-back-button";}
         <td>{{auszahlung.11}}</td>
     </tr>
 
-    <tr><td colspan="12" class="td2"> </td></tr>
-    <tr><td colspan="12" class="td3">Player Y recommends that you send <b>Message {{ beraterEmpfehlung }}</b>.</td></tr>
-
-     <tr><td colspan="12" class="td2">Which message do you want to send to Player Z?</td></tr>
+    <tr><td colspan="12" class="td2">Which message do you want to send to Player Z?</td></tr>
     <tr style="border: 3px transparent;">
 
         <td colspan="2" style="border: 3px solid #FFF;">
@@ -113,7 +112,7 @@ window.onhashchange=function(){window.location.hash="no-back-button";}
             <button name="Entscheidung" value="C" class="btn btn-primary btn-large">Project C earns you most.</button>
         </td>
         <td colspan="2" style="border: 3px solid #FFF;">
-            <button name="Entscheidung" value="D" class="btn btn-primary btn-large">Project D earns you most..</button>
+            <button name="Entscheidung" value="D" class="btn btn-primary btn-large">Project D earns you most.</button>
         </td>
         <td colspan="2" style="border: 3px solid #FFF;">
             <button name="Entscheidung" value="E" class="btn btn-primary btn-large">Project E earns you most.</button>
