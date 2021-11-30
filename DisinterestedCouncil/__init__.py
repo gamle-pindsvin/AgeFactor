@@ -2,6 +2,7 @@ from otree.api import *
 import random
 import copy
 import string
+import math
 import io
 
 class Constants(BaseConstants):
@@ -15,10 +16,10 @@ class Constants(BaseConstants):
     berater_role = 'Berater'
 
     # Flat-Auszahlung für den Berater
-    berater_auszahlung_pro_Runde = 70
+    berater_auszahlung_pro_Runde = 80
 
     timeOutSeconds = 600
-    waehrungsFaktorDKK = 10.0
+    waehrungsFaktorDKK = 12.0
 
 
 
@@ -49,18 +50,18 @@ class Player(BasePlayer):
     Entscheidung = models.StringField(choices=[['A', 'A'], ['B', 'B'], ['C', 'C'], ['D', 'D'], ['E', 'E'], ['F', 'F']], widget=widgets.RadioSelect)
 
     # Für den Berater-Quiz
-    Quiz1b = models.StringField(choices=[['1', 'This depends on the Project implemented by Player Z'], ['2', 'My payoff is 50.'], ['3', 'My payoff is 70, no matter which Project is implemented.']], widget=widgets.RadioSelect)
+    Quiz1b = models.StringField(choices=[['1', 'This depends on the Project implemented by Player Z'], ['2', 'My payoff is 50.'], ['3', 'My payoff is 80, no matter which Project is implemented.']], widget=widgets.RadioSelect)
     Quiz2b = models.StringField(choices=[['1', 'Player X earns 50 and Player Z earns 190'], ['2', 'Player X earns 190 and Player Z earns 50'], ['3', 'This depends on the Message sent by Player X.']], widget=widgets.RadioSelect)
     Quiz1e = models.StringField(choices=[['1', 'My payoff is 190, no matter which Project is implemented.'], ['2', 'My payoff is 50.'], ['3', 'My payoff depends on the Project implemented by Player Z.']], widget=widgets.RadioSelect)
-    Quiz2e = models.StringField(choices=[['1', 'My payoff is 50, Player Z`s payoff is 190 and Player Y`s payoff is 70.'], ['2', 'I earn 190 and Player Z earns 50'], ['3', 'My payoff is independent of which Project is implemented.']], widget=widgets.RadioSelect)
+    Quiz2e = models.StringField(choices=[['1', 'My payoff is 50, Player Z`s payoff is 190 and Player Y`s payoff is 80.'], ['2', 'I earn 190 and Player Z earns 50'], ['3', 'My payoff is independent of which Project is implemented.']], widget=widgets.RadioSelect)
 
     # Für die Umfrage des Beraters
-    Frage1A = models.IntegerField(min=0, max=100)
-    Frage1B = models.IntegerField(min=0, max=100)
-    Frage1C = models.IntegerField(min=0, max=100)
-    Frage1D = models.IntegerField(min=0, max=100)
-    Frage1E = models.IntegerField(min=0, max=100)
-    Frage1F = models.IntegerField(min=0, max=100)
+    Frage1A = models.IntegerField(min=0, max=100, initial=0)
+    Frage1B = models.IntegerField(min=0, max=100, initial=0)
+    Frage1C = models.IntegerField(min=0, max=100, initial=0)
+    Frage1D = models.IntegerField(min=0, max=100, initial=0)
+    Frage1E = models.IntegerField(min=0, max=100, initial=0)
+    Frage1F = models.IntegerField(min=0, max=100, initial=0)
     Frage2 = models.StringField(choices=[['1', 'Yes'], ['0', 'No']], widget=widgets.RadioSelectHorizontal)
     Frage3 = models.StringField()
     Frage4 = models.StringField(choices=[['5', 'Very responsible'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'Not responsible at all']], widget=widgets.RadioSelectHorizontal)
@@ -126,6 +127,12 @@ def getOpferAuszahlung(auswahlChar, auszahlungsArray):
     if (not resultFound):
         print("Something gets wrong. group.EndgueltigeEntscheidung: " + auswahlChar)
     return result
+
+
+# Liefert die Auszahlung in DKK als die nach oben gerundete Kronenzahl
+def getGerundeteAuszahlung(auszahlungInPunkten):
+    gerundetNachOben = math.ceil(auszahlungInPunkten/Constants.waehrungsFaktorDKK)
+    return float(gerundetNachOben)
 
 
 class Intro(Page):
@@ -455,8 +462,11 @@ class SeiteFragenAnDenBerater(Page):
 
     @staticmethod
     def error_message(player, values):
-        if values['Frage1A'] + values['Frage1B'] + values['Frage1C'] + values['Frage1D'] + values['Frage1E'] + values['Frage1F'] != 100:
-            return 'ERROR: The sum of the likelihoods for question 1) must add up to 100.'
+            summeAllerWerte = values['Frage1A'] + values['Frage1B'] + values['Frage1C'] + values['Frage1D'] + values['Frage1E'] + values['Frage1F']
+            if summeAllerWerte != 100:
+                #print(values['Frage1A'] + values['Frage1B'] + values['Frage1C'] + values['Frage1D'] + values['Frage1E'] + values['Frage1F'])
+                errorNachricht = 'ERROR: The sum of the likelihoods for question 1) must add up to 100. Your sum is now: ' + str(summeAllerWerte)
+                return errorNachricht
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -490,9 +500,11 @@ class SeiteFragenAnDenEntscheider(Page):
 
     @staticmethod
     def error_message(player, values):
-        if values['Frage1A'] + values['Frage1B'] + values['Frage1C'] + values['Frage1D'] + values['Frage1E'] + values['Frage1F'] != 100:
+        summeAllerWerte = values['Frage1A'] + values['Frage1B'] + values['Frage1C'] + values['Frage1D'] + values['Frage1E'] + values['Frage1F']
+        if summeAllerWerte != 100:
             #print(values['Frage1A'] + values['Frage1B'] + values['Frage1C'] + values['Frage1D'] + values['Frage1E'] + values['Frage1F'])
-            return 'ERROR: The sum of the likelihoods for question 1) must add up to 100.'
+            errorNachricht = 'ERROR: The sum of the likelihoods for question 1) must add up to 100. Your sum is now: ' + str(summeAllerWerte)
+            return errorNachricht
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -533,14 +545,16 @@ class AuszahlungUmfrage(Page):
         opfer.AuszahlungUserName = copy.deepcopy(nameOpfer)
         group.OpferKennung = copy.deepcopy(nameOpfer)
         # HIER über die Session!
-        group.OpferAuszahlungDKK = round(session.OpferAuszahlungPunkte / Constants.waehrungsFaktorDKK, 0)
+        #group.OpferAuszahlungDKK = round(session.OpferAuszahlungPunkte / Constants.waehrungsFaktorDKK, 0)
+        group.OpferAuszahlungDKK = getGerundeteAuszahlung(session.OpferAuszahlungPunkte)
         group.OpferAuszahlungPunkte = session.OpferAuszahlungPunkte
 
         berater = group.get_player_by_role(Constants.berater_role).participant
         nameBerater = ''.join(random.sample(string.ascii_uppercase, 6))
         berater.AuszahlungUserName = copy.deepcopy(nameBerater)
         group.BeraterKennung = copy.deepcopy(nameBerater)
-        group.BeraterAuszahlungDKK = round(session.BeraterAuszahlungPunkte / Constants.waehrungsFaktorDKK,0)
+        #group.BeraterAuszahlungDKK = round(session.BeraterAuszahlungPunkte / Constants.waehrungsFaktorDKK,0)
+        group.BeraterAuszahlungDKK = getGerundeteAuszahlung(session.BeraterAuszahlungPunkte)
         group.BeraterAuszahlungPunkte = session.BeraterAuszahlungPunkte
 
         entscheider = group.get_player_by_role(Constants.entscheider_role).participant
@@ -548,7 +562,8 @@ class AuszahlungUmfrage(Page):
         entscheider.AuszahlungUserName = copy.deepcopy(nameEntscheider)
         group.EntscheiderKennung = copy.deepcopy(nameEntscheider)
         ## TODO NUR GANZE KRONEN - für andere Währungen könnte man hier auch mit 2 Nachkommastellen arbeiten (auf der Seite dann |to2 statt |to0)
-        group.EntscheiderAuszahlungDKK = round(session.EntscheiderAuszahlungPunkte / Constants.waehrungsFaktorDKK, 0)
+        #group.EntscheiderAuszahlungDKK = round(session.EntscheiderAuszahlungPunkte / Constants.waehrungsFaktorDKK, 0)
+        group.EntscheiderAuszahlungDKK = getGerundeteAuszahlung(session.EntscheiderAuszahlungPunkte)
         group.EntscheiderAuszahlungPunkte = session.EntscheiderAuszahlungPunkte
 
 
