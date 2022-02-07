@@ -14,6 +14,14 @@ Your earnings are <b>{{ session.OpferAuszahlungPunkte }}</b> E$ corresponding to
 <div><b> Please note down your participant ID {{ group.OpferKennung }} and your earnings in kr. in the receipt!</b> </div>
 {% endif %}
 
+{% if beraterPart %}
+<div>
+    Your participant ID for payment is <b>{{ group.BeraterKennung }}</b>. <br>
+</div>
+Your earnings are <b>{{ session.BeraterAuszahlungPunkte }}</b> E$ corresponding to <b>{{ group.BeraterAuszahlungDKK|to0 }}</b> kr.<br>
+<div><b> Please note down your participant ID {{ group.BeraterKennung }} and your earnings in kr. in the receipt!</b> </div>
+{% endif %}
+
 {% if entscheiderPart %}
 <div>
     Your participant ID for payment is <b>{{ group.EntscheiderKennung }}</b>. <br>
@@ -28,8 +36,8 @@ Your earnings are <b>{{ session.EntscheiderAuszahlungPunkte }}</b> E$ correspond
 <b>Thank you very much for your participation!</b>
 
 <br>
-//////////////// {{ player.participant.zugeordneteRole }}
-Auszahlung: {{ player.participant.payoff }}
+
+
 
 <!--{% next_button %}-->
 
