@@ -8,7 +8,7 @@ import csv
 import os
 
 class Constants(BaseConstants):
-    name_in_url = 'DisinterestedCouncil'
+    name_in_url = 'ComputerCouncil'
     players_per_group = 2
     num_rounds = 10
 
@@ -74,9 +74,9 @@ class Player(BasePlayer):
 
 
     # Statistik am Ende
-    Fachrichtung = models.StringField(choices=[['Man', 'Management'], ['Eco', 'Economics'], ['Law', 'Law'], ['Cog', 'Cognitive Science'], ['Nat', 'Natural Science or Mathematics'], ['Other', 'Other field'], ['None', "I'm not a student"]], widget=widgets.RadioSelect)
-    Altersgruppe = models.StringField(choices=[['1', '20 years or less'], ['2', '21 - 24'], ['3', '25 - 28'], ['4', '29 - 35'], ['5', 'more than 35']], widget=widgets.RadioSelect)
-    Geschlecht = models.StringField(choices=[['F', 'Female'], ['M', 'Male'], ['D', 'Not listed'], ['N', 'Prefer not to answer']], widget=widgets.RadioSelect)
+    Fachrichtung = models.StringField(choices=[['Man', 'Management'], ['Eco', 'Economics'], ['Law', 'Law'], ['Cog', 'Cognitive Science'], ['Nat', 'Natural Science or Mathematics'], ['Other', 'Other field'], ['None', "I'm not a student"]], widget=widgets.RadioSelect, label='Field of study')
+    Age = models.StringField(choices=[['1', '20 years or less'], ['2', '21 - 24'], ['3', '25 - 28'], ['4', '29 - 35'], ['5', 'more than 35']], widget=widgets.RadioSelect)
+    Gender = models.StringField(choices=[['F', 'Female'], ['M', 'Male'], ['D', 'Not listed'], ['N', 'Prefer not to answer']], widget=widgets.RadioSelect)
 
     # Auszahlung
     #weg, da eigentlich player.payoff
@@ -395,7 +395,8 @@ class SeiteFragenAnDenEntscheider(Page):
 class AuszahlungUmfrage(Page):
 
     form_model = 'player'
-    form_fields = ['Field of study', 'Age', 'Gender']
+    #form_fields = ['Field of study', 'Age', 'Gender']
+    form_fields = ['Fachrichtung', 'Age', 'Gender']
 
     def is_displayed(player: Player):
         # Nur in der letzten Runde
