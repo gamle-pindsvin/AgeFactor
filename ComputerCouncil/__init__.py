@@ -52,7 +52,7 @@ class Player(BasePlayer):
     Quiz1b = models.StringField(choices=[['1', 'This depends on the Project implemented by Player Z'], ['2', 'My payoff is 50.'], ['3', 'My payoff is 80, no matter which Project is implemented.']], widget=widgets.RadioSelect)
     Quiz2b = models.StringField(choices=[['1', 'Player X earns 50 and Player Z earns 190'], ['2', 'Player X earns 190 and Player Z earns 50'], ['3', 'This depends on the Message sent by Player X.']], widget=widgets.RadioSelect)
     Quiz1e = models.StringField(choices=[['1', 'My payoff is 190, no matter which Project is implemented.'], ['2', 'My payoff is 50.'], ['3', 'My payoff depends on the Project implemented by Player Z.']], widget=widgets.RadioSelect)
-    Quiz2e = models.StringField(choices=[['1', 'My payoff is 50, Player Z`s payoff is 190 and Player Y`s payoff is 80.'], ['2', 'I earn 190 and Player Z earns 50'], ['3', 'My payoff is independent of which Project is implemented.']], widget=widgets.RadioSelect)
+    Quiz2e = models.StringField(choices=[['1', 'My payoff is 50 and Player Z`s payoff is 190.'], ['2', 'I earn 190 and Player Z earns 50'], ['3', 'My payoff is independent of which Project is implemented.']], widget=widgets.RadioSelect)
 
     # Für die Umfrage des Entscheiders
     Frage1A = models.IntegerField(min=0, max=100, initial=0)
@@ -66,7 +66,7 @@ class Player(BasePlayer):
     Frage4 = models.StringField(choices=[['5', 'Very responsible'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'Not responsible at all']], widget=widgets.RadioSelectHorizontal)
     Frage5 = models.StringField(choices=[['5', 'I would feel very guilty'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'I would not feel guilty at all']], widget=widgets.RadioSelectHorizontal)
     Frage61 = models.StringField(choices=[['5', 'I am fully responsible'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'I am not responsible']], widget=widgets.RadioSelectHorizontal)
-    Frage62e = models.StringField(choices=[['5', 'Player Y is fully responsible'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'Player Y is not responsible']], widget=widgets.RadioSelectHorizontal)
+    # Frage62e = models.StringField(choices=[['5', 'The Algorithm'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'Player Y is not responsible']], widget=widgets.RadioSelectHorizontal)
     Frage62b = models.StringField(choices=[['5', 'Player X is fully responsible'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'Player X is not responsible']], widget=widgets.RadioSelectHorizontal)
     Frage63 = models.StringField(choices=[['5', 'Player Z is fully responsible'], ['4', '&nbsp;'], ['3', '&nbsp;'], ['2', '&nbsp;'], ['1', '&nbsp;'], ['0', 'Player Z is not responsible']], widget=widgets.RadioSelectHorizontal)
     # FRAGE 7 steht nur beim Entscheider und zwar als die NUMMER 4 auf der Liste!!!
@@ -363,7 +363,7 @@ class SeiteFragenAnDenEntscheider(Page):
     # timeout_seconds = Constants.timeOutSeconds
     form_model = 'player'
     # FRAGE 7 steht auf der Form unter der Nummer 4) !!!!!!!!!!!!!!!!!! Die anderen verschieben sich um eine Frage4 ist also 5) usw. "Frage4" ist dagegen nicht drin - Sonst knallt die Vlidierung
-    form_fields = ["Frage1A", "Frage1B", "Frage1C", "Frage1D","Frage1E", "Frage1F", "Frage2", "Frage3",  "Frage5", "Frage61", "Frage62e", "Frage63", "Frage7"]
+    form_fields = ["Frage1A", "Frage1B", "Frage1C", "Frage1D","Frage1E", "Frage1F", "Frage2", "Frage3",  "Frage5", "Frage61", "Frage63", "Frage7"]
 
     @staticmethod
     def is_displayed(player: Player):
@@ -384,6 +384,7 @@ class SeiteFragenAnDenEntscheider(Page):
         group = player.group
         return {
             'auszahlung': auszahlung,
+            'ComputerBeraterEmpfehlung': player.group.ComputerBeraterEmpfehlung,
             'empfehlung': group.EntscheiderEmpfehlung,
             'opferPart': (player.participant.zugeordneteRole == Constants.opfer_role),
             'entscheiderPart': (player.participant.zugeordneteRole == Constants.entscheider_role),
