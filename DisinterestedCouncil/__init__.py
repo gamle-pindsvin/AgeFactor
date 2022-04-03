@@ -525,7 +525,7 @@ class SeiteFragenAnDenEntscheider(Page):
 class AuszahlungUmfrage(Page):
 
     form_model = 'player'
-    form_fields = ['Fachrichtung', 'Altersgruppe', 'Geschlecht']
+    form_fields = ['Field of study', 'Age', 'Gender']
 
     def is_displayed(player: Player):
         # Nur in der letzten Runde

@@ -18,7 +18,7 @@ class Constants(BaseConstants):
     berater_anteil_in_prozent = 80
 
     timeOutSeconds = 600
-    waehrungsFaktorDKK = 10.0
+    waehrungsFaktorDKK = 12.0
 
 
 
@@ -49,10 +49,10 @@ class Player(BasePlayer):
     Entscheidung = models.StringField(choices=[['A', 'A'], ['B', 'B'], ['C', 'C'], ['D', 'D'], ['E', 'E'], ['F', 'F']], widget=widgets.RadioSelect)
 
     # Für den Berater-Quiz
-    Quiz1b = models.StringField(choices=[['1', 'This depends on the Project implemented by Player Z'], ['2', 'My payoff is 50.'], ['3', 'My payoff is 70, no matter which Project is implemented.']], widget=widgets.RadioSelect)
-    Quiz2b = models.StringField(choices=[['1', 'Player X earns 50 and Player Z earns 190'], ['2', 'Player X earns 190 and Player Z earns 50'], ['3', 'This depends on the Message sent by Player X.']], widget=widgets.RadioSelect)
+    Quiz1b = models.StringField(choices=[['1', 'My payoff is 80, no matter which Project is implemented.'], ['2', 'My payoff is 50.'], ['3', 'This depends on the Project implemented by Player Z.']], widget=widgets.RadioSelect)
+    Quiz2b = models.StringField(choices=[['1', 'Player X earns 50 and Player Z earns 190 and I earn 40 (=0.8*50).'], ['2', 'Player X earns 190 and Player Z earns 50 and I earn 152 (=0.8*190)'], ['3', 'This depends on the Message sent by Player X.']], widget=widgets.RadioSelect)
     Quiz1e = models.StringField(choices=[['1', 'My payoff is 190, no matter which Project is implemented.'], ['2', 'My payoff is 50.'], ['3', 'My payoff depends on the Project implemented by Player Z.']], widget=widgets.RadioSelect)
-    Quiz2e = models.StringField(choices=[['1', 'My payoff is 50, Player Z`s payoff is 190 and Player Y`s payoff is 70.'], ['2', 'I earn 190 and Player Z earns 50'], ['3', 'My payoff is independent of which Project is implemented.']], widget=widgets.RadioSelect)
+    Quiz2e = models.StringField(choices=[['1', 'My payoff is 50, Player Z`s payoff is 190 and Player Y`s payoff is 40 (=0.8*50).'], ['2', 'I earn 190 and Player Z earns 50 and Player Y earns 152 (=0.8*190).'], ['3', 'My payoff is independent of which Project is implemented.']], widget=widgets.RadioSelect)
 
     # Für die Umfrage des Beraters
     Frage1A = models.IntegerField(min=0, max=100)
@@ -74,9 +74,9 @@ class Player(BasePlayer):
 
 
     # Statistik am Ende
-    Fachrichtung = models.StringField(choices=[['Man', 'Management'], ['Eco', 'Economics'], ['Law', 'Law'], ['Cog', 'Cognitive Science'], ['Nat', 'Natural Science or Mathematics'], ['Other', 'Other field'], ['None', "I'm not a student"]], widget=widgets.RadioSelect)
-    Altersgruppe = models.StringField(choices=[['1', '20 years or less'], ['2', '21 - 24'], ['3', '25 - 28'], ['4', '29 - 35'], ['5', 'more than 35']], widget=widgets.RadioSelect)
-    Geschlecht = models.StringField(choices=[['F', 'Female'], ['M', 'Male'], ['D', 'Not listed'], ['N', 'Prefer not to answer']], widget=widgets.RadioSelect)
+    Fachrichtung = models.StringField(choices=[['Man', 'Management'], ['Eco', 'Economics'], ['Law', 'Law'], ['Cog', 'Cognitive Science'], ['Nat', 'Natural Science or Mathematics'], ['Other', 'Other field'], ['None', "I'm not a student"]], widget=widgets.RadioSelect, label='Field of study')
+    Altersgruppe = models.StringField(choices=[['1', '20 years or less'], ['2', '21 - 24'], ['3', '25 - 28'], ['4', '29 - 35'], ['5', 'more than 35']], widget=widgets.RadioSelect, label='Age')
+    Geschlecht = models.StringField(choices=[['F', 'Female'], ['M', 'Male'], ['D', 'Not listed'], ['N', 'Prefer not to answer']], widget=widgets.RadioSelect, label='Gender')
 
     # Auszahlung
     #weg, da eigentlich player.payoff
@@ -516,7 +516,9 @@ class SeiteFragenAnDenEntscheider(Page):
 class AuszahlungUmfrage(Page):
 
     form_model = 'player'
+    #form_fields = ['Field of study', 'Age', 'Gender']
     form_fields = ['Fachrichtung', 'Altersgruppe', 'Geschlecht']
+
 
     def is_displayed(player: Player):
         # Nur in der letzten Runde
