@@ -37,11 +37,10 @@ class Group(BaseGroup):
     # mit Participants hackt, also zwischenspeicherung hier
     EntscheiderKennung = models.StringField(initial="NOVALUE")
     EntscheiderAuszahlungDKK = models.FloatField()
-    EntscheiderAuszahlungPunkte = models.IntegerField()
+    EntscheiderAuszahlungPunkte = models.IntegerField(initial=0)
     OpferKennung = models.StringField(initial="NOVALUE")
     OpferAuszahlungDKK = models.FloatField()
-    OpferAuszahlungPunkte = models.IntegerField()
-
+    OpferAuszahlungPunkte = models.IntegerField(initial=0)
 
 
 class Player(BasePlayer):
@@ -189,7 +188,7 @@ class Intro(Page):
             zufallKlickFolgeIndex = random.randint(0,member_count)
             #zufallKlickFolgeIndex = random.randint(0,member_count-2)
             zufallKlickFolge = rows[zufallKlickFolgeIndex]
-            print("zufallKlickFolge: ", zufallKlickFolge, " index: ", zufallKlickFolgeIndex, " länge-1: "+str(member_count))
+            #print("zufallKlickFolge: ", zufallKlickFolge, " index: ", zufallKlickFolgeIndex, " länge-1: "+str(member_count))
 
             player.session.BeraterEmpfehlungFolge  = zufallKlickFolge
 
@@ -262,14 +261,15 @@ class SeiteFuerDenEntscheider(Page):
         ###schluessel = ''.join(player.round_number)
         computerEmpfehlung = player.session.BeraterEmpfehlungFolge[str(player.round_number)]
         player.group.ComputerBeraterEmpfehlung = computerEmpfehlung
-        print("runde: ", player.round_number, " mit der Empfehlung: ", computerEmpfehlung)
+        #print("runde: ", player.round_number, " mit der Empfehlung: ", computerEmpfehlung)
 
         return {
             'ComputerBeraterEmpfehlung': player.group.ComputerBeraterEmpfehlung,
             'opferPart': (player.participant.zugeordneteRole == Constants.opfer_role),
             'entscheiderPart': (player.participant.zugeordneteRole == Constants.entscheider_role),
-            'auszahlung': auszahlung
-
+            'auszahlung': auszahlung,
+            'zwischenstandEntscheiderSession' : player.session.EntscheiderAuszahlungPunkte,
+            'zwischenstandEntscheiderGroup' : player.group.EntscheiderAuszahlungPunkte
         }
 
     # Speichre die Wahl des Entscheiders 
@@ -301,10 +301,12 @@ class SeiteFuerDieOpfer(Page):
     def vars_for_template(player: Player):
         return {
             'opferPart': (player.participant.zugeordneteRole == Constants.opfer_role),
-            'entscheiderPart': (player.participant.zugeordneteRole == Constants.entscheider_role)
-
+            'entscheiderPart': (player.participant.zugeordneteRole == Constants.entscheider_role),
+            'zwischenstandOpferSession' : player.session.OpferAuszahlungPunkte,
+            'zwischenstandOpferGroup' : player.group.OpferAuszahlungPunkte
         }
- 
+
+
     # Speichere die Entscheidung der Opfer
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
@@ -345,16 +347,39 @@ class WarteAufDieOpfer(WaitPage):
         # Payoffs werden erhöht
         # Problem mit direkten Payoffs ist die Anzeige der Punkte - entweder beides als KR oder beides in POINTS
         # Daher noch einmal extra über die Gruppe
+
         opfer = group.get_player_by_role(Constants.opfer_role)
-        opfer.participant.payoff = opfer.participant.payoff + opferInkrement
-        #group.OpferAuszahlungPunkte = group.OpferAuszahlungPunkte + opferInkrement
+        # Die Gruppen-Werte werden zwischen den Runden gelöscht. Man muss also ab der 2. Runde den aggregierten Wert der Vor-Runde holen
+        if (round_number > 1):
+            group.OpferAuszahlungPunkte = group.in_round(round_number-1).OpferAuszahlungPunkte + opferInkrement
+            opfer.participant.VerdientePunkte = opfer.participant.VerdientePunkte + opferInkrement
+        else:
+            group.OpferAuszahlungPunkte = opferInkrement
+            opfer.participant.VerdientePunkte = opferInkrement
+
+        #opfer.participant.payoff = opfer.participant.payoff + opferInkrement
+        ## TODO NUR GANZE KRONEN - für andere Währungen könnte man hier auch mit 2 Nachkommastellen arbeiten (auf der Seite dann |to2 statt |to0)
+        opfer.participant.payoff = getGerundeteAuszahlung(opfer.participant.VerdientePunkte)
+        opfer.participant.label = str(getGerundeteAuszahlung(group.OpferAuszahlungPunkte))
         session.OpferAuszahlungPunkte += opferInkrement
 
         entscheider = group.get_player_by_role(Constants.entscheider_role)
-        entscheider.participant.payoff += entscheiderInkrement
-        #group.EntscheiderAuszahlungPunkte += entscheiderInkrement
+
+        # Die Gruppen-Werte werden zwischen den Runden gelöscht. Man muss also ab der 2. Runde den aggregierten Wert der Vor-Runde holen
+        if (round_number > 1):
+            group.EntscheiderAuszahlungPunkte = group.in_round(round_number-1).EntscheiderAuszahlungPunkte + entscheiderInkrement
+            entscheider.participant.VerdientePunkte += entscheiderInkrement
+        else:
+            group.EntscheiderAuszahlungPunkte = entscheiderInkrement
+            entscheider.participant.VerdientePunkte = entscheiderInkrement
+
+        # entscheider.participant.payoff += entscheiderInkrement
+        ## TODO NUR GANZE KRONEN - für andere Währungen könnte man hier auch mit 2 Nachkommastellen arbeiten (auf der Seite dann |to2 statt |to0)
+        entscheider.participant.payoff = getGerundeteAuszahlung(entscheider.participant.VerdientePunkte)
+        entscheider.participant.label = str(getGerundeteAuszahlung(group.EntscheiderAuszahlungPunkte))
         session.EntscheiderAuszahlungPunkte += entscheiderInkrement
 
+        #print("runde: ", group.round_number, " OpferAuszahlungPunkte: ", group.OpferAuszahlungPunkte, " EntscheiderAuszahlungPunkte: ", group.EntscheiderAuszahlungPunkte)
 
 
 
@@ -403,10 +428,9 @@ class AuszahlungUmfrage(Page):
         # Nur in der letzten Runde
         return player.round_number == Constants.num_rounds
 
-    def vars_for_template(player: Player):
-
+    def before_next_page(player: Player, timeout_happened):
         group = player.group
-        session = player.session
+        #session = player.session
 
         # ToDO GGF Auszahlungskorrektur
         # if Auszahlung_Punkte_Opfer > 4900:
@@ -416,21 +440,28 @@ class AuszahlungUmfrage(Page):
         nameOpfer = ''.join(random.sample(string.ascii_uppercase, 6))
         opfer.AuszahlungUserName = copy.deepcopy(nameOpfer)
         group.OpferKennung = copy.deepcopy(nameOpfer)
-        # HIER über die Session!
-        #group.OpferAuszahlungDKK = round(session.OpferAuszahlungPunkte / Constants.waehrungsFaktorDKK, 0)
-        group.OpferAuszahlungDKK = getGerundeteAuszahlung(session.OpferAuszahlungPunkte)
-        group.OpferAuszahlungPunkte = session.OpferAuszahlungPunkte
 
+        ## FUNKTIONIERT GUT!!! VERSUCHE TROTZDEM ÜBER GROUP #################
+        ##group.OpferAuszahlungDKK = getGerundeteAuszahlung(session.OpferAuszahlungPunkte)
+        ##group.OpferAuszahlungPunkte = session.OpferAuszahlungPunkte
+
+        # Jetzt OHNE Session-Werte
+        group.OpferAuszahlungDKK = getGerundeteAuszahlung(group.OpferAuszahlungPunkte)
 
         entscheider = group.get_player_by_role(Constants.entscheider_role).participant
         nameEntscheider = ''.join(random.sample(string.ascii_uppercase, 6))
         entscheider.AuszahlungUserName = copy.deepcopy(nameEntscheider)
         group.EntscheiderKennung = copy.deepcopy(nameEntscheider)
-        ## TODO NUR GANZE KRONEN - für andere Währungen könnte man hier auch mit 2 Nachkommastellen arbeiten (auf der Seite dann |to2 statt |to0)
-        #group.EntscheiderAuszahlungDKK = round(session.EntscheiderAuszahlungPunkte / Constants.waehrungsFaktorDKK, 0)
-        group.EntscheiderAuszahlungDKK = getGerundeteAuszahlung(session.EntscheiderAuszahlungPunkte)
-        group.EntscheiderAuszahlungPunkte = session.EntscheiderAuszahlungPunkte
 
+        print('Name Entscheider bis jetzt: ', nameEntscheider, ' und aus dem Participant: ', entscheider.code)
+
+
+        ## FUNKTIONIERT GUT!!! VERSUCHE TROTZDEM ÜBER GROUP #################
+        ##group.EntscheiderAuszahlungDKK = getGerundeteAuszahlung(session.EntscheiderAuszahlungPunkte)
+        ##group.EntscheiderAuszahlungPunkte = session.EntscheiderAuszahlungPunkte
+
+        # Jetzt OHNE Session-Werte
+        group.EntscheiderAuszahlungDKK = getGerundeteAuszahlung(group.EntscheiderAuszahlungPunkte)
 
 
 

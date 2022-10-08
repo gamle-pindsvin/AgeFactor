@@ -3,10 +3,10 @@ SESSION_CONFIG_DEFAULTS = dict(real_world_currency_per_point=1, participation_fe
 SESSION_CONFIGS = [dict(name='BadCounsel', num_demo_participants=None, app_sequence=['ComputerCouncil'])]
 LANGUAGE_CODE = 'en'
 REAL_WORLD_CURRENCY_CODE = 'DKK'
-USE_POINTS = True
+USE_POINTS = False
 #real_world_currency_per_point = - hier UMRECHNEN!!!
 DEMO_PAGE_INTRO_HTML = ''
-PARTICIPANT_FIELDS = ['zugeordneteRole', 'AuszahlungUserName']
+PARTICIPANT_FIELDS = ['zugeordneteRole', 'AuszahlungUserName', 'VerdientePunkte']
 SESSION_FIELDS = ['AngebotsMatrix', 'Spielarten_Folge', 'AuszahlungInPunktenFuerDasOpfer', 'AuszahlungImTeamFolge', 'BeraterEmpfehlungFolge', 'EntscheiderAuszahlungPunkte', 'BeraterAuszahlungPunkte', 'OpferAuszahlungPunkte', 'BeraterKlickfolge']
 ROOMS = []
 
