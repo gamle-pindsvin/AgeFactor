@@ -1,13 +1,13 @@
 from os import environ
 SESSION_CONFIG_DEFAULTS = dict(real_world_currency_per_point=1, participation_fee=0)
-SESSION_CONFIGS = [dict(name='BadCounsel', num_demo_participants=None, app_sequence=['ComputerCouncil'])]
+SESSION_CONFIGS = [dict(name='AgeFactor', num_demo_participants=None, app_sequence=['TeamWorkStage'])]
 LANGUAGE_CODE = 'en'
-REAL_WORLD_CURRENCY_CODE = 'DKK'
+REAL_WORLD_CURRENCY_CODE = 'USD'
 USE_POINTS = False
 #real_world_currency_per_point = - hier UMRECHNEN!!!
 DEMO_PAGE_INTRO_HTML = ''
-PARTICIPANT_FIELDS = ['zugeordneteRole', 'AuszahlungUserName', 'VerdientePunkte']
-SESSION_FIELDS = ['AngebotsMatrix', 'Spielarten_Folge', 'AuszahlungInPunktenFuerDasOpfer', 'AuszahlungImTeamFolge', 'BeraterEmpfehlungFolge', 'EntscheiderAuszahlungPunkte', 'BeraterAuszahlungPunkte', 'OpferAuszahlungPunkte', 'BeraterKlickfolge']
+PARTICIPANT_FIELDS = ['richtigeAntworten', 'AuszahlungUserName', 'VerdientePunkte', 'AnzahlRichtigerAntworten', 'ProlificID']
+SESSION_FIELDS = ['ZeitVergangen', 'Spielarten_Folge', 'AuszahlungInPunktenFuerDasOpfer', 'AuszahlungImTeamFolge', 'BeraterEmpfehlungFolge', 'EntscheiderAuszahlungPunkte', 'BeraterAuszahlungPunkte', 'OpferAuszahlungPunkte', 'BeraterKlickfolge']
 ROOMS = []
 
 ADMIN_USERNAME = 'admin'

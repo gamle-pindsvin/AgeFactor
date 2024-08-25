@@ -1,9 +1,0 @@
-B,C,A,F,D,A,F,C,D,B
-B,C,A,F,A,B,F,C,B,C
-D,B,A,E,D,D,E,B,A,F
-C,C,E,F,B,E,F,C,E,F
-C,E,D,D,A,F,B,D,A,F
-C,C,D,E,E,D,B,D,E,E
-A,C,A,F,D,A,F,C,D,F
-E,C,E,F,E,B,F,C,B,C
-E,C,B,F,D,B,F,C,B,C
