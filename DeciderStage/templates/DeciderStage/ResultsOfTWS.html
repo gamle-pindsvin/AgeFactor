@@ -1,0 +1,15 @@
+{{ extends "global/CSS_Page.html" }}
+{{ load otree }}
+
+{{ block title }}... Please encode following string in digit code ... {{ endblock }}
+
+{{ block content }}
+
+<div id="imagePlaceholder"> <img src="{% static "KodierungsTabelle.jpg" %}" alt="Table not found"></div>
+<div>HIER STEHT das Blah Blah zum vorherigen Vorgehen</div>
+<div>Rolle: {{ player.participant.zugeordneteRole }}</div>
+<div>rows: {{ player.session.ergebnisseVonTWS }}</div>
+
+{{ next_button }}
+
+{{ endblock }}

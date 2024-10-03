@@ -1,0 +1,27 @@
+{{ extends "global/CSS_Page.html" }}
+{{ load otree }}
+
+{{ block title }}Questions{{ endblock }}
+
+{{ block app_scripts }}
+<!-- Soll nicht zurück springen können -->
+<script>
+window.location.hash="no-back-button";
+window.location.hash="Again-No-back-button";//again because google chrome don't insert first hash into history
+window.onhashchange=function(){window.location.hash="no-back-button";}
+</script>
+{{ endblock }}
+
+{{ block content }}
+<table style="width:1000px;">
+    <tr><td colspan="12" class="td2">Project information for the last round was: {{anzahlKorrekt}}</td></tr>
+
+    <tr><td colspan="12" class="td2">player.session.OpferAuszahlungPunkt: {{player.session.OpferAuszahlungPunkte}}</td></tr>
+    <tr><td colspan="12" class="td2">participant.AnzahlRichtigerAntworten: {{ participant.AnzahlRichtigerAntworten }}</td></tr>
+
+
+</table>
+
+{% next_button %}
+
+{{ endblock }}

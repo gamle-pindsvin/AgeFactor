@@ -1,0 +1,15 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}Survey{% endblock %}
+
+{% block content %}
+
+
+<b>Please fill in the following survey:</b>
+
+{% formfields %}
+
+{% next_button %}
+
+{% endblock %}
