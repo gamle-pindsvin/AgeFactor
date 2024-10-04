@@ -1,0 +1,60 @@
+{{ extends "global/CSS_Page.html" }}
+{{ load otree }}
+
+{{ block title }}Project information and decision XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX{{ endblock }}
+
+{{ block app_scripts }}
+<!-- Soll nicht zurück springen können -->
+<script>
+window.location.hash="no-back-button";
+window.location.hash="Again-No-back-button";//again because google chrome don't insert first hash into history
+window.onhashchange=function(){window.location.hash="no-back-button";}
+</script>
+{{ endblock }}
+
+{{ block content }}
+<div>$$$$$$$$$ Runde {{player.round_number}} von {{ Constants.num_rounds }}</div>
+
+<table class="B-container">
+    <tr>
+        <td>
+            <img src="{% static "DiagrammT1.jpg" %}">
+        </td>
+    </tr>
+
+
+    <tr>
+        <td>
+        <table class="B-container">
+            <tr>
+                <td>Project information</td>
+            </tr>
+            <tr>
+
+                <td>
+                    <b>Your Guess for P1</b>
+                </td>
+                <td>
+                    <b>{{ formfield player.aktuellesErgebnisTWSSpieler1_Schaetzung }}</b>
+                </td>
+
+            </tr>
+            <tr>
+
+                <td>
+                    <b>Your Guess for P2</b>
+                </td>
+                <td>
+                    <b>{{ formfield player.aktuellesErgebnisTWSSpieler2_Schaetzung }}</b>
+                </td>
+
+            </tr>
+        </table>
+        </td>
+    </tr>
+</table>
+</div>
+
+{{ next_button }}
+
+{{ endblock }}

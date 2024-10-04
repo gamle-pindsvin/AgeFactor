@@ -14,7 +14,7 @@ class Constants(BaseConstants):
     name_in_url = 'DeciderStage'
     #TODO: MUSS MEHR SEIN, als die tatsächlich mögliche Anzahl der Teilnehmer also deutlich mehr als 12!!!
     players_per_group = 12
-    num_rounds = 10
+    num_rounds = 3
     timeOutSeconds = 6000
 
     # Umrechnungfaktor aus den Punkten / E$ z.B. in DKK oder USD
@@ -78,6 +78,19 @@ def waehleEinErgebnisAusTWS(player):
     print('insgesamt: ', results_count, 'resultsFolgeIndex: ', resultsFolgeIndex, ' angezeigteErgebnisse: ', angezeigteErgebnisse)
     return angezeigteErgebnisse
 
+
+    # Liefert EIN Ergebnis aus der TeamWorkStage-Runde, also so etwas wie [10, 20, 30]
+def berechneAuszahlung(anzeige1, anzeige2, schaetzung1, schaetzung2):
+    maxA = max(anzeige1, anzeige2);
+    minA = min(anzeige1, anzeige2);
+    maxS = max(schaetzung1, schaetzung2);
+    minS = min(schaetzung1, schaetzung2);
+    print('A1: ', anzeige1, 'A2: ', anzeige2, ' S1: ', schaetzung1,  ' S2: ', schaetzung2, ' MAX-Diff: ', abs(maxA-maxS) , ' MIN-Diff: ', abs(minA-minS))
+    # berechnet wird (|maxA-maxS| + |minA-minS|)
+    result = abs(maxA-maxS) + abs(minA-minS)
+
+    return result
+
 class Intro(Page):
     form_model = 'player'
     form_fields = ["ProlificID"]
@@ -138,6 +151,7 @@ class Intro(Page):
         player.participant.payoff = 0
         player.AuszahlungInWaehrung = 0
         player.VerdientePunkte = 0
+        player.participant.VerdientePunkte = 0
         player.AnzahlRichtigerAntworten = 0
 
 
@@ -219,17 +233,11 @@ class SeiteFuerT1(Page):
         player.aktuellesErgebnisTWSSpieler1_Anzeige = int(aktuellAngezeigteErgebnisse[0])
         player.aktuellesErgebnisTWSSpieler2_Anzeige = int(aktuellAngezeigteErgebnisse[1])
 
-
-
-        return {
-
-        }
-
-    # Speichre die Wahl des Entscheiders
+    # Berechne die Auszahlung für diese Runde und addiere sie zur Gesamtauszahlung
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
-        player.group.EntscheiderEmpfehlung = player.Entscheidung
-
+        neuePunkteInDieserRunde = berechneAuszahlung(player.aktuellesErgebnisTWSSpieler1_Anzeige, player.aktuellesErgebnisTWSSpieler2_Anzeige, player.aktuellesErgebnisTWSSpieler1_Schaetzung, player.aktuellesErgebnisTWSSpieler2_Schaetzung)
+        player.participant.VerdientePunkte += neuePunkteInDieserRunde
 
 
 # Nur für die Rolle T2
@@ -251,15 +259,11 @@ class SeiteFuerT2(Page):
         player.aktuellesErgebnisTWSSpieler1_Anzeige = int(aktuellAngezeigteErgebnisse[0])
         player.aktuellesErgebnisTWSSpieler2_Anzeige = int(aktuellAngezeigteErgebnisse[1])
 
-
-        return {
-
-        }
-
-    # Speichre die Wahl des Entscheiders
+    # Berechne die Auszahlung für diese Runde und addiere sie zur Gesamtauszahlung
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
-        player.group.EntscheiderEmpfehlung = player.Entscheidung
+        neuePunkteInDieserRunde = berechneAuszahlung(player.aktuellesErgebnisTWSSpieler1_Anzeige, player.aktuellesErgebnisTWSSpieler2_Anzeige, player.aktuellesErgebnisTWSSpieler1_Schaetzung, player.aktuellesErgebnisTWSSpieler2_Schaetzung)
+        player.participant.VerdientePunkte += neuePunkteInDieserRunde
 
 
 # Nur für die Rolle T3
@@ -281,16 +285,11 @@ class SeiteFuerT3(Page):
         player.aktuellesErgebnisTWSSpieler1_Anzeige = int(aktuellAngezeigteErgebnisse[0])
         player.aktuellesErgebnisTWSSpieler2_Anzeige = int(aktuellAngezeigteErgebnisse[1])
 
-
-
-        return {
-
-        }
-
-    # Speichre die Wahl des Entscheiders
+    # Berechne die Auszahlung für diese Runde und addiere sie zur Gesamtauszahlung
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
-        player.group.EntscheiderEmpfehlung = player.Entscheidung
+        neuePunkteInDieserRunde = berechneAuszahlung(player.aktuellesErgebnisTWSSpieler1_Anzeige, player.aktuellesErgebnisTWSSpieler2_Anzeige, player.aktuellesErgebnisTWSSpieler1_Schaetzung, player.aktuellesErgebnisTWSSpieler2_Schaetzung)
+        player.participant.VerdientePunkte += neuePunkteInDieserRunde
 
 # Auszahlung und Statistik werden vorbereitet
 class AuszahlungUmfrage(Page):
@@ -298,29 +297,25 @@ class AuszahlungUmfrage(Page):
     form_model = 'player'
     form_fields = ['Fachrichtung', 'Age', 'Gender']
 
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == Constants.num_rounds
 
-
-
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened):
+        player.payoff = player.participant.VerdientePunkte / Constants.waehrungsFaktor;
+        player.participant.payoff = player.participant.VerdientePunkte / Constants.waehrungsFaktor;
 
 
 # Ergebnis des Entscheidungsvorlage-Games wird angezeigt
 # Auszahlungsinformationen
 class Ergebnis(Page):
 
-
     @staticmethod
-    def vars_for_template(player: Player):
-        #print('player.participant.ProlificID: ', player.participant.ProlificID, ' player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten, ' player.participant.VerdientePunkte: ', player.participant.VerdientePunkte)
-        #print('player.ProlificID: ', player.ProlificID, ' player.AnzahlRichtigerAntworten: ', player.AnzahlRichtigerAntworten, ' player.VerdientePunkte: ', player.VerdientePunkte)
-        print('$$ 3 $$ player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten , ' player.AnzahlRichtigerAntworten: ', player.AnzahlRichtigerAntworten)
-        return {
-            'ProlificID': player.ProlificID,
-            'ProlificID-P': player.participant.ProlificID,
-            'Anzahl': player.AnzahlRichtigerAntworten,
-            'Anzahl-P': player.participant.AnzahlRichtigerAntworten,
-            'Auszahlung': player.VerdientePunkte,
-            'Auszahlung-P': player.participant.VerdientePunkte
-        }
+    def is_displayed(player: Player):
+        return player.round_number == Constants.num_rounds
+
+
 
 
 page_sequence = [Intro, ResultsOfTWS, RealEffortTask, SeiteFuerT1, SeiteFuerT3, SeiteFuerT3, AuszahlungUmfrage, Ergebnis]
