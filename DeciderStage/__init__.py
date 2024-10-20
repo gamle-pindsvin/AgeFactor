@@ -46,13 +46,15 @@ class Player(BasePlayer):
     QuizKodieren2 = models.StringField(choices=[['A', 'A'], ['B', 'B'], ['C', 'C']], widget=widgets.RadioSelect, label='')
     QuizBezahlung = models.StringField(choices=[['A', 'A'], ['B', 'B'], ['C', 'C']], widget=widgets.RadioSelect, label='')
 
-    # Zufällig gezogene Ergebnisse zur Anzeige
-    aktuellesErgebnisTWSSpieler1_Anzeige = models.IntegerField(label='')
-    aktuellesErgebnisTWSSpieler2_Anzeige = models.IntegerField(label='')
+    # Zufällig gezogene Ergebnisse aus dem vorherigen TeamWorkStage
+    aktuellesErgebnisTWSSpieler1_aus_TWS = models.IntegerField(label='')
+    aktuellesErgebnisTWSSpieler2_aus_TWS = models.IntegerField(label='')
+    aktuellesErgebnisTWS_Summe = models.IntegerField(label='')
 
     # Und Eingaben der Entscheider, was sie denken, dass einer beigetragen hat
-    aktuellesErgebnisTWSSpieler1_Schaetzung = models.IntegerField(label='')
-    aktuellesErgebnisTWSSpieler2_Schaetzung = models.IntegerField(label='')
+    aktuellesErgebnisTWSSpieler1_Schaetzung = models.IntegerField(label='', blank=True, null=True)
+    aktuellesErgebnisTWSSpieler2_Schaetzung = models.StringField(label='', blank=True, null=True, initial="")
+
 
     # Prüfen, ob man selbst decodieren kann
     SelbstTest = models.StringField(label='')
@@ -67,6 +69,8 @@ class Player(BasePlayer):
     VerdientePunkte = models.IntegerField(initial=0)
     AuszahlungWaehrungName = models.StringField();
 
+    #TODO DANACH LÖSCHEN NUR SLIDER TEST
+    slider_value = models.IntegerField(null=True, blank=True)
 
     # Liefert EIN Ergebnis aus der TeamWorkStage-Runde, also so etwas wie [10, 20, 30]
 def waehleEinErgebnisAusTWS(player):
@@ -100,6 +104,8 @@ class Intro(Page):
 
     @staticmethod
     def is_displayed(player: Player):
+        #TODO HIER NUR UM SLIDER zu testen - DANACH LÖSCHEN!!!!
+        #player.slider_value = 23
         return player.round_number == 1
 
     def error_message(player, values) :
@@ -129,8 +135,8 @@ class Intro(Page):
             player.participant.zugeordneteRole = Constants.role_T3;
 
         #TODO HIER NUR UM ALLES IN T1 zu testen - DANACH LÖSCHEN!!!!
-        #player.zugeordneteRole = Constants.role_T1;
-        #player.participant.zugeordneteRole = Constants.role_T1;
+        player.zugeordneteRole = Constants.role_T1;
+        player.participant.zugeordneteRole = Constants.role_T1;
 
 
         # Hier werden die Ergebnisse des TeamWorkStage eingelesen
@@ -204,8 +210,10 @@ class RealEffortTask(Page):
 
 class ResultsOfTWS(Page):
     form_model = 'player'
+    #TODO DANACH LÖSCHEN NUR SLIDER TEST
+    form_fields = ['slider_value']
     #form_fields = ["AnzahlRichtigerAntworten"]
-    timeout_seconds = 60
+    #timeout_seconds = 60
 
     @staticmethod
     def is_displayed(player: Player):
@@ -218,7 +226,7 @@ class ResultsOfTWS(Page):
 class SeiteFuerT1(Page):
     #timeout_seconds = Constants.timeOutSeconds
     form_model = 'player'
-    form_fields = ["aktuellesErgebnisTWSSpieler1_Schaetzung", "aktuellesErgebnisTWSSpieler2_Schaetzung"]
+    form_fields = ["aktuellesErgebnisTWSSpieler1_Schaetzung"]
 
     @staticmethod
     def is_displayed(player: Player):
@@ -230,13 +238,33 @@ class SeiteFuerT1(Page):
         # Ziehe einer der Ergebnisse aus TWS
         aktuellAngezeigteErgebnisse = waehleEinErgebnisAusTWS(player)
 
-        player.aktuellesErgebnisTWSSpieler1_Anzeige = int(aktuellAngezeigteErgebnisse[0])
-        player.aktuellesErgebnisTWSSpieler2_Anzeige = int(aktuellAngezeigteErgebnisse[1])
+        # Die Werte braucht man unten zur Berechung der Auszahlung. Die Summe aber auch als Anzeige, daher schon hier
+        player.aktuellesErgebnisTWSSpieler1_aus_TWS = int(aktuellAngezeigteErgebnisse[0])
+        player.aktuellesErgebnisTWSSpieler2_aus_TWS = int(aktuellAngezeigteErgebnisse[1])
+        player.aktuellesErgebnisTWS_Summe = int(aktuellAngezeigteErgebnisse[2])
+
+        summe = player.aktuellesErgebnisTWS_Summe
+        inputFieldValue = player.field_maybe_none('aktuellesErgebnisTWSSpieler1_Schaetzung')
+        berechnetesErgebnis = player.field_maybe_none('aktuellesErgebnisTWSSpieler2_Schaetzung')
+        if inputFieldValue is None:
+            # Behandle den Fall, wenn das inputFieldValue None ist
+            inputFieldValue = ""
+
+        if berechnetesErgebnis is None:
+        # Behandle den Fall, wenn das Ergebnis None ist
+            berechnetesErgebnis = ""
+
+        return {
+            'calculated_field': berechnetesErgebnis,
+            'aktuellesErgebnisTWSSpieler1_Schaetzung': inputFieldValue,
+            'summe': summe
+    }
 
     # Berechne die Auszahlung für diese Runde und addiere sie zur Gesamtauszahlung
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
-        neuePunkteInDieserRunde = berechneAuszahlung(player.aktuellesErgebnisTWSSpieler1_Anzeige, player.aktuellesErgebnisTWSSpieler2_Anzeige, player.aktuellesErgebnisTWSSpieler1_Schaetzung, player.aktuellesErgebnisTWSSpieler2_Schaetzung)
+        berechnet_aktuellesErgebnisTWSSpieler2 = player.aktuellesErgebnisTWS_Summe - player.aktuellesErgebnisTWSSpieler1_Schaetzung;
+        neuePunkteInDieserRunde = berechneAuszahlung(player.aktuellesErgebnisTWSSpieler1_aus_TWS, player.aktuellesErgebnisTWSSpieler2_aus_TWS, player.aktuellesErgebnisTWSSpieler1_Schaetzung, berechnet_aktuellesErgebnisTWSSpieler2)
         player.participant.VerdientePunkte += neuePunkteInDieserRunde
 
 

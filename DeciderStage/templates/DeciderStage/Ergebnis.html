@@ -5,15 +5,20 @@
 
 {% block content %}
 <br>
-
+<form method="post">
 
 <div>
     Blah
 
 </div>
-Your earnings are <b>{{ player.participant.VerdientePunkte }} </b> E$ corresponding to <b>{{ player.participant.payoff|to2 }}</b>.<br>
+Your earnings are <b>{{ player.participant.VerdientePunkte }} </b> E$ corresponding to <b>{{ player.participant.payoff|to2 }}</b>. <a href="#" id="showExplanationLink">********** Wie kam die Auszahlung zustande? ********* </a><br>
+<div id="explanation" style="display: none;">
+    <br>
 
-<br>
+    <p>Hier ist die Erklärung, wie es zustande kam...</p>
+</div>
+
+    <br>
 
 <div>To return to Prolific <b>and ensure payment</b>, please click this link: </div>
 <div>Please remain seated until the experiment is called to an end.</div> <br>
@@ -21,8 +26,23 @@ Your earnings are <b>{{ player.participant.VerdientePunkte }} </b> E$ correspond
 <b>Thank you very much for your participation!</b>
 
 <br>
+</form>
 
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var showExplanationLink = document.getElementById('showExplanationLink');
+            var explanation = document.getElementById('explanation');
 
+            showExplanationLink.addEventListener('click', function(event) {
+                event.preventDefault();  // Verhindert das Standardverhalten des Links
+                if (explanation.style.display === 'none') {
+                    explanation.style.display = 'block';
+                } else {
+                    explanation.style.display = 'none';
+                }
+            });
+        });
+</script>
 
 <!--{% next_button %}-->
 
