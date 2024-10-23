@@ -1,0 +1,57 @@
+{{ extends "global/Page.html" }}
+{{ load otree }}
+
+{{ block title }}Instructions{{ endblock }}
+
+{{ block content }}
+
+<br>
+<div>Welcome to this economic experiment. The effort you provide here can result in a considerable monetary gain. It is crucial that you read these instructions attentively. It's important to note that, in contrast to some other social sciences, economic experiments adhere to a strict non-deception policy, ensuring that all information provided to you is accurate.</div>
+<br>
+<div>This economic experiment is divided into two parts: a <u>Practice Part</u>, where no money can be earned, and a <u>Task Part</u>, where you can earn money. The Practice Part includes reading these instructions, answering x comprehension questions, and completing a practice exercise. It's essential that you answer the comprehension questions correctly on your own. Please do not seek help from others while responding to these questions. If you answer a question incorrectly, you will receive two additional chances to correct your answer. If you are unable to answer all questions correctly after these additional opportunities, you will not be allowed to proceed to the Task Part of the experiment, and the experiment will conclude for you. In such a case, you will receive a payment of £0.45. Once you have successfully answered all comprehension questions, you can move on to the Task Part. In this section, you can earn money by completing a series of short tasks. After the task part, a short questionnaire needs to be completed.</div>
+<br>
+<div>Please remember, to exit this economic experiment and receive your payment, you must click the "Leave" button and proceed to the next page. After doing so, a message will appear informing you that the experiment has concluded, and you may close your browser. If you exit the experiment without following this procedure, you will not receive any payment.</div>
+<br>
+<div>Please note that you cannot exit the experiment and receive payment until the Task Part and the Questionnaire have concluded. You will
+    <b>not be paid</b> if you leave the experiment before the 10 minutes allocated to work are over, or the questionnaire is completed. If you decide to leave before conclusion of the experiment, you will not be able to start working again. To <b>be paid</b> according to the effort provided in the Task part, it is necessary that you complete the experiment.</div>
+<br>
+<br>
+<b>Task Part</b>
+<br>
+<br>
+<div>In the Task Part of this experiment, you will have 10 minutes to complete a series of tasks, where you can earn money. Each task involves encoding words letter-by-letter into 3-digit numbers on your computer. You may <b>work at your own pace</b> within this time frame. You will earn a payment for each word that you accurately encode. Make sure to manage your time effectively to maximize your earnings. The remaining time will be shown to you throughout. When the 10 minutes are over, you will automatically see the questionnaire (which takes about 1 minute to complete). When the questionnaire is completed, you will automatically see a message informing you about your earnings. The message also includes the <u>Prolific link that you need to click to validate your participation</u>.  </div>
+<br>
+<div>You will be presented with one word at a time. After successfully encoding a word letter-by-letter into 3-digit numbers, you can move to the next page to view the next word. With each new word displayed, you have the option to either encode the word or exit the experiment.</div>
+<br>
+<div>If there is an error in your encoding, the software will notify you. You must correct the mistake before you can advance to the next word.</div>
+<br>
+<div>It's important to note that only you will benefit financially from your work; neither the experimenters nor anyone else will derive earnings from your efforts. The numbers that you input serve no purpose beyond this task.</div>
+
+
+<br>
+<b>Payment</b>
+<br>
+<br>
+<div>You will receive payment for each word you encode correctly. The payment rate per encoded word will be disclosed when you see the first word to be encoded. Additionally, you will receive a fixed amount of £0.70, regardless of the number of words encoded.</div>
+
+<br>
+<b>Decision</b>
+<br><br>
+<div>In this economic experiment, you decide how much of the task to complete. You are the sole decision-maker regarding the pace of your work within the 10-minute time frame. Your choices will only affect your own earnings.</div>
+
+<br>
+<b>Practice Part</b>
+<br><br>
+<div>In the Practice Part, you are required to correctly answer some comprehension questions. It is crucial that you answer these questions independently. You will have three attempts for each question. Failure to answer all comprehension questions correctly will prevent you from participating in the Task Part, ending the experiment for you, and you will receive a payment of £0.45.</div>
+<br>
+<div>After successfully answering all comprehension questions, you will encode two practice lines to familiarize yourself with the task. You will not receive payments for these practice lines, and they will not impact the Task Part in any way.</div>
+<br>
+<b>Please ... your Prolific-ID:</b>
+
+{% formfield player.ProlificID %}
+<br>
+<b></b>
+<div></div>
+{{ next_button }}
+
+{{ endblock }}
