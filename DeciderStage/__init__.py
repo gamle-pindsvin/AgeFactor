@@ -224,7 +224,7 @@ class ResultsOfTWS(Page):
 
 # Nur für die Rolle T1
 class SeiteFuerT1(Page):
-    #timeout_seconds = Constants.timeOutSeconds
+    #timeout_seconds = Constants.dauerDesThreatmentsInSekunden
     form_model = 'player'
     form_fields = ["aktuellesErgebnisTWSSpieler1_Schaetzung"]
 
@@ -270,7 +270,7 @@ class SeiteFuerT1(Page):
 
 # Nur für die Rolle T2
 class SeiteFuerT2(Page):
-    #timeout_seconds = Constants.timeOutSeconds
+    #timeout_seconds = Constants.dauerDesThreatmentsInSekunden
     form_model = 'player'
     form_fields = ["aktuellesErgebnisTWSSpieler1_Schaetzung", "aktuellesErgebnisTWSSpieler2_Schaetzung"]
 
@@ -296,7 +296,7 @@ class SeiteFuerT2(Page):
 
 # Nur für die Rolle T3
 class SeiteFuerT3(Page):
-    #timeout_seconds = Constants.timeOutSeconds
+    #timeout_seconds = Constants.dauerDesThreatmentsInSekunden
     form_model = 'player'
     form_fields = ["aktuellesErgebnisTWSSpieler1_Schaetzung", "aktuellesErgebnisTWSSpieler2_Schaetzung"]
 
