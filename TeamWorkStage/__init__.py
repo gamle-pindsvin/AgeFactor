@@ -16,7 +16,7 @@ class Constants(BaseConstants):
     players_per_group = 12
     num_rounds = 1
     # Wie lange soll die Aufgabe gelöst werden
-    dauerDesThreatmentsInSekunden = 30
+    dauerDesThreatmentsInSekunden = 3000
     # Umrechnungfaktor aus den Punkten / E$ z.B. in DKK oder USD
     waehrungsFaktor = 1
     waehrungsName = 'USD'

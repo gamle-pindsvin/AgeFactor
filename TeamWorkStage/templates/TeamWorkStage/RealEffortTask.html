@@ -5,7 +5,32 @@
 
 {{ block content }}
 
-<div id="imagePlaceholder"> <img src="{% static "KodierungsTabelle.jpg" %}" alt="Table not found"></div>
+<!--<div id="imagePlaceholder"> <img src="{% static "KodierungsTabelle.jpg" %}" alt="Table not found"></div>-->
+<div>
+    <table border="1" style="width:100%; text-align:center;">
+        <tr>
+            <td><b>A</b>: 222</td><td><b>B</b>: 884</td><td><b>C</b>: 527</td><td><b>D</b>: 458</td>
+        </tr>
+        <tr>
+            <td><b>E</b>: 290</td><td><b>F</b>: 763</td><td><b>G</b>: 318</td><td><b>H</b>: 396</td>
+        </tr>
+        <tr>
+            <td><b>I</b>: 581</td><td><b>J</b>: 279</td><td><b>K</b>: 168</td><td><b>L</b>: 289</td>
+        </tr>
+        <tr>
+            <td><b>M</b>: 474</td><td><b>N</b>: 931</td><td><b>O</b>: 540</td><td><b>P</b>: 601</td>
+        </tr>
+        <tr>
+            <td><b>Q</b>: 121</td><td><b>R</b>: 258</td><td><b>S</b>: 921</td><td><b>T</b>: 375</td>
+        </tr>
+        <tr>
+            <td><b>U</b>: 753</td><td><b>V</b>: 471</td><td><b>W</b>: 187</td><td><b>X</b>: 244</td>
+        </tr>
+        <tr>
+            <td colspan="2"><b>Y</b>: 555</td><td colspan="2"><b>Z</b>: 463</td>
+        </tr>
+    </table>
+</div>
 <div id="timer">{{dauerDesThreatmentsInSekunden}} Sekunden</div>
 <div id="score">Correct answers: 0</div>
 <div type="text" id="display" style="margin-top: 40px; font-size: 2em;text-align: center;align-items: center; display: flex;justify-content: center;">Anzeigefeld</div>
@@ -30,10 +55,32 @@
 
 
         const encoding = {
-            'A': '123',
-            'B': '234',
-            'C': '456',
-            // Weitere Kodierungen hier hinzufügen
+            'A' :  '222',
+            'B' :  '884',
+            'C' :  '527',
+            'D' :  '458',
+            'E' :  '290',
+            'F' :  '763',
+            'G' :  '318',
+            'H' :  '396',
+            'I' :  '581',
+            'J' :  '279',
+            'K' :  '168',
+            'L' :  '289',
+            'M' :  '474',
+            'N' :  '931',
+            'O' :  '540',
+            'P' :  '601',
+            'Q' :  '121',
+            'R' :  '258',
+            'S' :  '921',
+            'T' :  '375',
+            'U' :  '753',
+            'V' :  '471',
+            'W' :  '187',
+            'X' :  '244',
+            'Y' :  '555',
+            'Z' :  '463'
         };
 
 
