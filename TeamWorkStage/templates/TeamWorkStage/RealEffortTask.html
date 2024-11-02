@@ -18,16 +18,13 @@
             <td><b>I</b>: 581</td><td><b>J</b>: 279</td><td><b>K</b>: 168</td><td><b>L</b>: 289</td>
         </tr>
         <tr>
-            <td><b>M</b>: 474</td><td><b>N</b>: 931</td><td><b>O</b>: 540</td><td><b>P</b>: 601</td>
+            <td><b>M</b>: 474</td><td><b>N</b>: 625</td><td><b>O</b>: 540</td><td><b>P</b>: 601</td>
         </tr>
         <tr>
-            <td><b>Q</b>: 121</td><td><b>R</b>: 258</td><td><b>S</b>: 921</td><td><b>T</b>: 375</td>
+            <td><b>R</b>: 258</td><td><b>S</b>: 921</td><td><b>T</b>: 375</td><td><b>U</b>: 753</td>
         </tr>
         <tr>
-            <td><b>U</b>: 753</td><td><b>V</b>: 471</td><td><b>W</b>: 187</td><td><b>X</b>: 244</td>
-        </tr>
-        <tr>
-            <td colspan="2"><b>Y</b>: 555</td><td colspan="2"><b>Z</b>: 463</td>
+            <td><b>V</b>: 471</td><td><b>W</b>: 187</td><td><b>X</b>: 244</td><td><b>Y</b>: 555</td>
         </tr>
     </table>
 </div>
@@ -68,10 +65,9 @@
             'K' :  '168',
             'L' :  '289',
             'M' :  '474',
-            'N' :  '931',
+            'N' :  '625',
             'O' :  '540',
             'P' :  '601',
-            'Q' :  '121',
             'R' :  '258',
             'S' :  '921',
             'T' :  '375',
@@ -79,8 +75,7 @@
             'V' :  '471',
             'W' :  '187',
             'X' :  '244',
-            'Y' :  '555',
-            'Z' :  '463'
+            'Y' :  '555'
         };
 
 
@@ -106,7 +101,6 @@
             const input = document.getElementById('inputField').value;
             const encodedString = getEncodedString(randomString);
             const feedbackElement = document.getElementById('feedback');
-//alert("encodedString: "+encodedString+" input: "+input);
             if (input === encodedString) {
                 correctAnswers++;
                 feedbackElement.innerText = "Correct!";
@@ -125,8 +119,9 @@ liveSend(correctAnswers);
             document.getElementById('score').innerText = `Correct answers: ${correctAnswers}`;
 
 
+// TODO - war 5!!
 
-            randomString = getRandomString(5);
+            randomString = getRandomString(3);
             document.getElementById('display').innerText = randomString;
             document.getElementById('inputField').value = '';
             document.getElementById('inputField').focus();
@@ -137,7 +132,7 @@ liveSend(correctAnswers);
         }
 
         let correctAnswers = 0;
-        let randomString = getRandomString(5);  // Initialisierung der zufälligen Zeichenkette
+        let randomString = getRandomString(3);  // Initialisierung der zufälligen Zeichenkette
         document.getElementById('display').innerText = randomString;  // Anzeige der zufälligen Zeichenkette
         let timeLeft = {{Constants.dauerDesThreatmentsInSekunden}};
         const timerElement = document.getElementById('timer');

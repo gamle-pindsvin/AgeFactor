@@ -16,7 +16,7 @@ class Constants(BaseConstants):
     players_per_group = 12
     num_rounds = 1
     # Wie lange soll die Aufgabe gelöst werden
-    dauerDesThreatmentsInSekunden = 3000
+    dauerDesThreatmentsInSekunden = 420
     # Umrechnungfaktor aus den Punkten / E$ z.B. in DKK oder USD
     waehrungsFaktor = 1
     waehrungsName = 'USD'
@@ -53,6 +53,7 @@ class Player(BasePlayer):
 
     # Zählt falsche Versuche beim Quiz
     FreiVersucheImQuiz = models.IntegerField(initial=3)
+    HatSichQualifiziert = models.BooleanField(initial=True)
 
 
 class Intro(Page):
@@ -98,10 +99,22 @@ class Quiz(Page):
     @staticmethod
     def error_message(player, values):
         # Wenn player.FreiVersucheImQuiz 0 werden, geht weiter, aber gleich zu der Auszahlungsseite.
-        player.FreiVersucheImQuiz -= 1
-        if not ((values['QuizKodieren1'] == 'B') and (values['QuizKodieren2'] == 'C') and (values['QuizBezahlung'] == 'C')) and player.FreiVersucheImQuiz >0:
-            #print('QuizKodieren1: ', values['QuizKodieren1'], ' QuizKodieren2: ', values['QuizKodieren2'], 'QuizBezahlung: ', values['QuizBezahlung'])
-            return 'Try again please. One or both answers are not yet correct. You have ' + str(player.FreiVersucheImQuiz) + ' attempts left.'
+        quizKorrekt = ((values['QuizKodieren1'] == 'B') and (values['QuizKodieren2'] == 'C') and (values['QuizBezahlung'] == 'C'))
+        #print(values['QuizKodieren1'], 'bool: ', (values['QuizKodieren1'] == 'B'))
+        #print(values['QuizKodieren2'], 'bool: ', (values['QuizKodieren2'] == 'C'))
+        #print(values['QuizBezahlung'], 'bool: ', (values['QuizBezahlung'] == 'C'))
+        if not quizKorrekt:
+            #print('NICHT KORREKT player.FreiVersucheImQuiz war: ', player.FreiVersucheImQuiz, " / quizKorrekt: ", quizKorrekt)
+            player.FreiVersucheImQuiz -= 1
+            if player.FreiVersucheImQuiz > 0 :
+                #print('Try again please. One or both answers are not yet correct. You have ', str(player.FreiVersucheImQuiz), ' attempts left.')
+                return 'Try again please. One or both answers are not yet correct. You have ' + str(player.FreiVersucheImQuiz) + ' attempts left.'
+            else:
+                #keine Freiversuche mehr
+                player.HatSichQualifiziert = False
+        else:
+            #print('KORREKT!!')
+            pass
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -122,7 +135,8 @@ class RealEffortTask(Page):
     @staticmethod
     # Wird bei denen NICHT anzgezeigt, die das Quiz nicht geschafft haben.
     def is_displayed(player: Player):
-        return player.FreiVersucheImQuiz > -1
+        print('HatSichQualifiziert: ', player.HatSichQualifiziert)
+        return player.HatSichQualifiziert
 
     @staticmethod
     def vars_for_template(player: Player):
