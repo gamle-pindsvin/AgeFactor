@@ -1,40 +1,38 @@
 {{ extends "global/CSS_Page.html" }}
 {{ load otree }}
 
-{{ block title }}... Please encode following string in digit code ... {{ endblock }}
+{{ block title }} &nbsp; {{ endblock }}
 
 {{ block content }}
 
 <!--<div id="imagePlaceholder"> <img src="{% static "KodierungsTabelle.jpg" %}" alt="Table not found"></div>-->
 <div>
-    <table border="1" style="width:100%; text-align:center;">
+    <table border="1" style="width:100%; text-align:center; border-collapse: collapse;">
         <tr>
-            <td><b>A</b>: 222</td><td><b>B</b>: 884</td><td><b>C</b>: 527</td><td><b>D</b>: 458</td>
+            <td><b>A</b>: 222</td><td><b>B</b>: 884</td><td><b>C</b>: 527</td><td><b>D</b>: 458</td> <td><b>E</b>: 290</td><td><b>F</b>: 763</td><td><b>G</b>: 318</td><td><b>H</b>: 396</td>
         </tr>
         <tr>
-            <td><b>E</b>: 290</td><td><b>F</b>: 763</td><td><b>G</b>: 318</td><td><b>H</b>: 396</td>
+            <td style="border-left: 1px solid white;border-right: 1px solid white;" colspan="8">&nbsp</td>
         </tr>
         <tr>
-            <td><b>I</b>: 581</td><td><b>J</b>: 279</td><td><b>K</b>: 168</td><td><b>L</b>: 289</td>
+            <td><b>I</b>: 581</td><td><b>J</b>: 279</td><td><b>K</b>: 168</td><td><b>L</b>: 289</td> <td><b>M</b>: 474</td><td><b>N</b>: 625</td><td><b>O</b>: 540</td><td><b>P</b>: 601</td>
         </tr>
         <tr>
-            <td><b>M</b>: 474</td><td><b>N</b>: 625</td><td><b>O</b>: 540</td><td><b>P</b>: 601</td>
+            <td style="border-left: 1px solid white;border-right: 1px solid white;" colspan="8">&nbsp</td>
         </tr>
         <tr>
-            <td><b>R</b>: 258</td><td><b>S</b>: 921</td><td><b>T</b>: 375</td><td><b>U</b>: 753</td>
+            <td><b>R</b>: 258</td><td><b>S</b>: 921</td><td><b>T</b>: 375</td><td><b>U</b>: 753</td> <td><b>V</b>: 471</td><td><b>W</b>: 187</td><td><b>X</b>: 244</td><td><b>Y</b>: 555</td>
         </tr>
-        <tr>
-            <td><b>V</b>: 471</td><td><b>W</b>: 187</td><td><b>X</b>: 244</td><td><b>Y</b>: 555</td>
-        </tr>
+
     </table>
 </div>
-<div id="timer">{{dauerDesThreatmentsInSekunden}} Sekunden</div>
+<div id="timer">{{dauerDesThreatmentsInSekunden}} Seconds</div>
 <div id="score">Correct answers: 0</div>
-<div type="text" id="display" style="margin-top: 40px; font-size: 2em;text-align: center;align-items: center; display: flex;justify-content: center;">Anzeigefeld</div>
+<div type="text" id="display" style="margin-top: 40px; font-size: 2em;text-align: center;align-items: center; display: flex;justify-content: center;">&nbsp;</div>
 <div>
-    <input type="text" id="inputField"  placeholder="Gib die passende Zahl ein" oninput="resetInputStyle()" onkeydown="if (event.key === 'Enter') compareNumbers()">
+    <input type="text" id="inputField"  placeholder="Enter the code" oninput="resetInputStyle()" onkeydown="if (event.key === 'Enter') compareNumbers()">
 </div>
-<button id="compareButton" onclick="compareNumbers()">Compare</button>
+<button id="compareButton" onclick="compareNumbers()">OK</button>
 <div id="feedback"></div>
 
 <script>

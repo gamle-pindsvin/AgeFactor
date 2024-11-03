@@ -13,13 +13,13 @@ from uvicorn import Config
 class Constants(BaseConstants):
     name_in_url = 'TeamWorkStage'
     #TODO: MUSS MEHR SEIN, als die tatsächlich mögliche Anzahl der Teilnehmer also deutlich mehr als 12!!!
-    players_per_group = 12
+    players_per_group = 20
     num_rounds = 1
     # Wie lange soll die Aufgabe gelöst werden
-    dauerDesThreatmentsInSekunden = 420
+    dauerDesThreatmentsInSekunden = 10
     # Umrechnungfaktor aus den Punkten / E$ z.B. in DKK oder USD
-    waehrungsFaktor = 1
-    waehrungsName = 'USD'
+    waehrungsFaktor = 0.01
+    waehrungsName = 'GBP'
 
 
 
@@ -35,21 +35,25 @@ class Group(BaseGroup):
 class Player(BasePlayer):
 
     ProlificID = models.StringField( label='')
-    AnzahlRichtigerAntworten = models.IntegerField()
+    AnzahlRichtigerAntworten = models.IntegerField(initial=0)
 
     QuizKodieren1 = models.StringField(choices=[['A', 'A'], ['B', 'B'], ['C', 'C']], widget=widgets.RadioSelect, label='')
     QuizKodieren2 = models.StringField(choices=[['A', 'A'], ['B', 'B'], ['C', 'C']], widget=widgets.RadioSelect, label='')
     QuizBezahlung = models.StringField(choices=[['A', 'A'], ['B', 'B'], ['C', 'C']], widget=widgets.RadioSelect, label='')
 
     # Statistik am Ende
-    Fachrichtung = models.StringField(choices=[['Man', 'Management'], ['Eco', 'Economics'], ['Law', 'Law'], ['Cog', 'Cognitive Science'], ['Nat', 'Natural Science or Mathematics'], ['Other', 'Other field'], ['None', "I'm not a student"]], widget=widgets.RadioSelect, label='Field of study')
-    Age = models.StringField(choices=[['1', '20 years or less'], ['2', '21 - 24'], ['3', '25 - 28'], ['4', '29 - 35'], ['5', 'more than 35']], widget=widgets.RadioSelect)
-    Gender = models.StringField(choices=[['F', 'Female'], ['M', 'Male'], ['D', 'Not listed'], ['N', 'Prefer not to answer']], widget=widgets.RadioSelect)
+    PoliticalOrientation = models.StringField(choices=[['1', 'Very left-leaning'], ['2', 'Left-leaning'], ['3', 'Slightly left-leaning'], ['4', 'Centrist Science'], ['5', 'Slightly right-leaning'], ['6', 'Right-leaning'], ['7', "Very right-leaning"]], widget=widgets.RadioSelect, label='Where would you place yourself on the following political spectrum?')
+    Education = models.StringField(choices=[['1', 'No formal qualifications'], ['2', 'GCSEs or equivalent (e.g., O-Levels)'], ['3', 'A-Levels or equivalent (e.g., high school diploma)'], ['4', 'Vocational qualification (e.g., NVQ, BTEC)'], ['5', 'Undergraduate degree (e.g., BA, BSc)'], ['6', 'Postgraduate degree (e.g., MA, MSc, PhD)'], ['0', "Other "]], widget=widgets.RadioSelect, label='What is the highest level of education you have completed? ')
+    GeburtsJahr = models.IntegerField(min=1900, max=2010, label='In which year were you born?')
+    Gender = models.StringField(choices=[['F', 'Female'], ['M', 'Male'], ['D', 'Not listed'], ['N', 'Prefer not to answer']], widget=widgets.RadioSelect, label='What is your gender?')
 
     #Am Ende ggf. mit real_world_currency_per_point im Config korrigieren
     AuszahlungInWaehrung = models.IntegerField(initial=0)
     VerdientePunkte = models.IntegerField(initial=0)
     AuszahlungWaehrungName = models.StringField();
+
+    # ProlificID - Fehlerhinweis kann noch angezeigt werden
+    HinweisLangeProlificID = models.BooleanField(initial=True)
 
     # Zählt falsche Versuche beim Quiz
     FreiVersucheImQuiz = models.IntegerField(initial=3)
@@ -68,10 +72,9 @@ class Intro(Page):
         return player.round_number == 1
 
     def error_message(player, values) :
-        if len(values['ProlificID']) != 24 and  Intro.einmaligeWartung :
+        if len(values['ProlificID']) != 24 and player.HinweisLangeProlificID :
             # nächstes Mal wird nicht nehr gewarnt
-            Intro.einmaligeWartung = False
-            print('einmaligeWartung', Intro.einmaligeWartung, ' ID: ', Player.ProlificID)
+            player.HinweisLangeProlificID = False
             #TODO - Text ggf. anpassen!
             return 'Are you sure? Prolific-ID is normally 24 characters long.'
 
@@ -87,6 +90,7 @@ class Intro(Page):
         player.AuszahlungInWaehrung = 0
         player.VerdientePunkte = 0
         player.AnzahlRichtigerAntworten = 0
+        player.participant.AnzahlRichtigerAntworten = 0
         player.FreiVersucheImQuiz = 3
 
 
@@ -146,12 +150,21 @@ class RealEffortTask(Page):
 
     @staticmethod
     def live_method(player, data):
-        player.participant.AnzahlRichtigerAntworten = data
-        player.AnzahlRichtigerAntworten = data
-        print('$$ 1 $$ player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten , ' player.AnzahlRichtigerAntworten: ', player.AnzahlRichtigerAntworten)
+        # Initial auszahlung = 0
+        auszahlung = 0
+       # Nur wenn data nicht NULL ist
+        if data is not None:
+            player.participant.AnzahlRichtigerAntworten = data
+            player.AnzahlRichtigerAntworten = data
+            print('$$ 1 $$ player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten , ' player.AnzahlRichtigerAntworten: ', player.AnzahlRichtigerAntworten)
 
-        # BERECHNE die Auszahlung - hier 10 Fest + 5 Pro korrekte Antwort
-        auszahlung = 10 + data*5
+            # BERECHNE die Auszahlung - hier 10 Fest + 5 Pro korrekte Antwort
+            auszahlung = 25 + data*5
+        else:
+            player.participant.AnzahlRichtigerAntworten = 0
+            player.AnzahlRichtigerAntworten = 0
+            auszahlung = 0
+
         player.VerdientePunkte = auszahlung
         player.participant.VerdientePunkte = auszahlung
 
@@ -172,10 +185,9 @@ class RealEffortTask(Page):
 class AuszahlungUmfrage(Page):
 
     form_model = 'player'
-    form_fields = ['Fachrichtung', 'Age', 'Gender']
-
-
-
+    # GeburtsJahr wird EXTRA aufgeführt!! Wenn nicht funktioniert, wie unten.
+    form_fields = ['Gender', 'Education', 'PoliticalOrientation']
+    #form_fields = ['GeburtsJahr', 'Gender', 'Education', 'PoliticalOrientation']
 
 
 
@@ -188,7 +200,7 @@ class Ergebnis(Page):
     def vars_for_template(player: Player):
         #print('player.participant.ProlificID: ', player.participant.ProlificID, ' player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten, ' player.participant.VerdientePunkte: ', player.participant.VerdientePunkte)
         #print('player.ProlificID: ', player.ProlificID, ' player.AnzahlRichtigerAntworten: ', player.AnzahlRichtigerAntworten, ' player.VerdientePunkte: ', player.VerdientePunkte)
-        print('$$ 3 $$ player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten , ' player.AnzahlRichtigerAntworten: ', player.AnzahlRichtigerAntworten)
+        print('$$ 3 $$ player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten )
         return {
             'ProlificID': player.ProlificID,
             'ProlificID-P': player.participant.ProlificID,
