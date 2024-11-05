@@ -16,8 +16,12 @@ class Constants(BaseConstants):
     players_per_group = 20
     num_rounds = 1
     # Wie lange soll die Aufgabe gelöst werden
-    dauerDesThreatmentsInSekunden = 10
-    # Umrechnungfaktor aus den Punkten / E$ z.B. in DKK oder USD
+    dauerDesThreatmentsInSekunden = 420
+    # Pence flat
+    festerAnteilderBezahlung = 40
+    # Pence pro richtige Antwort
+    bezahlungProAntwort = 10
+    # Umrechnungfaktor aus den Punkten
     waehrungsFaktor = 0.01
     waehrungsName = 'GBP'
 
@@ -48,7 +52,7 @@ class Player(BasePlayer):
     Gender = models.StringField(choices=[['F', 'Female'], ['M', 'Male'], ['D', 'Not listed'], ['N', 'Prefer not to answer']], widget=widgets.RadioSelect, label='What is your gender?')
 
     #Am Ende ggf. mit real_world_currency_per_point im Config korrigieren
-    AuszahlungInWaehrung = models.IntegerField(initial=0)
+    #AuszahlungInWaehrung = models.IntegerField(initial=0)
     VerdientePunkte = models.IntegerField(initial=0)
     AuszahlungWaehrungName = models.StringField();
 
@@ -87,11 +91,15 @@ class Intro(Page):
         # Neues Spiel - neue Auszahlung.
         player.payoff = 0
         player.participant.payoff = 0
-        player.AuszahlungInWaehrung = 0
+        #player.AuszahlungInWaehrung = 0
         player.VerdientePunkte = 0
         player.AnzahlRichtigerAntworten = 0
         player.participant.AnzahlRichtigerAntworten = 0
-        player.FreiVersucheImQuiz = 3
+        player.FreiVersucheImQuiz = 5
+
+
+class Intro2(Page):
+    form_model = 'player'
 
 
 # Verständnis-Quiz
@@ -103,7 +111,7 @@ class Quiz(Page):
     @staticmethod
     def error_message(player, values):
         # Wenn player.FreiVersucheImQuiz 0 werden, geht weiter, aber gleich zu der Auszahlungsseite.
-        quizKorrekt = ((values['QuizKodieren1'] == 'B') and (values['QuizKodieren2'] == 'C') and (values['QuizBezahlung'] == 'C'))
+        quizKorrekt = ((values['QuizKodieren1'] == 'B') and (values['QuizKodieren2'] == 'A') and (values['QuizBezahlung'] == 'B'))
         #print(values['QuizKodieren1'], 'bool: ', (values['QuizKodieren1'] == 'B'))
         #print(values['QuizKodieren2'], 'bool: ', (values['QuizKodieren2'] == 'C'))
         #print(values['QuizBezahlung'], 'bool: ', (values['QuizBezahlung'] == 'C'))
@@ -139,7 +147,7 @@ class RealEffortTask(Page):
     @staticmethod
     # Wird bei denen NICHT anzgezeigt, die das Quiz nicht geschafft haben.
     def is_displayed(player: Player):
-        print('HatSichQualifiziert: ', player.HatSichQualifiziert)
+        #print('HatSichQualifiziert: ', player.HatSichQualifiziert)
         return player.HatSichQualifiziert
 
     @staticmethod
@@ -158,12 +166,12 @@ class RealEffortTask(Page):
             player.AnzahlRichtigerAntworten = data
             print('$$ 1 $$ player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten , ' player.AnzahlRichtigerAntworten: ', player.AnzahlRichtigerAntworten)
 
-            # BERECHNE die Auszahlung - hier 10 Fest + 5 Pro korrekte Antwort
-            auszahlung = 25 + data*5
+            # BERECHNE die Auszahlung
+            auszahlung = Constants.festerAnteilderBezahlung + data*Constants.bezahlungProAntwort
         else:
             player.participant.AnzahlRichtigerAntworten = 0
             player.AnzahlRichtigerAntworten = 0
-            auszahlung = 0
+            auszahlung = Constants.festerAnteilderBezahlung
 
         player.VerdientePunkte = auszahlung
         player.participant.VerdientePunkte = auszahlung
@@ -171,13 +179,13 @@ class RealEffortTask(Page):
         # Umrechnnen in verschiedene Währungen?
         player.payoff = auszahlung * Constants.waehrungsFaktor
         player.participant.payoff = auszahlung * Constants.waehrungsFaktor
-        player.AuszahlungInWaehrung = auszahlung * Constants.waehrungsFaktor
+        #player.AuszahlungInWaehrung = auszahlung * Constants.waehrungsFaktor
 
         #print('player.participant.ProlificID: ', player.participant.ProlificID, ' player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten, ' player.participant.VerdientePunkte: ', player.participant.VerdientePunkte)
         #print('player.ProlificID: ', player.ProlificID, ' player.AnzahlRichtigerAntworten: ', player.AnzahlRichtigerAntworten, ' player.VerdientePunkte: ', player.VerdientePunkte)
         #print('received a bid from', player.id_in_group, ':', data)
         #print('player.participant.AnzahlRichtigerAntworten', player.participant.AnzahlRichtigerAntworten)
-        print('$$ 2 $$ player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten , ' player.AnzahlRichtigerAntworten: ', player.AnzahlRichtigerAntworten)
+        #print('$$ 2 $$ player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten , ' player.AnzahlRichtigerAntworten: ', player.AnzahlRichtigerAntworten)
 
 
 
@@ -186,11 +194,21 @@ class AuszahlungUmfrage(Page):
 
     form_model = 'player'
     # GeburtsJahr wird EXTRA aufgeführt!! Wenn nicht funktioniert, wie unten.
-    form_fields = ['Gender', 'Education', 'PoliticalOrientation']
-    #form_fields = ['GeburtsJahr', 'Gender', 'Education', 'PoliticalOrientation']
+    #form_fields = ['Gender', 'Education', 'PoliticalOrientation']
+    form_fields = ['GeburtsJahr', 'Gender', 'Education', 'PoliticalOrientation']
 
-
-
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened):
+        if not player.HatSichQualifiziert:
+            player.AnzahlRichtigerAntworten = 0
+            player.VerdientePunkte = Constants.festerAnteilderBezahlung
+            player.payoff = player.participant.VerdientePunkte * Constants.waehrungsFaktor
+            player.participant.AnzahlRichtigerAntworten = 0
+            player.participant.VerdientePunkte = Constants.festerAnteilderBezahlung
+            player.participant.payoff = player.participant.VerdientePunkte * Constants.waehrungsFaktor
+            print('$$ Y $$ player.participant.VerdientePunkte: ', player.participant.VerdientePunkte )
+        else:
+            print('$$ N $$ player.participant.VerdientePunkte: ', player.participant.VerdientePunkte )
 # Ergebnis des Entscheidungsvorlage-Games wird angezeigt
 # Auszahlungsinformationen
 class Ergebnis(Page):
@@ -200,15 +218,12 @@ class Ergebnis(Page):
     def vars_for_template(player: Player):
         #print('player.participant.ProlificID: ', player.participant.ProlificID, ' player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten, ' player.participant.VerdientePunkte: ', player.participant.VerdientePunkte)
         #print('player.ProlificID: ', player.ProlificID, ' player.AnzahlRichtigerAntworten: ', player.AnzahlRichtigerAntworten, ' player.VerdientePunkte: ', player.VerdientePunkte)
-        print('$$ 3 $$ player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten )
+        #print('$$ 3 $$ player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten )
         return {
-            'ProlificID': player.ProlificID,
             'ProlificID-P': player.participant.ProlificID,
-            'Anzahl': player.AnzahlRichtigerAntworten,
             'Anzahl-P': player.participant.AnzahlRichtigerAntworten,
-            'Auszahlung': player.VerdientePunkte,
             'Auszahlung-P': player.participant.VerdientePunkte
         }
 
 
-page_sequence = [Intro, Quiz, RealEffortTask, AuszahlungUmfrage, Ergebnis]
+page_sequence = [Intro, Intro2, Quiz, RealEffortTask, AuszahlungUmfrage, Ergebnis]

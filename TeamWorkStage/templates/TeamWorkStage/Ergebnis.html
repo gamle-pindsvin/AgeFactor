@@ -8,23 +8,12 @@
 
 
 <div>
-    Bisher geliefert:<br>
-    <b>ProlificID PL: {{ ProlificID }}</b><br>
-
-    <b>AnzahlRichtigerAntworten PL: {{ Anzahl }}</b><br>
-    <b>AnzahlRichtigerAntworten PL2: {{ player.AnzahlRichtigerAntworten }}</b><br>
-    <b>AnzahlRichtigerAntworten PR: {{ player.participant.AnzahlRichtigerAntworten }}</b><br>
-    <b>AnzahlRichtigerAntworten PL 333: {{ player.AnzahlRichtigerAntworten }}</b><br>
-
-    <b>Auszahlung: {{ Auszahlung }} </b><br>
-    <br> <br>
+You have solved <b>{{ player.participant.AnzahlRichtigerAntworten }}</b> tasks correctly.
+Your earnings are <b>{{ player.participant.payoff|to2 }}</b>.<br>
 </div>
-Your earnings are <b>{{ player.VerdientePunkte }} </b> E$ corresponding to <b>{{ player.payoff|to2 }}</b>.<br>
-
 <br>
 
-<div>Have you filled in and <b>signed</b> the consent form?</div>
-<div>Please remain seated until the experiment is called to an end.</div> <br>
+<div>To get paid, click the following link <a href="https://app.prolific.com/submissions/complete?cc=C1D5Z8XY">Back to Prolific</a>. Otherwise the study will not be remunerated.  </div> <br>
 
 <b>Thank you very much for your participation!</b>
 

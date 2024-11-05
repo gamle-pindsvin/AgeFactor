@@ -3,7 +3,7 @@ SESSION_CONFIG_DEFAULTS = dict(real_world_currency_per_point=1, participation_fe
 SESSION_CONFIGS = [dict(name='AgeFactor', num_demo_participants=None, app_sequence=['TeamWorkStage'])]
 #SESSION_CONFIGS = [dict(name='AgeFactor', num_demo_participants=None, app_sequence=['DeciderStage'])]
 LANGUAGE_CODE = 'en'
-REAL_WORLD_CURRENCY_CODE = 'USD'
+REAL_WORLD_CURRENCY_CODE = 'GBP'
 USE_POINTS = False
 #real_world_currency_per_point = - hier UMRECHNEN!!!
 DEMO_PAGE_INTRO_HTML = ''
