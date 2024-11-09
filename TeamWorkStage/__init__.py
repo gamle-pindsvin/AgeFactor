@@ -48,7 +48,7 @@ class Player(BasePlayer):
     # Statistik am Ende
     PoliticalOrientation = models.StringField(choices=[['1', 'Very left-leaning'], ['2', 'Left-leaning'], ['3', 'Slightly left-leaning'], ['4', 'Centrist'], ['5', 'Slightly right-leaning'], ['6', 'Right-leaning'], ['7', "Very right-leaning"]], widget=widgets.RadioSelect, label='Where would you place yourself on the following political spectrum?')
     Education = models.StringField(choices=[['1', 'No formal qualifications'], ['2', 'GCSEs or equivalent (e.g., O-Levels)'], ['3', 'A-Levels or equivalent (e.g., high school diploma)'], ['4', 'Vocational qualification (e.g., NVQ, BTEC)'], ['5', 'Undergraduate degree (e.g., BA, BSc)'], ['6', 'Postgraduate degree (e.g., MA, MSc, PhD)'], ['0', "Other "]], widget=widgets.RadioSelect, label='What is the highest level of education you have completed? ')
-    GeburtsJahr = models.IntegerField(min=1900, max=2010, label='In which year were you born?')
+    GeburtsJahr = models.IntegerField(min=1930, max=2010, label='In which year were you born?')
     Gender = models.StringField(choices=[['F', 'Female'], ['M', 'Male'], ['D', 'Not listed'], ['N', 'Prefer not to answer']], widget=widgets.RadioSelect, label='What is your gender?')
 
     #Am Ende ggf. mit real_world_currency_per_point im Config korrigieren
@@ -120,7 +120,7 @@ class Quiz(Page):
             player.FreiVersucheImQuiz -= 1
             if player.FreiVersucheImQuiz > 0 :
                 #print('Try again please. One or both answers are not yet correct. You have ', str(player.FreiVersucheImQuiz), ' attempts left.')
-                return 'Try again please. One or both answers are not yet correct. You have ' + str(player.FreiVersucheImQuiz) + ' attempts left.'
+                return 'Try again please. One or more answers are not yet correct. You have ' + str(player.FreiVersucheImQuiz) + ' attempts left.'
             else:
                 #keine Freiversuche mehr
                 player.HatSichQualifiziert = False
@@ -208,6 +208,7 @@ class AuszahlungUmfrage(Page):
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
+
         if not player.HatSichQualifiziert:
             player.AnzahlRichtigerAntworten = 0
             player.VerdientePunkte = Constants.festerAnteilderBezahlung
@@ -223,10 +224,11 @@ class AuszahlungUmfrage(Page):
 # Ergebnis des Entscheidungsvorlage-Games wird angezeigt
 # Auszahlungsinformationen
 class Ergebnis(Page):
-
+    form_model = 'player'
 
     @staticmethod
     def vars_for_template(player: Player):
+        player.AnzahlRichtigerAntworten = player.participant.AnzahlRichtigerAntworten
         #print('player.participant.ProlificID: ', player.participant.ProlificID, ' player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten, ' player.participant.VerdientePunkte: ', player.participant.VerdientePunkte)
         #print('player.ProlificID: ', player.ProlificID, ' player.AnzahlRichtigerAntworten: ', player.AnzahlRichtigerAntworten, ' player.VerdientePunkte: ', player.VerdientePunkte)
         #print('$$ 3 $$ player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten )
