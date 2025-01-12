@@ -13,14 +13,16 @@ from uvicorn import Config
 class Constants(BaseConstants):
     name_in_url = 'TeamWorkStage'
     #TODO: MUSS MEHR SEIN, als die tatsächlich mögliche Anzahl der Teilnehmer also deutlich mehr als 12!!!
-    players_per_group = 20
+    players_per_group = 200
     num_rounds = 1
     # Wie lange soll die Aufgabe gelöst werden
     dauerDesThreatmentsInSekunden = 420
     # Pence flat
     festerAnteilderBezahlung = 0.40
     # Pence pro richtige Antwort
-    bezahlungProAntwort = 0.10
+    bezahlungProAntwort = 0.05
+    # Für die Quiz - wie oft sollte man hypothetisch spielen
+    quizAngenommeneAnzahlAntowrten = 100
     # Umrechnungfaktor aus den Punkten
     waehrungsFaktor = 1
     waehrungsName = 'GBP'
@@ -46,7 +48,7 @@ class Player(BasePlayer):
     QuizBezahlung = models.StringField(choices=[['a', 'a'], ['b', 'b'], ['c', 'c']], widget=widgets.RadioSelect, label='')
 
     # Statistik am Ende
-    PoliticalOrientation = models.StringField(choices=[['1', 'Very left-leaning'], ['2', 'Left-leaning'], ['3', 'Slightly left-leaning'], ['4', 'Centrist'], ['5', 'Slightly right-leaning'], ['6', 'Right-leaning'], ['7', "Very right-leaning"]], widget=widgets.RadioSelect, label='Where would you place yourself on the following political spectrum?')
+    #PoliticalOrientation = models.StringField(choices=[['1', 'Very left-leaning'], ['2', 'Left-leaning'], ['3', 'Slightly left-leaning'], ['4', 'Centrist'], ['5', 'Slightly right-leaning'], ['6', 'Right-leaning'], ['7', "Very right-leaning"]], widget=widgets.RadioSelect, label='Where would you place yourself on the following political spectrum?')
     Education = models.StringField(choices=[['1', 'No formal qualifications'], ['2', 'GCSEs or equivalent (e.g., O-Levels)'], ['3', 'A-Levels or equivalent (e.g., high school diploma)'], ['4', 'Vocational qualification (e.g., NVQ, BTEC)'], ['5', 'Undergraduate degree (e.g., BA, BSc)'], ['6', 'Postgraduate degree (e.g., MA, MSc, PhD)'], ['0', "Other "]], widget=widgets.RadioSelect, label='What is the highest level of education you have completed? ')
     GeburtsJahr = models.IntegerField(min=1930, max=2010, label='In which year were you born?')
     Gender = models.StringField(choices=[['F', 'Female'], ['M', 'Male'], ['D', 'Not listed'], ['N', 'Prefer not to answer']], widget=widgets.RadioSelect, label='What is your gender?')
@@ -62,6 +64,9 @@ class Player(BasePlayer):
     # Zählt falsche Versuche beim Quiz
     FreiVersucheImQuiz = models.IntegerField(initial=3)
     HatSichQualifiziert = models.BooleanField(initial=True)
+
+    # Checkbox für Consent
+    Akzeptiert_bedingungen = models.BooleanField(label="", widget=widgets.CheckboxInput, blank=True)
 
 
 class Intro(Page):
@@ -100,7 +105,14 @@ class Intro(Page):
 
 class Intro2(Page):
     form_model = 'player'
+    form_fields = ['Akzeptiert_bedingungen']
 
+    @staticmethod
+    def error_message(player, values):
+        # print(values['Akzeptiert_bedingungen'])
+        # Checkbox nicht ausgewählt
+        if ( not (values['Akzeptiert_bedingungen'])):
+           return 'Please confirm that you have read the instructions and the Informed Consent'
 
 # Verständnis-Quiz
 class Quiz(Page):
@@ -131,9 +143,9 @@ class Quiz(Page):
     @staticmethod
     def vars_for_template(player: Player):
         #Werte für die Auszahlungsfragen
-        antwortA = 20*Constants.bezahlungProAntwort
-        antwortB = 20*Constants.bezahlungProAntwort + Constants.festerAnteilderBezahlung
-        antwortC = 20 + Constants.festerAnteilderBezahlung
+        antwortA = Constants.quizAngenommeneAnzahlAntowrten*Constants.bezahlungProAntwort
+        antwortB = Constants.quizAngenommeneAnzahlAntowrten*Constants.bezahlungProAntwort + Constants.festerAnteilderBezahlung
+        antwortC = Constants.quizAngenommeneAnzahlAntowrten + Constants.festerAnteilderBezahlung
         return {
             'AntwortA': antwortA,
             'AntwortB': antwortB,
@@ -203,8 +215,8 @@ class AuszahlungUmfrage(Page):
 
     form_model = 'player'
     # GeburtsJahr wird EXTRA aufgeführt!! Wenn nicht funktioniert, wie unten.
-    #form_fields = ['Gender', 'Education', 'PoliticalOrientation']
-    form_fields = ['GeburtsJahr', 'Gender', 'Education', 'PoliticalOrientation']
+    #form_fields = ['GeburtsJahr', 'Gender', 'Education', 'PoliticalOrientation']
+    form_fields = ['GeburtsJahr', 'Gender', 'Education']
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
