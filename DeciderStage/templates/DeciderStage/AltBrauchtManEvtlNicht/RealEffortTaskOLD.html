@@ -1,0 +1,15 @@
+{{ extends "global/CSS_Page.html" }}
+{{ load otree }}
+
+{{ block title }}... XXXX Prüfung ... {{ endblock }}
+
+{{ block content }}
+
+<div id="imagePlaceholder"> <img src="{% static "KodierungsTabelle.jpg" %}" alt="Table not found"></div>
+<div>XXXXXXXXX Die Anderen mussten folgende Aufgabe erledigen:</div>
+<div>Probiert es aus, wie würdest Du <b>ABBCA</b>> decodieren:</div>
+Die Antwort ist 123234234456123
+<div> {% formfield player.SelbstTest %}</div>
+
+{{ next_button }}
+{{ endblock }}

@@ -1,7 +1,7 @@
 {{ extends "global/CSS_Page.html" }}
 {{ load otree }}
 
-{{ block title }}Quiz{{ endblock }}
+{{ block title }}Practice Part{{ endblock }}
 
 {{ block app_scripts }}
 <!-- Soll nicht zurück springen können -->
@@ -13,32 +13,88 @@ window.onhashchange=function(){window.location.hash="no-back-button";}
 {{ endblock }}
 
 {{ block content }}
-<div id="imagePlaceholder"> <img src="{% static "KodierungsTabelle.jpg" %}" alt="Table not found"></div>
 
-<table style="width:1000px;">
-    <tr><td colspan="3" class="td2nichtbold">Here you see <b>example information</b> on ..., similar to the screen you will see in ... round.</td></tr>
 
-    <tr><td colspan="3" class="td2nichtbold">Please select the correct answers to the two questions below to check your understanding.
-        <br> After the quiz, ... will start.</td></tr><br>
+
+<!--<div id="imagePlaceholder"> <img src="{% static "KodierungsTabelle.jpg" %}" alt="Table not found"></div>-->
+<div style="text-align: left;">In this Practice Part, you'll try encoding letters as numbers using a code table. Please complete questions 1) and 2) using the table below, which is similar to the one in the Task Part. Question 3) is a comprehension question.</div>
+<br>
+<div style="text-align: left;"> For each question, you have up to three attempts. If you cannot answer correctly within three trials, the experiment will end, and you will only receive the basic fee of £ {{ Constants.festerAnteilderBezahlung|to2 }}. </div>
+<br>
+<div style="text-align: left;"> After this screen, the Task Part will start.</div>
+<br><br>
+<div>
+
+    <table border="1" style="width:100%; text-align:center; border-collapse: collapse;">
+        <tr><td style="border: 1px solid white;" colspan="8">&nbsp <b>Practice Table</b></td></tr>
+        <tr><td style="border-left: 1px solid white;border-right: 1px solid white;border-top: 1px solid white" colspan="8">&nbsp </td></tr>
+        </tr>
+        <tr>
+            <td><b>A</b>: 167</td>
+            <td><b>B</b>: 618</td>
+            <td><b>C</b>: 412</td>
+            <td><b>D</b>: 442</td>
+            <td><b>E</b>: 820</td>
+            <td><b>F</b>: 395</td>
+            <td><b>G</b>: 263</td>
+            <td><b>H</b>: 595</td>
+
+        </tr>
+        <tr>
+            <td style="border-left: 1px solid white;border-right: 1px solid white;" colspan="8">&nbsp</td>
+        </tr>
+        <tr>
+            <td><b>I</b>: 958</td>
+            <td><b>J</b>: 890</td>
+            <td><b>K</b>: 136</td>
+            <td><b>L</b>: 126</td>
+            <td><b>M</b>: 288</td>
+            <td><b>N</b>: 843</td>
+            <td><b>O</b>: 146</td>
+            <td><b>P</b>: 600</td>
+
+        </tr>
+        <tr>
+            <td style="border-left: 1px solid white;border-right: 1px solid white;" colspan="8">&nbsp</td>
+        </tr>
+        <tr>
+            <td><b>R</b>: 536</td>
+            <td><b>S</b>: 896</td>
+            <td><b>T</b>: 513</td>
+            <td><b>U</b>: 901</td>
+            <td><b>V</b>: 558</td>
+            <td><b>W</b>: 982</td>
+            <td><b>X</b>: 156</td>
+            <td><b>Y</b>: 123</td>
+
+        </tr>
+
+
+    </table>
+</div>
+
+<table border="0" style="width:100%; text-align:center; border-collapse: collapse;">
+
+
     <tr><td colspan="3" class="td3">&nbsp;</td></tr>
-    <tr><td colspan="3" class="td3"><b>1)</b> How would you encode <b>AAA</b>?</td></tr>
+    <tr><td colspan="3" class="td3"><b>1)</b> How would you encode <b>XMO</b>?</td></tr>
     <tr style="border: 3px solid #000;">
 
         <td colspan="1">
-            <b>A</b>
+            <b>a</b>
         </td>
         <td colspan="1">
-            <b>B</b>
+            <b>b</b>
         </td>
         <td colspan="1">
-            <b>C</b>
+            <b>c</b>
         </td>
 
     </tr>
     <tr style="border: 3px solid #000;">
-        <td>111222333</td>
-        <td>123123123</td>
-        <td>AAA</td>
+        <td>126222333</td>
+        <td>156288146</td>
+        <td>XMO</td>
     </tr>
     <tr style="border-top: 3px none #000;">
 
@@ -49,24 +105,24 @@ window.onhashchange=function(){window.location.hash="no-back-button";}
     </tr>
 
 
-    <tr><td colspan="3" class="td3"><b>2)</b> How would you encode <b>BBA</b>?</td></tr>
+    <tr><td colspan="3" class="td3"><b>2)</b> How would you encode <b>AYN</b>?</td></tr>
     <tr colspan="3" style="border: 3px solid #000;">
 
         <td colspan="1">
-            <b>A</b>
+            <b>a</b>
         </td>
         <td colspan="1">
-            <b>B</b>
+            <b>b</b>
         </td>
         <td colspan="1">
-            <b>C</b>
+            <b>c</b>
         </td>
 
     </tr>
     <tr style="border: 3px solid #000;">
-        <td>222333444</td>
-        <td>BBA</td>
-        <td>234234234</td>
+        <td>167618412</td>
+        <td>AYN</td>
+        <td>167123843</td>
     </tr>
     <tr style="border-top: 3px none #000;">
 
@@ -76,24 +132,25 @@ window.onhashchange=function(){window.location.hash="no-back-button";}
 
     </tr>
 
-    <tr><td colspan="3" class="td3"><b>3)</b> ... BEZAHLUNG ...?</td></tr>
+    <tr><td colspan="3" class="td3"><b>3)</b> In the Task Part, you will receive a basic fee and an additional amount for each word you encode. Suppose you encode {{Constants.quizAngenommeneAnzahlAntowrten}} words during the task. How much will you earn in total?</td></tr>
+    <tr><td colspan="3" class="td3">(<i>Note: "100" is an intentionally unrealistically high number.)</i></td></tr>
     <tr colspan="3" style="border: 3px solid #000;">
 
         <td colspan="1">
-            <b>A</b>
+            <b>a</b>
         </td>
         <td colspan="1">
-            <b>B</b>
+            <b>b </b>
         </td>
         <td colspan="1">
-            <b>C</b>
+            <b>c</b>
         </td>
 
     </tr>
     <tr style="border: 3px solid #000;">
-        <td>10</td>
-        <td>100</td>
-        <td>50</td>
+        <td>{{Constants.quizAngenommeneAnzahlAntowrten}} * {{ Constants.bezahlungProAntwort|to2 }} = &pound; {{ AntwortA|to2 }}</td>
+        <td>{{ Constants.festerAnteilderBezahlung|to2 }} basic fee + {{Constants.quizAngenommeneAnzahlAntowrten}} * {{ Constants.bezahlungProAntwort|to2 }} = &pound; {{ AntwortB|to2  }}</td>
+        <td>{{ Constants.festerAnteilderBezahlung|to2 }} + {{Constants.quizAngenommeneAnzahlAntowrten}} = &pound; {{ AntwortC|to2  }}</td>
     </tr>
     <tr style="border-top: 3px none #000;">
 
