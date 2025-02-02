@@ -7,7 +7,7 @@ REAL_WORLD_CURRENCY_CODE = 'GBP'
 USE_POINTS = False
 #real_world_currency_per_point = - hier UMRECHNEN!!!
 DEMO_PAGE_INTRO_HTML = ''
-PARTICIPANT_FIELDS = ['richtigeAntworten', 'AuszahlungUserName', 'VerdientePunkte', 'AnzahlRichtigerAntworten', 'ProlificID', 'zugeordneteRole', 'gewaehlteSequenz']
+PARTICIPANT_FIELDS = ['richtigeAntworten', 'AuszahlungUserName', 'VerdientePunkte', 'AnzahlRichtigerAntworten', 'ProlificID', 'zugeordneteRole', 'gewaehlteSequenz', 'VerdientePunkteImTestSpiel', 'HatMoreDetailsAngeschaut']
 SESSION_FIELDS = ['ZeitVergangen', 'Spielarten_Folge', 'AuszahlungInPunktenFuerDasOpfer', 'ergebnisseVonTWS', 'aktuellAngezeigteErgebnisse']
 ROOMS = []
 

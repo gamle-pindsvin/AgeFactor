@@ -1,7 +1,7 @@
 {{ extends "global/CSS_Page.html" }}
 {{ load otree }}
 
-{{ block title }}Project information and decision XXXXXXXXXXXXXXX T1 XXXXXXXXXXXXXXXXX{{ endblock }}
+{{ block title }}Project information and decision <br>{{player.participant.zugeordneteRole}} XXXXXX soll 5 sein XXXXXXXXX T3 alt XXXXXXXXXXXXXXXXX{{ endblock }}
 
 {{ block content }}
 <div>Estimate {{player.round_number}} of {{ Constants.num_rounds }}</div>
@@ -15,7 +15,7 @@
     <table class="B-container">
         <tr>
             <td colspan="2">
-                <img src="{% static "HistogramAll.jpg" %}">
+                <img src="{% static "HistogramsBoth.jpg" %}">
             </td>
         </tr>
 
@@ -45,10 +45,10 @@
                 &nbsp;
             </td>
         </tr>
-        <!-- Worker 1 -->
+        <!-- Worker 1 HIER FEST DER Alte-->
         <tr>
             <td style="text-align: right;">
-                <label for="aktuellesErgebnisTWSSpieler1_Schaetzung"><b>Your estimate for Worker 1</b>&nbsp;&nbsp;</label>
+                <label for="aktuellesErgebnisTWSSpieler1_Schaetzung"><b>Your estimate for older Worker</b>&nbsp;&nbsp;</label>
             </td>
             <td style="text-align: left;">
                 <input type="number" id="aktuellesErgebnisTWSSpieler1_Schaetzung" name="aktuellesErgebnisTWSSpieler1_Schaetzung" value="{{ aktuellesErgebnisTWSSpieler1_Schaetzung }}" max="{% summe %}">
@@ -60,10 +60,10 @@
                 &nbsp;
             </td>
         </tr>
-        <!-- Worker 2 -->
+        <!-- Worker 2 HIER IMMER DER Junge-->
         <tr>
             <td  style="text-align: right;">
-                 <b> Your estimate for Worker 2</b>&nbsp;&nbsp;<br>(automatically calculated)&nbsp;&nbsp;
+                 <b> Your estimate for the younger Worker </b>&nbsp;&nbsp;<br>(automatically calculated)&nbsp;&nbsp;
             </td>
             <td  style="text-align: left;">
                  <input type="text" id="calculated_field" style="background-color: #f0f0f0;" readonly>

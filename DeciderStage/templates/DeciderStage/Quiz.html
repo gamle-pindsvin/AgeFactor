@@ -19,7 +19,7 @@ window.onhashchange=function(){window.location.hash="no-back-button";}
 <!--<div id="imagePlaceholder"> <img src="{% static "KodierungsTabelle.jpg" %}" alt="Table not found"></div>-->
 <div style="text-align: left;">In this Practice Part, you'll try encoding letters as numbers using a code table. Please complete questions 1) and 2) using the table below, which is similar to the one in the Task Part. Question 3) is a comprehension question.</div>
 <br>
-<div style="text-align: left;"> For each question, you have up to three attempts. If you cannot answer correctly within three trials, the experiment will end, and you will only receive the basic fee of £ {{ Constants.festerAnteilderBezahlung|to2 }}. </div>
+<div style="text-align: left;"> For each question, you have up to three attempts. If you cannot answer correctly within three trials, the experiment will end, and you will only receive the basic fee of £ {{ Constants.festerAnteilDerBezahlung|to2 }}. </div>
 <br>
 <div style="text-align: left;"> After this screen, the Task Part will start.</div>
 <br><br>
@@ -132,7 +132,7 @@ window.onhashchange=function(){window.location.hash="no-back-button";}
 
     </tr>
 
-    <tr><td colspan="3" class="td3"><b>3)</b> In the Task Part, you will receive a basic fee and an additional amount for each word you encode. Suppose you encode {{Constants.quizAngenommeneAnzahlAntowrten}} words during the task. How much will you earn in total?</td></tr>
+    <tr><td colspan="3" class="td3"><b>3)</b> In the Task Part, *** FARLSCH *** you *** FALSCH *** will receive a basic fee and an additional amount for each word you encode. Suppose you encode {{Constants.quizAngenommeneAnzahlAntowrten}} words during the task. How much will you earn in total?</td></tr>
     <tr><td colspan="3" class="td3">(<i>Note: "100" is an intentionally unrealistically high number.)</i></td></tr>
     <tr colspan="3" style="border: 3px solid #000;">
 
@@ -148,9 +148,9 @@ window.onhashchange=function(){window.location.hash="no-back-button";}
 
     </tr>
     <tr style="border: 3px solid #000;">
-        <td>{{Constants.quizAngenommeneAnzahlAntowrten}} * {{ Constants.bezahlungProAntwort|to2 }} = &pound; {{ AntwortA|to2 }}</td>
-        <td>{{ Constants.festerAnteilderBezahlung|to2 }} basic fee + {{Constants.quizAngenommeneAnzahlAntowrten}} * {{ Constants.bezahlungProAntwort|to2 }} = &pound; {{ AntwortB|to2  }}</td>
-        <td>{{ Constants.festerAnteilderBezahlung|to2 }} + {{Constants.quizAngenommeneAnzahlAntowrten}} = &pound; {{ AntwortC|to2  }}</td>
+        <td>{{Constants.quizAngenommeneAnzahlAntowrten}} * {{ Constants.bezahlungProAntwortRET|to2 }} = &pound; {{ AntwortA|to2 }}</td>
+        <td>{{ Constants.festerAnteilderBezahlungRET|to2 }} basic fee + {{Constants.quizAngenommeneAnzahlAntowrten}} * {{ Constants.bezahlungProAntwortRET|to2 }} = &pound; {{ AntwortB|to2  }}</td>
+        <td>{{ Constants.festerAnteilderBezahlungRET|to2 }} + {{Constants.quizAngenommeneAnzahlAntowrten}} = &pound; {{ AntwortC|to2  }}</td>
     </tr>
     <tr style="border-top: 3px none #000;">
 
