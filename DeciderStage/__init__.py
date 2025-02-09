@@ -138,6 +138,8 @@ class Player(BasePlayer):
     # Zählt falsche Versuche beim Quiz
     FreiVersucheImQuiz = models.IntegerField(initial=3)
     HatSichQualifiziert = models.BooleanField(initial=True)
+    FreiVersucheImQuiz2 = models.IntegerField(initial=3)
+    HatSichQualifiziert2 = models.BooleanField(initial=True)
 
     # Hat "More Details" zur Auszahlung angeschaut
     HatMoreDetailsAngeschaut = models.IntegerField(initial=0)
@@ -517,7 +519,7 @@ class Intro2(Page):
 
 
 
-# Verständnis-Quiz
+# Verständnis-Quiz, Teil 1 VOR dem Spiel
 class Quiz(Page):
     form_model = 'player'
     form_fields = ["QuizKodieren1", "QuizKodieren2", "QuizBezahlung"]
@@ -618,6 +620,44 @@ class ResultsOfTWS(Page):
         return player.round_number == 1
 
 
+# Verständnis-Quiz, Teil 2 NACH dem Spiel
+class Quiz2(Page):
+    form_model = 'player'
+    form_fields = ["QuizKodieren1", "QuizKodieren2", "QuizBezahlung"]
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
+
+    @staticmethod
+    def error_message(player, values):
+        # Wenn player.FreiVersucheImQuiz 0 werden, geht weiter, aber gleich zu der Auszahlungsseite.
+        quizKorrekt = ((values['QuizKodieren1'] == 'b') and (values['QuizKodieren2'] == 'c') and (values['QuizBezahlung'] == 'b'))
+
+        if not quizKorrekt:
+            #print('NICHT KORREKT player.FreiVersucheImQuiz war: ', player.FreiVersucheImQuiz, " / quizKorrekt: ", quizKorrekt)
+            player.FreiVersucheImQuiz2 -= 1
+            if player.FreiVersucheImQuiz2 > 0 :
+                #print('Try again please. One or both answers are not yet correct. You have ', str(player.FreiVersucheImQuiz), ' attempts left.')
+                return 'Try again please. One or more answers are not yet correct. You have ' + str(player.FreiVersucheImQuiz2) + ' attempts left.'
+            else:
+                #keine Freiversuche mehr
+                player.HatSichQualifiziert = False
+        else:
+            #print('KORREKT!!')
+            pass
+
+    @staticmethod
+    def vars_for_template(player: Player):
+        #Werte für die Auszahlungsfragen
+        antwortA = Constants.quizAngenommeneAnzahlAntowrten*Constants.bezahlungProAntwortRET
+        antwortB = Constants.quizAngenommeneAnzahlAntowrten * Constants.bezahlungProAntwortRET + Constants.festerAnteilderBezahlungRET
+        antwortC = Constants.quizAngenommeneAnzahlAntowrten + Constants.festerAnteilderBezahlungRET
+        return {
+            'AntwortA': antwortA,
+            'AntwortB': antwortB,
+            'AntwortC': antwortC
+        }
 
 
 # Nur für die Rolle T1
@@ -628,7 +668,7 @@ class SeiteFuerT1(Page):
 
     @staticmethod
     def is_displayed(player: Player):
-        return player.participant.zugeordneteRole == 1
+        return (player.participant.zugeordneteRole == 1 and player.HatSichQualifiziert)
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -694,7 +734,7 @@ class SeiteFuerT2j(Page):
 
     @staticmethod
     def is_displayed(player: Player):
-        return player.participant.zugeordneteRole == 2
+        return (player.participant.zugeordneteRole == 2  and player.HatSichQualifiziert)
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -747,7 +787,7 @@ class SeiteFuerT2a(Page):
 
     @staticmethod
     def is_displayed(player: Player):
-        return player.participant.zugeordneteRole == 3
+        return (player.participant.zugeordneteRole == 3 and player.HatSichQualifiziert)
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -800,7 +840,7 @@ class SeiteFuerT3j(Page):
 
     @staticmethod
     def is_displayed(player: Player):
-        return player.participant.zugeordneteRole == 4
+        return (player.participant.zugeordneteRole == 4 and player.HatSichQualifiziert)
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -854,7 +894,7 @@ class SeiteFuerT3a(Page):
 
     @staticmethod
     def is_displayed(player: Player):
-        return player.participant.zugeordneteRole == 5
+        return (player.participant.zugeordneteRole == 5 and player.HatSichQualifiziert)
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -910,7 +950,7 @@ class AuszahlungUmfrage(Page):
 
     @staticmethod
     def is_displayed(player: Player):
-        return player.round_number == Constants.num_rounds
+        return (player.round_number == Constants.num_rounds or not player.HatSichQualifiziert)
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
@@ -925,10 +965,10 @@ class Ergebnis(Page):
 
     @staticmethod
     def is_displayed(player: Player):
-        return player.round_number == Constants.num_rounds
+        return (player.round_number == Constants.num_rounds or not player.HatSichQualifiziert)
 
 
 
 
 #page_sequence = [Intro, Intro2, ResultsOfTWS, RealEffortTask, SeiteFuerT1, SeiteFuerT3, SeiteFuerT3, AuszahlungUmfrage, Ergebnis]
-page_sequence = [Intro, Intro2, Quiz, RealEffortTask, SeiteFuerT1, SeiteFuerT2j, SeiteFuerT2a, SeiteFuerT3j, SeiteFuerT3a, AuszahlungUmfrage, Ergebnis]
+page_sequence = [Intro, Intro2, Quiz, RealEffortTask, Quiz2, SeiteFuerT1, SeiteFuerT2j, SeiteFuerT2a, SeiteFuerT3j, SeiteFuerT3a, AuszahlungUmfrage, Ergebnis]

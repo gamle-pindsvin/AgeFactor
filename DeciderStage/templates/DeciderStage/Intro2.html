@@ -17,28 +17,30 @@
 <img style=" max-width: 100%;height: auto;" src="{% static "ExampleIntroAusBMPAlsPNG.png" %}">
 <div>In this example, the word is HUR. According to the reference table, H = 595, U = 901, and R = 536. In the screenshot, “595901536” has already been entered in the field below the word.</div>
 <br>
-<div>When the code for the word is complete, it needs to be confirmed by clicking on the <b>“OK” button, or</b> by pressing the <b>“Enter” key</b>. <div>Once a word has been successfully encoded, the computer will provide a new word to encode. For Workers, this process continued for exactly seven minutes (420 seconds) that they spent working at their own pace, receiving a payment for each completed word. The table remained the same throughout their work phase. In the top-right corner of the screen, the remaining time is shown. </div>
+<div>When the code for the word is complete, it needs to be confirmed by clicking on the <b>“OK” button, or</b> by pressing the <b>“Enter” key</b>. <div>Once a word has been successfully encoded, the computer will provide a new word to encode. <u>For Workers, this process continued for exactly seven minutes (420 seconds) </u>that they spent working at their own pace, receiving a payment for each completed word. The table remained the same throughout their work phase. In the top-right corner of the screen, the remaining time is shown. </div>
 <br>
 <div>If the code was incorrect, the computer did not increase the tally of correct answers shown in the top-right corner. The computer notified workers in case an input was not correct and presented them with a new word to encode. </div>
 <br>
 <br><br>
     <b>Estimation Part</b>
-    <div>In the Estimation Part, you will be shown the <b>performance of teams of two individuals</b> who worked a series of encoding tasks. You will make estimates of how many tasks each of the two workers on the team solved for <b>ten different teams</b>. Your payment will depend on the accuracy of your estimates. &nbsp;&nbsp;<a href="#" style="font-size: 80%" id="showExplanationLink">More details</a><br>
-        <div id="explanation" style="display: none;">
-            <br>
+    <div>In the Estimation Part, you will be shown the <b>performance of teams of two individuals</b> who - independently of each other - worked on encoding tasks. You will make estimates of how many tasks each of the two workers on the team solved for <b>ten different teams</b>.
 
-            <p>&nbsp;&nbsp;More details</p>
-        </div>
         <br><br>
         <br>
         <b>Earning Money</b>
-        <br>******* FALSCH !!!!!!! ***********
+        <div>Your payment will depend on the accuracy of your estimates. That is, you receive a <b>bonus of &pound; {{ Constants.bezahlungProRichtigeSchaetzung|to2 }} for each of your estimates that matches</b> the actual workers' individual performances <b>closely enough</b>. &nbsp;&nbsp;<a href="#" style="font-size: 80%" id="showExplanationLink">More details</a><br>  </div>
+
+        <div id="explanation" style="display: none;">
+            <br>
+
+            <p style="font-size: 90%; background-color: #FFFACD">&nbsp;&nbsp;A close enough estimate is ...</p>
+        </div>
+
+        <div> In addition, you will also receive a fixed amount of  &pound; {{ Constants.festerAnteilDerBezahlung|to2 }}, irrespective of the accuracy of your estimates.</div>
         <br>
-        <div>You will earn a <b>payment per word</b> that you encoded correctly. In the top-right corner of the page, you see the number of words encoded so far. You receive &pound; {{ Constants.bezahlungProRichtigeSchaetzung|to2 }} for each encoded word. In addition, you will also receive a fixed amount of  &pound; {{ Constants.festerAnteilDerBezahlung|to2 }}, irrespective of the number of words encoded.</div>
-        <br>******* FALSCH !!!!!!! ***********
         <div>Note that only you will benefit financially from your work; neither the authors of this study nor anyone else will derive earnings from your estimates.</div>
         <br><br>
-        <div>Before entering the Estimation Part, we ask you to complete the Practice Part. There, we ask you to answer one comprehension question and then encode two words to familiarize yourself with the task and to answer one comprehension question. You have five attempts in total to enter the two codes and answer the comprehension question correctly. Using more than five attempts will end the experiment for you, and you will only receive the basic fee of &pound; 0.40 Note that in the Practice Part, no additional earnings are awarded for correct answers.</div>
+        <div> Before entering the Estimation Part, we ask you to complete the Practice Part. There, we ask you to encode one word to familiarize yourself with the task and to answer one comprehension question. You have five attempts in total to encode the word and answer the comprehension question correctly. Using more than five attempts will end the experiment for you, and you will only receive the basic fee of &pound; {{ Constants.festerAnteilDerBezahlung|to2 }}. Note that in the Practice Part, no additional earnings are awarded for correct answers.</div>
 <br>
         <br>
         <b>Concluding the experiment</b>
@@ -66,6 +68,7 @@
                     event.preventDefault();  // Verhindert das Standardverhalten des Links
                     if (explanation.style.display === 'none') {
                         explanation.style.display = 'block';
+
                     } else {
                         explanation.style.display = 'none';
                     }
