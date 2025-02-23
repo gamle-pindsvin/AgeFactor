@@ -1,7 +1,7 @@
 {{ extends "global/CSS_Page.html" }}
 {{ load otree }}
 
-{{ block title }}Practice Part{{ endblock }}
+{{ block title }}Practice Part (1){{ endblock }}
 
 {{ block app_scripts }}
 <!-- Soll nicht zurück springen können -->
@@ -17,14 +17,12 @@ window.onhashchange=function(){window.location.hash="no-back-button";}
 
 
 <!--<div id="imagePlaceholder"> <img src="{% static "KodierungsTabelle.jpg" %}" alt="Table not found"></div>-->
-<div style="text-align: left;">This Practice Part contains three elements, (1), (2), and (3). The first two are intended to familiarize you with the encoding task. Please complete question (1) using the table below.
-<br>Then, on the next page, you will (2) encode words using a similar table for exactly thirty seconds. The remaining time will be shown in the upper right corner. This solely has the pupose of giving you a feel for the time pressure and task difficulty. </br>
-    <br> After that, you will see (3) one comprehension question.
+<div style="text-align: left;"><br>This Practice Part contains three elements, (1), (2), and (3). The first is intended to familiarize you with the encoding task. Please complete question (1) using the table below.</br>
+    <br>Then, on the next page, you will (2) encode words using a similar table for exactly <b>thirty seconds</b>. The remaining time will be shown in the upper right corner. This solely has the pupose of giving you a feel for the time pressure and task difficulty. </br>
+    After that, you will see (3) one comprehension question.
 </div>
 <br>
-<div style="text-align: left;"> For each question, you have up to three attempts. If you cannot answer correctly within three trials, the experiment will end, and you will only receive the basic fee of £ {{ Constants.festerAnteilDerBezahlung|to2 }}. </div>
-<br>
-<div style="text-align: left;"> After this screen, the Task Part will start.</div>
+<div style="text-align: left;"> You have two attempts to answer correctly. If you cannot answer correctly within two trials, the experiment will end, and you will only receive the basic fee of £ {{ Constants.festerAnteilDerBezahlung|to2 }}. </div>
 <br><br>
 <div>
 
@@ -80,35 +78,9 @@ window.onhashchange=function(){window.location.hash="no-back-button";}
 
 
     <tr><td colspan="3" class="td3">&nbsp;</td></tr>
-    <tr><td colspan="3" class="td3"><b>1)</b> How would you encode <b>XMO</b>?</td></tr>
-    <tr style="border: 3px solid #000;">
-
-        <td colspan="1">
-            <b>a</b>
-        </td>
-        <td colspan="1">
-            <b>b</b>
-        </td>
-        <td colspan="1">
-            <b>c</b>
-        </td>
-
-    </tr>
-    <tr style="border: 3px solid #000;">
-        <td>126222333</td>
-        <td>156288146</td>
-        <td>XMO</td>
-    </tr>
-    <tr style="border-top: 3px none #000;">
-
-        <td class="td4" colspan="3">
-            <b>{% formfield player.QuizKodieren1 %}</b>
-        </td>
-
-    </tr>
 
 
-    <tr><td colspan="3" class="td3"><b>(1)</b> How would you encode <b>AYN</b>?</td></tr>
+    <tr><td colspan="3" class="td3"><b>How would you encode <b>AYN</b>?</b></td></tr>
     <tr colspan="3" style="border: 3px solid #000;">
 
         <td colspan="1">
@@ -135,32 +107,7 @@ window.onhashchange=function(){window.location.hash="no-back-button";}
 
     </tr>
 
-    <tr><td colspan="3" class="td3"><b>3)</b> In the Estimation Part, you will read, for example, that "A team of two workers solved a {{Constants.quizAngenommeneAnzahlAntowrten}} tasks." What is your task as an estimator?</td></tr>
-    <tr><td colspan="3" class="td3">(<i>Note: "{{Constants.quizAngenommeneAnzahlAntowrten}}" is an intentionally unrealistically high number.)</i></td></tr>
-    <tr colspan="3" style="border: 3px solid #000;">
 
-        <td colspan="1">
-            <b>a</b>
-        </td>
-        <td colspan="1">
-            <b>b </b>
-        </td>
-        <td colspan="1">
-            <b>c</b>
-        </td>
-
-    </tr>
-    <tr style="border: 3px solid #000;">
-        <td>To check if workers encoded correctly.</td>
-        <td>To solve tasks myself.</td>
-        <td>To guess how many tasks each worker solved.</td>
-    </tr>
-    <tr style="border-top: 3px none #000;">
-
-        <td colspan="1" class="td4">
-            <b>{% formfield player.QuizBezahlung %}</b>
-        </td>
-    </tr>
 
 </table>
 

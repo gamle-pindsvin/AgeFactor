@@ -1,5 +1,6 @@
 from otree.api import *
 import random
+from django.forms import ModelForm, MultipleChoiceField, CheckboxSelectMultiple
 import string
 import math
 import io
@@ -12,7 +13,7 @@ from uvicorn import Config
 class Constants(BaseConstants):
     name_in_url = 'DeciderStage'
     #TODO: Es sollen zwar 600 echte sein, mit Tests muss man am Ende mit einer Zeit höher als 600 starten.
-    players_per_group = 24
+    players_per_group = 48
 
     # Pro Gruppe 1 und 2 darf jeweils 200 Spieler sein
     maximaleAnzahlProGruppe12 = players_per_group / 3
@@ -49,12 +50,12 @@ class Constants(BaseConstants):
 
     ################### Echte Auszahlungen für Probalnden ##########
     # GBP flat
-    festerAnteilDerBezahlung = 0.40
+    festerAnteilDerBezahlung = 0.50
     # Genauigkiet - wie Nah muss man das Ergebnis eines Workers treffen. Hier also beim echten Wert von 35 ist es
     #   ein Interwall [32;38] bei dem Ausgazahlt wird
     schaetzgenauigkeit = 3
     # GBP pro richtige Antwort
-    bezahlungProRichtigeSchaetzung = 0.50
+    bezahlungProRichtigeSchaetzung = 0.25
     ################### ENDE AEchte Auszahlungen für Probalnden ##########
 
     # Für die Quiz - wie oft sollte man hypothetisch spielen
@@ -136,18 +137,81 @@ class Player(BasePlayer):
     HinweisLangeProlificID = models.BooleanField(initial=True)
 
     # Zählt falsche Versuche beim Quiz
-    FreiVersucheImQuiz = models.IntegerField(initial=3)
+    FreiVersucheImQuiz = models.IntegerField(initial=2)
     HatSichQualifiziert = models.BooleanField(initial=True)
-    FreiVersucheImQuiz2 = models.IntegerField(initial=3)
+    FreiVersucheImQuiz2 = models.IntegerField(initial=2)
     HatSichQualifiziert2 = models.BooleanField(initial=True)
 
     # Hat "More Details" zur Auszahlung angeschaut
     HatMoreDetailsAngeschaut = models.IntegerField(initial=0)
 
     # Statistik am Ende
-    Fachrichtung = models.StringField(choices=[['Man', 'Management'], ['Eco', 'Economics'], ['Law', 'Law'], ['Cog', 'Cognitive Science'], ['Nat', 'Natural Science or Mathematics'], ['Other', 'Other field'], ['None', "I'm not a student"]], widget=widgets.RadioSelect, label='Field of study')
-    Age = models.StringField(choices=[['1', '20 years or less'], ['2', '21 - 24'], ['3', '25 - 28'], ['4', '29 - 35'], ['5', 'more than 35']], widget=widgets.RadioSelect)
-    Gender = models.StringField(choices=[['F', 'Female'], ['M', 'Male'], ['D', 'Not listed'], ['N', 'Prefer not to answer']], widget=widgets.RadioSelect)
+    ConfidentNivau = models.StringField(choices=[['1', 'Not confident at all'],
+                                                 ['2', 'Slightly confident'],
+                                                 ['3', 'Moderately confident'],
+                                                 ['4', 'Very confident'],
+                                                 ['5', 'Extremely confident']], widget=widgets.RadioSelect, label='<b>1. </b>How confident are you that your estimates accurately reflect the actual performances?')
+
+    AccuracyOfEstimates = models.IntegerField(min=0, max=100, label='<b>2. </b>If you had to bet on the accuracy of your estimates, what percentage chance (0-100%) would you give that your estimates are close to the actual performances? <b><i>Enter a percentage between 0 and 100.</b></i>')
+
+
+    PoliticalOrientation = models.StringField(choices=[['1', 'Left (e.g., strongly supports redistribution, government intervention)'],
+                                                       ['2', 'Centre-left'],
+                                                       ['3', 'Centre (e.g., neither particularly left nor right)'],
+                                                       ['4', 'Centre-right'],
+                                                       ['5', 'Right (e.g., strongly supports free markets, limited government)'],
+                                                       ['6', 'Don’t know / Prefer not to say']], widget=widgets.RadioSelect, label='In politics, people sometimes talk about ‘left’ and ‘right’. Where would you place yourself on the following scale?')
+    Education = models.StringField(choices=[['1', 'No formal qualifications'], ['2', 'GCSEs or equivalent (e.g., O-Levels)'], ['3', 'A-Levels or equivalent (e.g., high school diploma)'], ['4', 'Vocational qualification (e.g., NVQ, BTEC)'], ['5', 'Undergraduate degree (e.g., BA, BSc)'], ['6', 'Postgraduate degree (e.g., MA, MSc, PhD)'], ['0', "Other "]], widget=widgets.RadioSelect, label='What is the highest level of education you have completed? ')
+    GeburtsJahr = models.IntegerField(min=1920, max=2010, label='In which year were you born?')
+    Gender = models.StringField(choices=[['F', 'Female'], ['M', 'Male'], ['D', 'Not listed'], ['N', 'Prefer not to answer']], widget=widgets.RadioSelect, label='What is your gender?')
+    Occupation = models.StringField(choices=[['1', 'Senior Manager / Director (e.g., CEO, finance director, senior civil servant)'],
+                                             ['2', 'Professional with Management Responsibilities (e.g., doctor managing a team, senior engineer)'],
+                                             ['3', 'Professional without Management Responsibilities (e.g., teacher, nurse, software developer)'],
+                                             ['4', 'Skilled Worker / Technician (e.g., electrician, mechanic, police officer)'],
+                                             ['5', 'Clerical / Administrative Worker (e.g., office assistant, receptionist, call center worker)'],
+                                             ['6', 'Manual Worker / Labourer (e.g., factory worker, construction worker, delivery driver)'],
+                                             ['7', 'Self-Employed – With Employees (e.g., business owner, shop owner with staff)'],
+                                             ['8', 'Self-Employed – Without Employees (e.g., freelancer, independent consultant, sole trader)'],
+                                             ['9', "Other"]], widget=widgets.RadioSelect, label='Which of the following best describes your current occupation? (If unemployed or retired, please select your most recent occupation.)')
+    Household = models.StringField(choices=[['1', 'Single-person household'],
+                                         ['2', 'Household with only adults of the same generation (e.g., housemates, couple without children, siblings)'],
+                                         ['3', 'Professional without Management Responsibilities (e.g., teacher, nurse, software developer)'],
+                                         ['4', 'Household with adults and children (e.g., parents with children under 18, guardians with dependents)'],
+                                         ['5', 'Other']], widget=widgets.RadioSelect, label='Which of the following best describes your household composition?')
+    OlderInPrivate = models.StringField(choices=[['1', 'Very frequently'],
+                                            ['2', 'Occasionally'],
+                                            ['3', 'Sometimes'],
+                                            ['4', 'Rarely'],
+                                            ['5', 'Very rarely']], widget=widgets.RadioSelect, label='How frequently do you have contact with individuals aged 55 or older in your private life (e.g., family, friends, …)?')
+    OlderInProfessional = models.StringField(choices=[['1', 'Very frequently'],
+                                                 ['2', 'Occasionally'],
+                                                 ['3', 'Sometimes'],
+                                                 ['4', 'Rarely'],
+                                                 ['5', 'Very rarely']], widget=widgets.RadioSelect, label='How frequently do you have contact with individuals aged 55 or older in your professional life (e.g., colleagues, customers, …)?')
+    Discrimination = models.StringField(choices=[['1', 'Gender'],
+                                                      ['2', 'Age'],
+                                                      ['3', 'Ethnicity'],
+                                                      ['4', 'Disability (or Handicap, depending on preference)'],
+                                                      ['5', 'Sexual orientation'],
+                                                      ['6', 'Other reasons']], label='Have you ever experienced discrimination because of the following reasons?')
+    DiscriminationOnGender = models.StringField(choices=[['1', 'Yes'], ['2', 'No'], ['3', 'Don’t know / Prefer not to say']], widget=widgets.RadioSelect,
+                                                    label='Have you ever experienced discrimination because of your <b>Gender</b>?')
+    DiscriminationOnAge = models.StringField(choices=[['1', 'Yes'], ['2', 'No'], ['3', 'Don’t know / Prefer not to say']], widget=widgets.RadioSelect,
+                                                    label='Have you ever experienced discrimination because of your <b>Age</b>?')
+    DiscriminationOnEthnicity = models.StringField(choices=[['1', 'Yes'], ['2', 'No'], ['3', 'Don’t know / Prefer not to say']], widget=widgets.RadioSelect,
+                                                    label='Have you ever experienced discrimination because of your <b>Ethnicity</b>?')
+    DiscriminationOnDisability = models.StringField(choices=[['1', 'Yes'], ['2', 'No'], ['3', 'Don’t know / Prefer not to say']], widget=widgets.RadioSelect,
+                                                    label='Have you ever experienced discrimination because of your <b>Disability (or Handicap, depending on preference)</b>?')
+    DiscriminationOnSexualOrientation = models.StringField(choices=[['1', 'Yes'], ['2', 'No'], ['3', 'Don’t know / Prefer not to say']], widget=widgets.RadioSelect,
+                                                    label='Have you ever experienced discrimination because of your <b>Sexual orientation</b>?')
+    DiscriminationOnOther = models.StringField(choices=[['1', 'Yes'], ['2', 'No'], ['3', 'Don’t know / Prefer not to say']], widget=widgets.RadioSelect,
+                                                    label='Have you ever experienced discrimination because of <b>other reasons</b>?')
+    DiscriminationAtWork = models.StringField(choices=[['1', 'Very common'],
+                                                 ['2', 'Somewhat common'],
+                                                 ['3', 'Rare'],
+                                                 ['4', 'Very rare'],
+                                                 ['5', 'Never happens']], widget=widgets.RadioSelect, label='How common do you think age discrimination is in the workplace (incl. in hiring processes, promotions, and career advancement)?')
+
 
     #Am Ende ggf. mit real_world_currency_per_point im Config korrigieren
     AuszahlungInWaehrung = models.IntegerField(initial=0)
@@ -522,7 +586,7 @@ class Intro2(Page):
 # Verständnis-Quiz, Teil 1 VOR dem Spiel
 class Quiz(Page):
     form_model = 'player'
-    form_fields = ["QuizKodieren1", "QuizKodieren2", "QuizBezahlung"]
+    form_fields = ["QuizKodieren2"]
 
     @staticmethod
     def is_displayed(player: Player):
@@ -531,7 +595,8 @@ class Quiz(Page):
     @staticmethod
     def error_message(player, values):
         # Wenn player.FreiVersucheImQuiz 0 werden, geht weiter, aber gleich zu der Auszahlungsseite.
-        quizKorrekt = ((values['QuizKodieren1'] == 'b') and (values['QuizKodieren2'] == 'c') and (values['QuizBezahlung'] == 'b'))
+        #print('ERROR!!')
+        quizKorrekt = ((values['QuizKodieren2'] == 'c'))
         #print(values['QuizKodieren1'], 'bool: ', (values['QuizKodieren1'] == 'B'))
         #print(values['QuizKodieren2'], 'bool: ', (values['QuizKodieren2'] == 'C'))
         #print(values['QuizBezahlung'], 'bool: ', (values['QuizBezahlung'] == 'C'))
@@ -543,6 +608,7 @@ class Quiz(Page):
                 return 'Try again please. One or more answers are not yet correct. You have ' + str(player.FreiVersucheImQuiz) + ' attempts left.'
             else:
                 #keine Freiversuche mehr
+                #print('ELSE!!')
                 player.HatSichQualifiziert = False
         else:
             #print('KORREKT!!')
@@ -551,6 +617,7 @@ class Quiz(Page):
     @staticmethod
     def vars_for_template(player: Player):
         #Werte für die Auszahlungsfragen
+        #print('VAR!!')
         antwortA = Constants.quizAngenommeneAnzahlAntowrten*Constants.bezahlungProAntwortRET
         antwortB = Constants.quizAngenommeneAnzahlAntowrten * Constants.bezahlungProAntwortRET + Constants.festerAnteilderBezahlungRET
         antwortC = Constants.quizAngenommeneAnzahlAntowrten + Constants.festerAnteilderBezahlungRET
@@ -619,11 +686,19 @@ class ResultsOfTWS(Page):
     def is_displayed(player: Player):
         return player.round_number == 1
 
+# Erklärung, was eine Histogramm ist.
+class BeforeEstimation(Page):
+    form_model = 'player'
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
+
 
 # Verständnis-Quiz, Teil 2 NACH dem Spiel
 class Quiz2(Page):
     form_model = 'player'
-    form_fields = ["QuizKodieren1", "QuizKodieren2", "QuizBezahlung"]
+    form_fields = ["QuizBezahlung"]
 
     @staticmethod
     def is_displayed(player: Player):
@@ -632,7 +707,7 @@ class Quiz2(Page):
     @staticmethod
     def error_message(player, values):
         # Wenn player.FreiVersucheImQuiz 0 werden, geht weiter, aber gleich zu der Auszahlungsseite.
-        quizKorrekt = ((values['QuizKodieren1'] == 'b') and (values['QuizKodieren2'] == 'c') and (values['QuizBezahlung'] == 'b'))
+        quizKorrekt = (values['QuizBezahlung'] == 'b')
 
         if not quizKorrekt:
             #print('NICHT KORREKT player.FreiVersucheImQuiz war: ', player.FreiVersucheImQuiz, " / quizKorrekt: ", quizKorrekt)
@@ -940,13 +1015,31 @@ class SeiteFuerT3a(Page):
 
 
 
+# Wie sicher ist der Probant bezüglich seiner Schätzung
+class SelbstEinschaetzungUmfrage(Page):
 
+    form_model = 'player'
+    form_fields = ['ConfidentNivau', 'AccuracyOfEstimates']
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return (player.round_number == Constants.num_rounds)
+
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened):
+        verdient = player.participant.VerdientePunkte * Constants.bezahlungProRichtigeSchaetzung + Constants.festerAnteilDerBezahlung
+        player.payoff = verdient;
+        player.participant.payoff = verdient;
 
 # Auszahlung und Statistik werden vorbereitet
 class AuszahlungUmfrage(Page):
 
     form_model = 'player'
-    form_fields = ['Fachrichtung', 'Age', 'Gender']
+    form_fields = ['GeburtsJahr', 'Gender', 'Education', 'PoliticalOrientation',
+                   'Occupation', 'Household', 'OlderInPrivate', 'OlderInProfessional',
+                   'DiscriminationOnGender', 'DiscriminationOnAge', 'DiscriminationOnEthnicity',
+                   'DiscriminationOnDisability', 'DiscriminationOnSexualOrientation',
+                   'DiscriminationOnOther', 'DiscriminationAtWork']
 
     @staticmethod
     def is_displayed(player: Player):
@@ -971,4 +1064,4 @@ class Ergebnis(Page):
 
 
 #page_sequence = [Intro, Intro2, ResultsOfTWS, RealEffortTask, SeiteFuerT1, SeiteFuerT3, SeiteFuerT3, AuszahlungUmfrage, Ergebnis]
-page_sequence = [Intro, Intro2, Quiz, RealEffortTask, Quiz2, SeiteFuerT1, SeiteFuerT2j, SeiteFuerT2a, SeiteFuerT3j, SeiteFuerT3a, AuszahlungUmfrage, Ergebnis]
+page_sequence = [Intro, Intro2, Quiz, RealEffortTask, Quiz2, BeforeEstimation, SeiteFuerT1, SeiteFuerT2j, SeiteFuerT2a, SeiteFuerT3j, SeiteFuerT3a, SelbstEinschaetzungUmfrage, AuszahlungUmfrage, Ergebnis]

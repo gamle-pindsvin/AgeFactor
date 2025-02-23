@@ -1,7 +1,7 @@
 {{ extends "global/CSS_Page.html" }}
 {{ load otree }}
 
-{{ block title }}Practice Part xxxxx 2 xxxxxxxxx{{ endblock }}
+{{ block title }}Practice Part (3){{ endblock }}
 
 {{ block app_scripts }}
 <!-- Soll nicht zurück springen können -->
@@ -17,125 +17,19 @@ window.onhashchange=function(){window.location.hash="no-back-button";}
 
 
 <!--<div id="imagePlaceholder"> <img src="{% static "KodierungsTabelle.jpg" %}" alt="Table not found"></div>-->
-<div style="text-align: left;">This Practice Part contains three elements, (1), (2), and (3). The first two are intended to familiarize you with the encoding task. Please complete question (1) using the table below.
-<br>Then, on the next page, you will (2) encode words using a similar table for exactly thirty seconds. The remaining time will be shown in the upper right corner. This solely has the pupose of giving you a feel for the time pressure and task difficulty. </br>
-    <br> After that, you will see (3) one comprehension question.
+<div style="text-align: left;">
+    <br> Please answer the following comprehension question.
 </div>
+
+<div style="text-align: left;"> You have two attempts to answer correctly. If you cannot correctly within two trials, the experiment will end, and you will only receive the basic fee of £ {{ Constants.festerAnteilDerBezahlung|to2 }}. </div>
 <br>
-<div style="text-align: left;"> For each question, you have up to three attempts. If you cannot answer correctly within three trials, the experiment will end, and you will only receive the basic fee of £ {{ Constants.festerAnteilDerBezahlung|to2 }}. </div>
 <br>
-<div style="text-align: left;"> After this screen, the Task Part will start.</div>
-<br><br>
-<div>
 
-    <table border="1" style="width:100%; text-align:center; border-collapse: collapse;">
-        <tr><td style="border: 1px solid white;" colspan="8">&nbsp <b>Practice Table</b></td></tr>
-        <tr><td style="border-left: 1px solid white;border-right: 1px solid white;border-top: 1px solid white" colspan="8">&nbsp </td></tr>
-        </tr>
-        <tr>
-            <td><b>A</b>: 167</td>
-            <td><b>B</b>: 618</td>
-            <td><b>C</b>: 412</td>
-            <td><b>D</b>: 442</td>
-            <td><b>E</b>: 820</td>
-            <td><b>F</b>: 395</td>
-            <td><b>G</b>: 263</td>
-            <td><b>H</b>: 595</td>
-
-        </tr>
-        <tr>
-            <td style="border-left: 1px solid white;border-right: 1px solid white;" colspan="8">&nbsp</td>
-        </tr>
-        <tr>
-            <td><b>I</b>: 958</td>
-            <td><b>J</b>: 890</td>
-            <td><b>K</b>: 136</td>
-            <td><b>L</b>: 126</td>
-            <td><b>M</b>: 288</td>
-            <td><b>N</b>: 843</td>
-            <td><b>O</b>: 146</td>
-            <td><b>P</b>: 600</td>
-
-        </tr>
-        <tr>
-            <td style="border-left: 1px solid white;border-right: 1px solid white;" colspan="8">&nbsp</td>
-        </tr>
-        <tr>
-            <td><b>R</b>: 536</td>
-            <td><b>S</b>: 896</td>
-            <td><b>T</b>: 513</td>
-            <td><b>U</b>: 901</td>
-            <td><b>V</b>: 558</td>
-            <td><b>W</b>: 982</td>
-            <td><b>X</b>: 156</td>
-            <td><b>Y</b>: 123</td>
-
-        </tr>
-
-
-    </table>
-</div>
 
 <table border="0" style="width:100%; text-align:center; border-collapse: collapse;">
 
 
-    <tr><td colspan="3" class="td3">&nbsp;</td></tr>
-    <tr><td colspan="3" class="td3"><b>1)</b> How would you encode <b>XMO</b>?</td></tr>
-    <tr style="border: 3px solid #000;">
-
-        <td colspan="1">
-            <b>a</b>
-        </td>
-        <td colspan="1">
-            <b>b</b>
-        </td>
-        <td colspan="1">
-            <b>c</b>
-        </td>
-
-    </tr>
-    <tr style="border: 3px solid #000;">
-        <td>126222333</td>
-        <td>156288146</td>
-        <td>XMO</td>
-    </tr>
-    <tr style="border-top: 3px none #000;">
-
-        <td class="td4" colspan="3">
-            <b>{% formfield player.QuizKodieren1 %}</b>
-        </td>
-
-    </tr>
-
-
-    <tr><td colspan="3" class="td3"><b>(1)</b> How would you encode <b>AYN</b>?</td></tr>
-    <tr colspan="3" style="border: 3px solid #000;">
-
-        <td colspan="1">
-            <b>a</b>
-        </td>
-        <td colspan="1">
-            <b>b</b>
-        </td>
-        <td colspan="1">
-            <b>c</b>
-        </td>
-
-    </tr>
-    <tr style="border: 3px solid #000;">
-        <td>167618412</td>
-        <td>AYN</td>
-        <td>167123843</td>
-    </tr>
-    <tr style="border-top: 3px none #000;">
-
-        <td colspan="3" class="td4">
-            <b>{% formfield player.QuizKodieren2 %}</b>
-        </td>
-
-    </tr>
-
-    <tr><td colspan="3" class="td3"><b>3)</b> In the Estimation Part, you will read, for example, that "A team of two workers solved a {{Constants.quizAngenommeneAnzahlAntowrten}} tasks." What is your task as an estimator?</td></tr>
+    <tr><td colspan="3" class="td3"><b>In the Estimation Part, you will read, for example, that "A team of two workers solved a {{Constants.quizAngenommeneAnzahlAntowrten}} tasks." What is your task as an estimator?</b></td></tr>
     <tr><td colspan="3" class="td3">(<i>Note: "{{Constants.quizAngenommeneAnzahlAntowrten}}" is an intentionally unrealistically high number.)</i></td></tr>
     <tr colspan="3" style="border: 3px solid #000;">
 
@@ -163,6 +57,10 @@ window.onhashchange=function(){window.location.hash="no-back-button";}
     </tr>
 
 </table>
+
+<div style="text-align: left;"><br>
+    <div style="text-align: left;"> After this screen, the Task Part will start. On the next screen, you will be given a brief introduction to how information is presented as a histogram and how to read it.</div>
+    <br><br>
 
 
 {% next_button %}
