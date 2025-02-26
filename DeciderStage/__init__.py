@@ -1,6 +1,5 @@
 from otree.api import *
 import random
-from django.forms import ModelForm, MultipleChoiceField, CheckboxSelectMultiple
 import string
 import math
 import io
@@ -232,7 +231,11 @@ def berechneAuszahlungT1(ergebnisSpieler1, ergebnisSpieler2, schaetzung):
     result = 0
     diff1 = abs(ergebnisSpieler1 - schaetzung)
     diff2 = abs(ergebnisSpieler2 - schaetzung)
-    if ((diff1 <= Constants.schaetzgenauigkeit) or (diff2 <= Constants.schaetzgenauigkeit)):
+
+    # Wähle die kleinste Differenz
+    minimaleDiff = min(diff1, diff2)
+
+    if (minimaleDiff <= Constants.schaetzgenauigkeit):
         result = 1
     print('S1: ', ergebnisSpieler1, 'S2: ', ergebnisSpieler2, ' Eingabe: ', schaetzung,  ' diff1: ', diff1, ' diff2: ', diff2 , ' result: ', result)
     return result
@@ -575,7 +578,7 @@ class Intro2(Page):
                 player.HatMoreDetailsAngeschaut = 1
                 player.participant.HatMoreDetailsAngeschaut = 1
             else:
-                print('$$ liveData sendet nicht 1 sondern ', data)
+                #print('$$ liveData sendet nicht 1 sondern ', data)
                 player.HatMoreDetailsAngeschaut = 0
                 player.participant.HatMoreDetailsAngeschaut = 0
 
@@ -675,24 +678,13 @@ class RealEffortTask(Page):
 
 
 
-class ResultsOfTWS(Page):
-    form_model = 'player'
-    #TODO DANACH LÖSCHEN NUR SLIDER TEST
-    form_fields = ['slider_value']
-    #form_fields = ["AnzahlRichtigerAntworten"]
-    #timeout_seconds = 60
-
-    @staticmethod
-    def is_displayed(player: Player):
-        return player.round_number == 1
-
 # Erklärung, was eine Histogramm ist.
 class BeforeEstimation(Page):
     form_model = 'player'
 
     @staticmethod
     def is_displayed(player: Player):
-        return player.round_number == 1
+        return (player.HatSichQualifiziert and player.round_number == 1)
 
 
 # Verständnis-Quiz, Teil 2 NACH dem Spiel
@@ -702,12 +694,12 @@ class Quiz2(Page):
 
     @staticmethod
     def is_displayed(player: Player):
-        return player.round_number == 1
+        return (player.HatSichQualifiziert and player.round_number == 1)
 
     @staticmethod
     def error_message(player, values):
         # Wenn player.FreiVersucheImQuiz 0 werden, geht weiter, aber gleich zu der Auszahlungsseite.
-        quizKorrekt = (values['QuizBezahlung'] == 'b')
+        quizKorrekt = (values['QuizBezahlung'] == 'c')
 
         if not quizKorrekt:
             #print('NICHT KORREKT player.FreiVersucheImQuiz war: ', player.FreiVersucheImQuiz, " / quizKorrekt: ", quizKorrekt)
