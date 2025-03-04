@@ -174,8 +174,8 @@ class Player(BasePlayer):
                                              ['9', "Other"]], widget=widgets.RadioSelect, label='Which of the following best describes your current occupation? (If unemployed or retired, please select your most recent occupation.)')
     Household = models.StringField(choices=[['1', 'Single-person household'],
                                          ['2', 'Household with only adults of the same generation (e.g., housemates, couple without children, siblings)'],
-                                         ['3', 'Professional without Management Responsibilities (e.g., teacher, nurse, software developer)'],
-                                         ['4', 'Household with adults and children (e.g., parents with children under 18, guardians with dependents)'],
+                                         ['3', 'Household with adults and children (e.g., parents with children under 18, guardians with dependents)'],
+                                         ['4', 'Multigenerational household (e.g., at least two adult generations living together, such as grandparents, parents, and children)'],
                                          ['5', 'Other']], widget=widgets.RadioSelect, label='Which of the following best describes your household composition?')
     OlderInPrivate = models.StringField(choices=[['1', 'Very frequently'],
                                             ['2', 'Occasionally'],
@@ -1027,8 +1027,8 @@ class SelbstEinschaetzungUmfrage(Page):
 class AuszahlungUmfrage(Page):
 
     form_model = 'player'
-    form_fields = ['GeburtsJahr', 'Gender', 'Education', 'PoliticalOrientation',
-                   'Occupation', 'Household', 'OlderInPrivate', 'OlderInProfessional',
+    form_fields = ['GeburtsJahr', 'Gender', 'Education',
+                   'Occupation', 'Household', 'PoliticalOrientation', 'OlderInPrivate', 'OlderInProfessional',
                    'DiscriminationOnGender', 'DiscriminationOnAge', 'DiscriminationOnEthnicity',
                    'DiscriminationOnDisability', 'DiscriminationOnSexualOrientation',
                    'DiscriminationOnOther', 'DiscriminationAtWork']

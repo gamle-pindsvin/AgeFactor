@@ -5,7 +5,52 @@
 
 {{ block content }}
 <form method="post">
+<style>
 
+        img {
+          max-width: 100%;
+          height: auto;
+        }
+
+        /* Stile für das modale Fenster */
+        .modal {
+          display: none;
+          position: fixed;
+          z-index: 1;
+          padding-top: 60px;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          overflow: auto;
+          background-color: rgb(0,0,0);
+          background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+          margin: auto;
+          display: block;
+          width: 150%;
+          max-width: 1400px;
+        }
+
+        .close {
+          position: absolute;
+          top: 15px;
+          right: 35px;
+          color: #fff;
+          font-size: 40px;
+          font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+          color: #bbb;
+          text-decoration: none;
+          cursor: pointer;
+        }
+
+</style>
 <br>
 <br>
 <b>Practice Stage</b>
@@ -14,7 +59,21 @@
 <div>To help you understand workers' task, you will be shown a reference table that links each of 24 letters in the alphabet to a specific 3-digit number. You will first be asked a comprehension question. Then, you will spend <b>{{Constants.dauerDesThreatmentsInSekunden}} seconds</b> encoding 3-letter strings while the clock ticks. This will give you a feel for the time pressure and task difficulty.</div>
 <br>
 <div>Please consider the following screenshot for an <b>example</b> of the encoding task.</div>
-<img style=" max-width: 100%;height: auto;" src="{% static "ExampleIntroAusBMPAlsPNG.png" %}">
+
+
+    <a href="javascript:void(0)" onclick="openModal()">
+        <img src="{% static 'ExampleIntroAusBMPAlsPNG.png' %}">
+    </a>
+
+    <!-- Modales Fenster -->
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+
+
+
+
 <div>In this example, the word is HUR. According to the reference table, H = 595, U = 901, and R = 536. In the screenshot, “595901536” has already been entered in the field below the word.</div>
 <br>
 <div>When the code for the word is complete, it needs to be confirmed by clicking on the <b>“OK” button, or</b> by pressing the <b>“Enter” key</b>. <div>Once a word has been successfully encoded, the computer will provide a new word to encode. <u>For Workers, this process continued for exactly seven minutes (420 seconds) </u>that they spent working at their own pace, receiving a payment for each completed word. The table remained the same throughout their work phase. In the top-right corner of the screen, the remaining time is shown. </div>
@@ -74,6 +133,15 @@
                     }
                 });
             });
+
+            function openModal() {
+                document.getElementById('myModal').style.display = "block";
+                document.getElementById('modalImage').src = "{% static 'ExampleIntroAusBMPAlsPNG.png' %}";
+            }
+
+            function closeModal() {
+                document.getElementById('myModal').style.display = "none";
+            }
 
         </script>
 

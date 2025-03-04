@@ -5,6 +5,54 @@
 
 {{ block content }}
 
+<form>
+
+    <style>
+
+        img {
+          max-width: 50%;
+          height: auto;
+        }
+
+        /* Stile für das modale Fenster */
+        .modal {
+          display: none;
+          position: fixed;
+          z-index: 1;
+          padding-top: 60px;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          overflow: auto;
+          background-color: rgb(0,0,0);
+          background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+          margin: auto;
+          display: block;
+          width: 100%;
+          max-width: 700px;
+        }
+
+        .close {
+          position: absolute;
+          top: 15px;
+          right: 35px;
+          color: #fff;
+          font-size: 40px;
+          font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+          color: #bbb;
+          text-decoration: none;
+          cursor: pointer;
+        }
+
+</style>
 
 
 <div style="text-align: left;">For the estimation tasks, we will provide you with a <b>histogram</b> showing the distribution of individual performances on the encoding task. To help you interpret these graphs correctly, we first introduce a simple <b>unrelated</b> example.</b>.</div>
@@ -17,7 +65,18 @@
         <li>A shorter bar means fewer trees have diameters in that range.</li>
     </ul>
 </div>
-<div><img style="display: block; margin-left: auto; margin-right: auto; max-width: 50%; height: auto;" src="{% static 'Trees.png' %}" alt="Tree Histogram"></div>
+<div>
+
+    <a href="javascript:void(0)" onclick="openModal()">
+        <img src="{% static 'Trees.png' %}" alt="Tree Histogram">
+    </a>
+</div>
+    <!-- Modales Fenster -->
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+
 <br>
 <div style="text-align: left;">Histograms make it easy to see which values are most common or least common. They help us recognize patterns, such as whether most trees are thin, thick, or somewhere in between.</div>
 <div style="text-align: left;">For example, the histogram here shows that the most common tree diameters fall between 0 and 10 cm, meaning that most trees in this sample are thin.</div>
@@ -26,7 +85,19 @@
 
 
     {{ next_button }}
+        <script>
 
 
+            function openModal() {
+                document.getElementById('myModal').style.display = "block";
+                document.getElementById('modalImage').src = "{% static 'Trees.png' %}";
+            }
 
+            function closeModal() {
+                document.getElementById('myModal').style.display = "none";
+            }
+
+        </script>
+
+</form>
 {{ endblock }}

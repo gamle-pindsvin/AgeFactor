@@ -1,7 +1,7 @@
 {{ extends "global/CSS_Page.html" }}
 {{ load otree }}
 
-{{ block title }}Project information and decision <br>{{player.participant.zugeordneteRole}} XXXXXX soll 5 sein XXXXXXXXX T3 alt XXXXXXXXXXXXXXXXX{{ endblock }}
+{{ block title }}Provide your estimate{{ endblock }}
 
 {{ block content }}
 <div>Estimate {{player.round_number}} of {{ Constants.num_rounds }}</div>
@@ -10,12 +10,66 @@
 </div>
 
 <form>
-    <style> img { max-width: 100%; height: auto; } </style>
+    <style>
+        img {
+          max-width: 100%;
+          height: auto;
+        }
+
+        /* Stile für das modale Fenster */
+        .modal {
+          display: none;
+          position: fixed;
+          z-index: 1;
+          padding-top: 60px;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          overflow: auto;
+          background-color: rgb(0,0,0);
+          background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+          margin: auto;
+          display: block;
+          width: 200%;
+          max-width: 1400px;
+        }
+
+        .close {
+          position: absolute;
+          top: 15px;
+          right: 35px;
+          color: #fff;
+          font-size: 40px;
+          font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+          color: #bbb;
+          text-decoration: none;
+          cursor: pointer;
+        }
+
+    </style>
+
 
     <table class="B-container">
         <tr>
             <td colspan="2">
-                <img src="{% static "HistoBothHorisontal.jpg" %}">
+                <div>
+                    <a href="javascript:void(0)" onclick="openModal()">
+                        <img src="{% static 'HistoBothHorisontal.jpg' %}" alt="Histogram">
+                    </a>
+                </div>
+                <!-- Modales Fenster -->
+                <div id="myModal" class="modal">
+                    <span class="close" onclick="closeModal()">&times;</span>
+                    <img class="modal-content" id="modalImage">
+                </div>
             </td>
         </tr>
 
@@ -117,6 +171,16 @@
         window.location.hash="no-back-button";
         window.location.hash="Again-No-back-button";//again because google chrome don't insert first hash into history
         window.onhashchange=function(){window.location.hash="no-back-button";}
+
+            function openModal() {
+                document.getElementById('myModal').style.display = "block";
+                document.getElementById('modalImage').src = "{% static 'HistoBothHorisontal.jpg' %}";
+            }
+
+            function closeModal() {
+                document.getElementById('myModal').style.display = "none";
+            }
+
     </script>
 
 
