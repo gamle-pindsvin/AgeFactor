@@ -55,10 +55,8 @@
 <br>
 <b>Practice Stage</b>
 <div>In this part, you will have the opportunity to try out the encoding task that the workers completed. It involved encoding a series of words (combinations of letters), each consisting of three capital letters, by replacing each letter with a corresponding 3-digit number according to a provided code.</div>
-<br>
-<div>To help you understand workers' task, you will be shown a reference table that links each of 24 letters in the alphabet to a specific 3-digit number. You will first be asked a comprehension question. Then, you will spend <b>{{Constants.dauerDesThreatmentsInSekunden}} seconds</b> encoding 3-letter strings while the clock ticks. This will give you a feel for the time pressure and task difficulty.</div>
-<br>
-<div>Please consider the following screenshot for an <b>example</b> of the encoding task.</div>
+    <br>
+    <div>Please consider the following screenshot for an <b>example</b> of the encoding task.</div>
 
 
     <a href="javascript:void(0)" onclick="openModal()">
@@ -70,36 +68,46 @@
         <span class="close" onclick="closeModal()">&times;</span>
         <img class="modal-content" id="modalImage">
     </div>
-
-
-
-
+    <br>
 <div>In this example, the word is HUR. According to the reference table, H = 595, U = 901, and R = 536. In the screenshot, “595901536” has already been entered in the field below the word.</div>
 <br>
-<div>When the code for the word is complete, it needs to be confirmed by clicking on the <b>“OK” button, or</b> by pressing the <b>“Enter” key</b>. <div>Once a word has been successfully encoded, the computer will provide a new word to encode. <u>For Workers, this process continued for exactly seven minutes (420 seconds) </u>that they spent working at their own pace, receiving a payment for each completed word. The table remained the same throughout their work phase. In the top-right corner of the screen, the remaining time is shown. </div>
+    <br>
+    <div>To help you understand workers' task, you will be shown a reference table similar to the one above that links each of 24 letters in the alphabet to a specific 3-digit number. You will first be asked a comprehension question. Then, you will spend <b>{{Constants.dauerDesThreatmentsInSekunden}} seconds</b> encoding 3-letter strings while the clock ticks. This will give you a feel for the time pressure and task difficulty.</div>
 <br>
-<div>If the code was incorrect, the computer did not increase the tally of correct answers shown in the top-right corner. The computer notified workers in case an input was not correct and presented them with a new word to encode. </div>
+    <div>When the code for the word is complete, it needs to be confirmed by clicking on the <b>“OK” button, or</b> by pressing the <b>“Enter” key</b>. Once a word has been successfully encoded, the computer will provide a new word to encode.</div>
+        <br><div><u>For workers, this process continued for exactly seven minutes (420 seconds) </u>that they spent working at their own pace, receiving a payment for each completed word. The table remained the same throughout their work phase. In the top-right corner of the screen, the remaining time is shown.
 <br>
+If the code was incorrect, the computer did not increase the tally of correct answers shown in the top-right corner. The computer notified workers in case an input was not correct and presented them with a new word to encode. </div>
+
 <br><br>
     <b>Estimation Part</b>
-    <div>In the Estimation Part, you will be shown the <b>performance of teams of two individuals</b> who - independently of each other - worked on encoding tasks. You will make estimates of how many tasks each of the two workers on the team solved for <b>ten different teams</b>.
+    <div>In the Estimation Part, you will be shown the <b>performance of teams of two individuals</b> who - independently of each other - worked on encoding tasks. You will make estimates of how many tasks (words) each of the two workers on the team solved for <b>ten different teams</b>.
 
         <br><br>
         <br>
         <b>Earning Money</b>
         <div>Your payment will depend on the accuracy of your estimates. That is, you receive a <b>bonus of &pound; {{ Constants.bezahlungProRichtigeSchaetzung|to2 }} for each of your estimates that matches</b> the actual workers' individual performances <b>closely enough</b>. &nbsp;&nbsp;<a href="#" style="font-size: 80%" id="showExplanationLink">More details</a><br>  </div>
 
-        <div id="explanation" style="display: none;">
+        <div id="explanation" style="display: none;font-size: 90%;background-color: #FFFACD">
             <br>
 
-            <p style="font-size: 90%; background-color: #FFFACD">&nbsp;&nbsp;A close enough estimate is ...</p>
+            You will receive a <b>bonus of &pound; {{ Constants.bezahlungProRichtigeSchaetzung|to2 }} </b> if your estimate is <b>close enough</b> to the actual individual performance. Specifically, your estimate must fall within a <b>±5% range</b> around the actual value.
+                The absolute size of this range depends on the <b>team’s total performance</b>:<br><br>
+            <ul>
+                <li>If the team performs <b>better</b>, the range is <b>wider</b>.</li>
+                <li>If the team performs <b>worse</b>, the range is <b>narrower</b>.</li>
+            </ul>
+                For example, if the team’s total performance is 150 (which is an intentionally unrealistically high number), then <b>5% of 150 is 7.5</b>, so the acceptable range is:<br>
+                                <b>[True Value – 7.5, True Value + 7.5]</b>
+
+
         </div>
 
         <div> In addition, you will also receive a fixed amount of  &pound; {{ Constants.festerAnteilDerBezahlung|to2 }}, irrespective of the accuracy of your estimates.</div>
         <br>
         <div>Note that only you will benefit financially from your work; neither the authors of this study nor anyone else will derive earnings from your estimates.</div>
         <br><br>
-        <div> Before entering the Estimation Part, we ask you to complete the Practice Part. There, we ask you to encode one word to familiarize yourself with the task and to answer one comprehension question. You have five attempts in total to encode the word and answer the comprehension question correctly. Using more than five attempts will end the experiment for you, and you will only receive the basic fee of &pound; {{ Constants.festerAnteilDerBezahlung|to2 }}. Note that in the Practice Part, no additional earnings are awarded for correct answers.</div>
+        <div> Before entering the Estimation Part, we ask you to complete the Practice Part. There, we ask you to answer a comprehension question, encode word yourself, and to answer a second comprehension question. You have two attempts to answer each comprehension question correctly. Using more than two attempts for one of the questions will end the experiment for you, and you will only receive the basic fee of &pound; {{ Constants.festerAnteilDerBezahlung|to2 }}. Note that in the Practice Part, no additional earnings are awarded for correct answers.</div>
 <br>
         <br>
         <b>Concluding the experiment</b>

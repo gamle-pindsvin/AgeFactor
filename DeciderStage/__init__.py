@@ -50,9 +50,9 @@ class Constants(BaseConstants):
     ################### Echte Auszahlungen für Probalnden ##########
     # GBP flat
     festerAnteilDerBezahlung = 0.50
-    # Genauigkiet - wie Nah muss man das Ergebnis eines Workers treffen. Hier also beim echten Wert von 35 ist es
-    #   ein Interwall [32;38] bei dem Ausgazahlt wird
-    schaetzgenauigkeit = 3
+    # Genauigkiet - wie Nah muss man das Ergebnis eines Workers treffen. Ist relativ zum gemeinsamen Output der Workers
+    # 0.1 heißt 10% und damit ein Intervall [realValue-5% , realValue + 5% des gemeinsamen outputs]
+    schaetzgenauigkeit = 0.1
     # GBP pro richtige Antwort
     bezahlungProRichtigeSchaetzung = 0.25
     ################### ENDE AEchte Auszahlungen für Probalnden ##########
@@ -119,10 +119,10 @@ class Player(BasePlayer):
     QuizKodieren2 = models.StringField(choices=[['a', 'a'], ['b', 'b'], ['c', 'c']], widget=widgets.RadioSelect, label='')
     QuizBezahlung = models.StringField(choices=[['a', 'a'], ['b', 'b'], ['c', 'c']], widget=widgets.RadioSelect, label='')
 
-    # Zufällig gezogene Ergebnisse aus dem vorherigen TeamWorkStage
-    aktuellesErgebnisTWSSpieler1_aus_TWS = models.IntegerField(label='')
-    aktuellesErgebnisTWSSpieler2_aus_TWS = models.IntegerField(label='')
-    aktuellesErgebnisTWS_Summe = models.IntegerField(label='')
+    # Ergebnisse aus dem vorherigen TeamWorkStage. Tuppel ist immer [oldWorker, youngWorker]
+    oldWorker = models.IntegerField(label='')
+    youngWorker = models.IntegerField(label='')
+    gemeinsamesErgebnisBeiderWorker = models.IntegerField(label='')
 
     # Und Eingaben der Entscheider, was sie denken, dass einer beigetragen hat
     aktuellesErgebnisTWSSpieler1_Schaetzung = models.IntegerField(label='', blank=True, null=True)
@@ -193,23 +193,16 @@ class Player(BasePlayer):
                                                       ['4', 'Disability (or Handicap, depending on preference)'],
                                                       ['5', 'Sexual orientation'],
                                                       ['6', 'Other reasons']], label='Have you ever experienced discrimination because of the following reasons?')
-    DiscriminationOnGender = models.StringField(choices=[['1', 'Yes'], ['2', 'No'], ['3', 'Don’t know / Prefer not to say']], widget=widgets.RadioSelect,
-                                                    label='Have you ever experienced discrimination because of your <b>Gender</b>?')
-    DiscriminationOnAge = models.StringField(choices=[['1', 'Yes'], ['2', 'No'], ['3', 'Don’t know / Prefer not to say']], widget=widgets.RadioSelect,
-                                                    label='Have you ever experienced discrimination because of your <b>Age</b>?')
-    DiscriminationOnEthnicity = models.StringField(choices=[['1', 'Yes'], ['2', 'No'], ['3', 'Don’t know / Prefer not to say']], widget=widgets.RadioSelect,
-                                                    label='Have you ever experienced discrimination because of your <b>Ethnicity</b>?')
-    DiscriminationOnDisability = models.StringField(choices=[['1', 'Yes'], ['2', 'No'], ['3', 'Don’t know / Prefer not to say']], widget=widgets.RadioSelect,
-                                                    label='Have you ever experienced discrimination because of your <b>Disability (or Handicap, depending on preference)</b>?')
-    DiscriminationOnSexualOrientation = models.StringField(choices=[['1', 'Yes'], ['2', 'No'], ['3', 'Don’t know / Prefer not to say']], widget=widgets.RadioSelect,
-                                                    label='Have you ever experienced discrimination because of your <b>Sexual orientation</b>?')
-    DiscriminationOnOther = models.StringField(choices=[['1', 'Yes'], ['2', 'No'], ['3', 'Don’t know / Prefer not to say']], widget=widgets.RadioSelect,
-                                                    label='Have you ever experienced discrimination because of <b>other reasons</b>?')
-    DiscriminationAtWork = models.StringField(choices=[['1', 'Very common'],
-                                                 ['2', 'Somewhat common'],
-                                                 ['3', 'Rare'],
-                                                 ['4', 'Very rare'],
-                                                 ['5', 'Never happens']], widget=widgets.RadioSelect, label='How common do you think age discrimination is in the workplace (incl. in hiring processes, promotions, and career advancement)?')
+    era4 = models.StringField(choices=[['1', 'Definitely True'], ['2', 'Somewhat True'], ['3', 'Somewhat False'], ['4', 'Definitely False']], widget=widgets.RadioSelect,
+                                                    label='Every year that people age, their energy levels go down a little more.')
+    era9 = models.StringField(choices=[['1', 'Definitely True'], ['2', 'Somewhat True'], ['3', 'Somewhat False'], ['4', 'Definitely False']], widget=widgets.RadioSelect,
+                                                    label='I expect that as I get older I will become more forgetful.')
+    era10 = models.StringField(choices=[['1', 'Definitely True'], ['2', 'Somewhat True'], ['3', 'Somewhat False'], ['4', 'Definitely False']], widget=widgets.RadioSelect,
+                                                    label='It’s an accepted part of aging to have trouble remembering names.')
+    era11 = models.StringField(choices=[['1', 'Definitely True'], ['2', 'Somewhat True'], ['3', 'Somewhat False'], ['4', 'Definitely False']], widget=widgets.RadioSelect,
+                                                    label='Forgetfulness is a natural occurrence just from growing old.')
+    era12 = models.StringField(choices=[['1', 'Definitely True'], ['2', 'Somewhat True'], ['3', 'Somewhat False'], ['4', 'Definitely False']], widget=widgets.RadioSelect,
+                                                    label='It is impossible to escape the mental slowness that happens with aging.')
 
 
     #Am Ende ggf. mit real_world_currency_per_point im Config korrigieren
@@ -227,27 +220,36 @@ class Player(BasePlayer):
 
 
     # Es wird geprüft, ob er das Intervall zu einem der beiden Ergebnisse trifft, wenn ja: +1
+    # Intervall wird dynamisch berechnet als z.B. 10% der gemeinsamen Outputs des Spieler 1 und 2, also +/-5%.
+    # Diese z.B. 10% sind in der Variable Constants.schaetzgenauigkeit gespeichert
 def berechneAuszahlungT1(ergebnisSpieler1, ergebnisSpieler2, schaetzung):
     result = 0
+
     diff1 = abs(ergebnisSpieler1 - schaetzung)
     diff2 = abs(ergebnisSpieler2 - schaetzung)
 
     # Wähle die kleinste Differenz
     minimaleDiff = min(diff1, diff2)
 
-    if (minimaleDiff <= Constants.schaetzgenauigkeit):
+    # ist der Abstand kleiner als die (Output*10%/2)
+    schwelle = (ergebnisSpieler1 + ergebnisSpieler2)*Constants.schaetzgenauigkeit/2
+
+    if (minimaleDiff <= schwelle):
         result = 1
     print('S1: ', ergebnisSpieler1, 'S2: ', ergebnisSpieler2, ' Eingabe: ', schaetzung,  ' diff1: ', diff1, ' diff2: ', diff2 , ' result: ', result)
     return result
 
 # Es wird geprüft, ob er das Intervall dem gegebenen Ergebnisse trifft, wenn ja: +1
-# Spieler 1 wird mal als junger mal als alte dargestellt. Beim Aufruf wird aber der richtige Übergeben
-def berechneAuszahlung(ergebnisSpieler1, schaetzung):
+# Intervall wird durch
+# Spielerwird mal als junger mal als alter Spieler dargestellt. Beim Aufruf wird aber der richtige Übergeben
+def berechneAuszahlung(ergebnisSpieler, summe, schaetzung):
     result = 0
-    diff1 = abs(ergebnisSpieler1 - schaetzung)
-    if diff1 <= Constants.schaetzgenauigkeit:
+    diff1 = abs(ergebnisSpieler - schaetzung)
+    # ist der Abstand kleiner als die (Output*10%/2)
+    schwelle = summe*Constants.schaetzgenauigkeit/2
+    if diff1 <= schwelle:
         result = 1
-    print('S1: ', ergebnisSpieler1, ' Eingabe: ', schaetzung,  ' diff1: ', diff1, ' result: ', result)
+    print('S1: ', ergebnisSpieler, ' Eingabe: ', schaetzung,  ' diff1: ', diff1, ' result: ', result)
     return result
 
 # Ist die Anzahl der Probanden pro Rolle schon ausgeschöpft - z.B. 200 - oder gibt es noch frei Plätze
@@ -755,18 +757,14 @@ class SeiteFuerT1(Page):
         arbeitsergebnisse = aktuelleSequenz[player.round_number - 1]
         print("arbeitsergebnisse:", arbeitsergebnisse)
         # Die Werte braucht man unten zur Berechung der Auszahlung. Die Summe aber auch als Anzeige, daher schon hier
-        #player.aktuellesErgebnisTWSSpieler1_aus_TWS = int(aktuellAngezeigteErgebnisse[0])
-        #player.aktuellesErgebnisTWSSpieler2_aus_TWS = int(aktuellAngezeigteErgebnisse[1])
-        #player.aktuellesErgebnisTWS_Summe = int(aktuellAngezeigteErgebnisse[2])
-
-        player.aktuellesErgebnisTWSSpieler1_aus_TWS = int(arbeitsergebnisse[0])
-        player.aktuellesErgebnisTWSSpieler2_aus_TWS = int(arbeitsergebnisse[1])
-        player.aktuellesErgebnisTWS_Summe = player.aktuellesErgebnisTWSSpieler1_aus_TWS + player.aktuellesErgebnisTWSSpieler2_aus_TWS
+        player.oldWorker = int(arbeitsergebnisse[0])
+        player.youngWorker = int(arbeitsergebnisse[1])
+        player.gemeinsamesErgebnisBeiderWorker = player.oldWorker + player.youngWorker
 
         print(arbeitsergebnisse)
-        print('worker1: ', player.aktuellesErgebnisTWSSpieler1_aus_TWS, ' worker2: ', player.aktuellesErgebnisTWSSpieler2_aus_TWS);
+        print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker);
 
-        summe = player.aktuellesErgebnisTWS_Summe
+        summe = player.gemeinsamesErgebnisBeiderWorker
         inputFieldValue = player.field_maybe_none('aktuellesErgebnisTWSSpieler1_Schaetzung')
         berechnetesErgebnis = player.field_maybe_none('aktuellesErgebnisTWSSpieler2_Schaetzung')
         if inputFieldValue is None:
@@ -787,7 +785,7 @@ class SeiteFuerT1(Page):
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
         # Hat er Intervall für EINEN der beiden Worker getroffen?
-        neuePunkteInDieserRunde = berechneAuszahlungT1(player.aktuellesErgebnisTWSSpieler1_aus_TWS, player.aktuellesErgebnisTWSSpieler2_aus_TWS, player.aktuellesErgebnisTWSSpieler1_Schaetzung)
+        neuePunkteInDieserRunde = berechneAuszahlungT1(player.oldWorker, player.youngWorker, player.aktuellesErgebnisTWSSpieler1_Schaetzung)
         player.participant.VerdientePunkte += neuePunkteInDieserRunde
         print("Punkte neu: ",player.participant.VerdientePunkte)
 
@@ -812,14 +810,14 @@ class SeiteFuerT2j(Page):
         arbeitsergebnisse = aktuelleSequenz[player.round_number - 1]
         print("arbeitsergebnisse:", arbeitsergebnisse)
         # Die Werte braucht man unten zur Berechung der Auszahlung. Die Summe aber auch als Anzeige, daher schon hier
-        player.aktuellesErgebnisTWSSpieler1_aus_TWS = int(arbeitsergebnisse[0])
-        player.aktuellesErgebnisTWSSpieler2_aus_TWS = int(arbeitsergebnisse[1])
-        player.aktuellesErgebnisTWS_Summe = player.aktuellesErgebnisTWSSpieler1_aus_TWS + player.aktuellesErgebnisTWSSpieler2_aus_TWS
+        player.oldWorker = int(arbeitsergebnisse[0])
+        player.youngWorker = int(arbeitsergebnisse[1])
+        player.gemeinsamesErgebnisBeiderWorker = player.oldWorker + player.youngWorker
 
         print(arbeitsergebnisse)
-        print('worker1: ', player.aktuellesErgebnisTWSSpieler1_aus_TWS, ' worker2: ', player.aktuellesErgebnisTWSSpieler2_aus_TWS);
+        print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker);
 
-        summe = player.aktuellesErgebnisTWS_Summe
+        summe = player.gemeinsamesErgebnisBeiderWorker
         inputFieldValue = player.field_maybe_none('aktuellesErgebnisTWSSpieler1_Schaetzung')
         berechnetesErgebnis = player.field_maybe_none('aktuellesErgebnisTWSSpieler2_Schaetzung')
         if inputFieldValue is None:
@@ -841,7 +839,7 @@ class SeiteFuerT2j(Page):
     def before_next_page(player: Player, timeout_happened):
         # Hat er Intervall für den JUNGEN Worker getroffen?
         # JUNGER Worker ist immer der Spieler 2
-        neuePunkteInDieserRunde = berechneAuszahlung(player.aktuellesErgebnisTWSSpieler2_aus_TWS, player.aktuellesErgebnisTWSSpieler1_Schaetzung)
+        neuePunkteInDieserRunde = berechneAuszahlung(player.youngWorker, player.gemeinsamesErgebnisBeiderWorker, player.aktuellesErgebnisTWSSpieler1_Schaetzung)
         player.participant.VerdientePunkte += neuePunkteInDieserRunde
         print("Punkte neu: ",player.participant.VerdientePunkte)
 
@@ -865,14 +863,14 @@ class SeiteFuerT2a(Page):
         arbeitsergebnisse = aktuelleSequenz[player.round_number - 1]
         print("arbeitsergebnisse:", arbeitsergebnisse)
         # Die Werte braucht man unten zur Berechung der Auszahlung. Die Summe aber auch als Anzeige, daher schon hier
-        player.aktuellesErgebnisTWSSpieler1_aus_TWS = int(arbeitsergebnisse[0])
-        player.aktuellesErgebnisTWSSpieler2_aus_TWS = int(arbeitsergebnisse[1])
-        player.aktuellesErgebnisTWS_Summe = player.aktuellesErgebnisTWSSpieler1_aus_TWS + player.aktuellesErgebnisTWSSpieler2_aus_TWS
+        player.oldWorker = int(arbeitsergebnisse[0])
+        player.youngWorker = int(arbeitsergebnisse[1])
+        player.gemeinsamesErgebnisBeiderWorker = player.oldWorker + player.youngWorker
 
         print(arbeitsergebnisse)
-        print('worker1: ', player.aktuellesErgebnisTWSSpieler1_aus_TWS, ' worker2: ', player.aktuellesErgebnisTWSSpieler2_aus_TWS);
+        print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker);
 
-        summe = player.aktuellesErgebnisTWS_Summe
+        summe = player.gemeinsamesErgebnisBeiderWorker
         inputFieldValue = player.field_maybe_none('aktuellesErgebnisTWSSpieler1_Schaetzung')
         berechnetesErgebnis = player.field_maybe_none('aktuellesErgebnisTWSSpieler2_Schaetzung')
         if inputFieldValue is None:
@@ -894,7 +892,7 @@ class SeiteFuerT2a(Page):
     def before_next_page(player: Player, timeout_happened):
         # Hat er Intervall für den Alten Worker getroffen?
         # ALTER Worker ist immer der Spieler 1
-        neuePunkteInDieserRunde = berechneAuszahlung(player.aktuellesErgebnisTWSSpieler1_aus_TWS, player.aktuellesErgebnisTWSSpieler1_Schaetzung)
+        neuePunkteInDieserRunde = berechneAuszahlung(player.oldWorker, player.gemeinsamesErgebnisBeiderWorker, player.aktuellesErgebnisTWSSpieler1_Schaetzung)
         player.participant.VerdientePunkte += neuePunkteInDieserRunde
         print("Punkte neu: ",player.participant.VerdientePunkte)
 
@@ -918,14 +916,14 @@ class SeiteFuerT3j(Page):
         arbeitsergebnisse = aktuelleSequenz[player.round_number - 1]
         print("arbeitsergebnisse:", arbeitsergebnisse)
         # Die Werte braucht man unten zur Berechung der Auszahlung. Die Summe aber auch als Anzeige, daher schon hier
-        player.aktuellesErgebnisTWSSpieler1_aus_TWS = int(arbeitsergebnisse[0])
-        player.aktuellesErgebnisTWSSpieler2_aus_TWS = int(arbeitsergebnisse[1])
-        player.aktuellesErgebnisTWS_Summe = player.aktuellesErgebnisTWSSpieler1_aus_TWS + player.aktuellesErgebnisTWSSpieler2_aus_TWS
+        player.oldWorker = int(arbeitsergebnisse[0])
+        player.youngWorker = int(arbeitsergebnisse[1])
+        player.gemeinsamesErgebnisBeiderWorker = player.oldWorker + player.youngWorker
 
         print(arbeitsergebnisse)
-        print('worker1: ', player.aktuellesErgebnisTWSSpieler1_aus_TWS, ' worker2: ', player.aktuellesErgebnisTWSSpieler2_aus_TWS);
+        print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker);
 
-        summe = player.aktuellesErgebnisTWS_Summe
+        summe = player.gemeinsamesErgebnisBeiderWorker
         inputFieldValue = player.field_maybe_none('aktuellesErgebnisTWSSpieler1_Schaetzung')
         berechnetesErgebnis = player.field_maybe_none('aktuellesErgebnisTWSSpieler2_Schaetzung')
         if inputFieldValue is None:
@@ -945,9 +943,10 @@ class SeiteFuerT3j(Page):
     # Berechne die Auszahlung für diese Runde und addiere sie zur Gesamtauszahlung
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
+
         # Hat er Intervall für den JUNGEN Worker getroffen?
         # JUNGER Worker ist immer der Spieler 2
-        neuePunkteInDieserRunde = berechneAuszahlung(player.aktuellesErgebnisTWSSpieler2_aus_TWS, player.aktuellesErgebnisTWSSpieler1_Schaetzung)
+        neuePunkteInDieserRunde = berechneAuszahlung(player.youngWorker, player.gemeinsamesErgebnisBeiderWorker, player.aktuellesErgebnisTWSSpieler1_Schaetzung)
         player.participant.VerdientePunkte += neuePunkteInDieserRunde
         print("Punkte neu: ",player.participant.VerdientePunkte)
 
@@ -972,14 +971,14 @@ class SeiteFuerT3a(Page):
         arbeitsergebnisse = aktuelleSequenz[player.round_number - 1]
         print("arbeitsergebnisse:", arbeitsergebnisse)
         # Die Werte braucht man unten zur Berechung der Auszahlung. Die Summe aber auch als Anzeige, daher schon hier
-        player.aktuellesErgebnisTWSSpieler1_aus_TWS = int(arbeitsergebnisse[0])
-        player.aktuellesErgebnisTWSSpieler2_aus_TWS = int(arbeitsergebnisse[1])
-        player.aktuellesErgebnisTWS_Summe = player.aktuellesErgebnisTWSSpieler1_aus_TWS + player.aktuellesErgebnisTWSSpieler2_aus_TWS
+        player.oldWorker = int(arbeitsergebnisse[0])
+        player.youngWorker = int(arbeitsergebnisse[1])
+        player.gemeinsamesErgebnisBeiderWorker = player.oldWorker + player.youngWorker
 
         print(arbeitsergebnisse)
-        print('worker1: ', player.aktuellesErgebnisTWSSpieler1_aus_TWS, ' worker2: ', player.aktuellesErgebnisTWSSpieler2_aus_TWS);
+        print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker);
 
-        summe = player.aktuellesErgebnisTWS_Summe
+        summe = player.gemeinsamesErgebnisBeiderWorker
         inputFieldValue = player.field_maybe_none('aktuellesErgebnisTWSSpieler1_Schaetzung')
         berechnetesErgebnis = player.field_maybe_none('aktuellesErgebnisTWSSpieler2_Schaetzung')
         if inputFieldValue is None:
@@ -1001,7 +1000,7 @@ class SeiteFuerT3a(Page):
     def before_next_page(player: Player, timeout_happened):
         # Hat er Intervall für den Alten Worker getroffen?
         # ALTER Worker ist immer der Spieler 1
-        neuePunkteInDieserRunde = berechneAuszahlung(player.aktuellesErgebnisTWSSpieler1_aus_TWS, player.aktuellesErgebnisTWSSpieler1_Schaetzung)
+        neuePunkteInDieserRunde = berechneAuszahlung(player.oldWorker, player.gemeinsamesErgebnisBeiderWorker, player.aktuellesErgebnisTWSSpieler1_Schaetzung)
         player.participant.VerdientePunkte += neuePunkteInDieserRunde
         print("Punkte neu: ",player.participant.VerdientePunkte)
 
@@ -1029,9 +1028,7 @@ class AuszahlungUmfrage(Page):
     form_model = 'player'
     form_fields = ['GeburtsJahr', 'Gender', 'Education',
                    'Occupation', 'Household', 'PoliticalOrientation', 'OlderInPrivate', 'OlderInProfessional',
-                   'DiscriminationOnGender', 'DiscriminationOnAge', 'DiscriminationOnEthnicity',
-                   'DiscriminationOnDisability', 'DiscriminationOnSexualOrientation',
-                   'DiscriminationOnOther', 'DiscriminationAtWork']
+                   'era4', 'era9', 'era10', 'era11', 'era12']
 
     @staticmethod
     def is_displayed(player: Player):
