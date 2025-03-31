@@ -58,11 +58,12 @@
 
 
     <table class="B-container">
+        <tr><td colspan="2">&nbsp;</td></tr>
         <tr>
             <td colspan="2">
                 <div>
                     <a href="javascript:void(0)" onclick="openModal()">
-                        <img src="{% static 'HistoBothHorisontal.jpg' %}" alt="Histogram">
+                        <img src="{% static 'HistogramsBoth.png' %}" alt="Histogram">
                     </a>
                 </div>
                 <!-- Modales Fenster -->
@@ -76,14 +77,19 @@
         <!-- 2 leere Zeilen als Abstand -->
 
         <tr>
-            <td colspan="2">
+            <td colspan="2" style="border-bottom: 2px solid black;">
+                &nbsp;
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" >
                 &nbsp;
             </td>
         </tr>
 
         <tr>
             <td colspan="2">
-                &nbsp;The workers were recruited from the UK, one worker from age group 22 to 29, and one worker from age group 52 to 59.
+                &nbsp;The workers were recruited in the UK, with one aged 22-29 and one aged 52-59 per team, <br>working independently on the encoding task.
             </td>
         </tr>
         <tr>
@@ -109,10 +115,10 @@
         <!-- Worker 1 HIER FEST DER Alte-->
         <tr>
             <td style="text-align: right;">
-                <label for="aktuellesErgebnisTWSSpieler1_Schaetzung"><b>Your estimate for older Worker</b>&nbsp;&nbsp;</label>
+                <label for="aktuellesErgebnisTWSSpieler1_Schaetzung"><b>Your estimate for the older worker</b>&nbsp;&nbsp;</label>
             </td>
             <td style="text-align: left;">
-                <input type="number" id="aktuellesErgebnisTWSSpieler1_Schaetzung" name="aktuellesErgebnisTWSSpieler1_Schaetzung" value="{{ aktuellesErgebnisTWSSpieler1_Schaetzung }}" max="{% summe %}">
+                <input type="number" id="aktuellesErgebnisTWSSpieler1_Schaetzung" name="aktuellesErgebnisTWSSpieler1_Schaetzung" value="{{ aktuellesErgebnisTWSSpieler1_Schaetzung }}" max="{% summe %}" required>
             </td>
         </tr>
         <!-- 1 leere Zeile als Abstand -->
@@ -124,7 +130,7 @@
         <!-- Worker 2 HIER IMMER DER Junge-->
         <tr>
             <td  style="text-align: right;">
-                 <b> Your estimate for the younger Worker </b>&nbsp;&nbsp;<br>(automatically calculated)&nbsp;&nbsp;
+                 <b> Your estimate for the younger worker </b>&nbsp;&nbsp;<br>(auto-calculated based on your input)&nbsp;&nbsp;
             </td>
             <td  style="text-align: left;">
                  <input type="text" id="calculated_field" style="background-color: #f0f0f0;" readonly>
@@ -181,7 +187,7 @@
 
             function openModal() {
                 document.getElementById('myModal').style.display = "block";
-                document.getElementById('modalImage').src = "{% static 'HistoBothHorisontal.jpg' %}";
+                document.getElementById('modalImage').src = "{% static 'HistogramsBoth.png' %}";
             }
 
             function closeModal() {

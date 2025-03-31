@@ -1,5 +1,6 @@
 from otree.api import *
 import random
+import time
 import string
 import math
 import io
@@ -11,8 +12,8 @@ from uvicorn import Config
 
 class Constants(BaseConstants):
     name_in_url = 'DeciderStage'
-    #TODO: Es sollen zwar 800 echte sein, mit Tests muss man am Ende mit einer Zeit höher als 800 starten.
-    players_per_group = 32
+    #TODO: Es sollen zwar 800 echte sein, zum Testsen kann man jede vielfache von 32 nutzen.
+    players_per_group = 64
 
     # Pro Gruppe 1 und 6 darf jeweils 200 Spieler sein. Die Gruppen sind bis auf Text identisch
     maximaleAnzahlProGruppe16 = players_per_group / 4
@@ -40,16 +41,16 @@ class Constants(BaseConstants):
     # Wie lange soll die Aufgabe gelöst werden
     dauerDesThreatmentsInSekunden = 30
 
-    ################### Auszahlungen für das Test-Spiel (RealEffortTask 20-30 Sekunden) ##########
+    ######### TEST ########## Auszahlungen für das TEST SPIEL  (RealEffortTask 20-30 Sekunden) ###### TEST ####
     # GBP flat
     festerAnteilderBezahlungRET = 0.40
     # GBP pro richtige Antwort
     bezahlungProAntwortRET = 0.05
     ################### ENDE Auszahlungen für das Test-Spiel (RealEffortTask 20-30 Sekunden) ##########
 
-    ################### Echte Auszahlungen für Probalnden ##########
+    ########## ECHT ######### Echte Auszahlungen für Probalnden ### ECHT #######
     # GBP flat
-    festerAnteilDerBezahlung = 0.50
+    festerAnteilDerBezahlung = 1.15
     # Genauigkiet - wie Nah muss man das Ergebnis eines Workers treffen. Ist relativ zum gemeinsamen Output der Workers
     # 0.1 heißt 10% und damit ein Intervall [realValue-5% , realValue + 5% des gemeinsamen outputs]
     schaetzgenauigkeit = 0.1
@@ -58,7 +59,7 @@ class Constants(BaseConstants):
     ################### ENDE AEchte Auszahlungen für Probalnden ##########
 
     # Für die Quiz - wie oft sollte man hypothetisch spielen
-    quizAngenommeneAnzahlAntowrten = 100
+    quizAngenommeneAnzahlAntowrten = 150
     # Umrechnungfaktor aus den Punkten
     waehrungsFaktor = 1
     waehrungsName = 'GBP'
@@ -134,6 +135,7 @@ class Player(BasePlayer):
     aktuellesErgebnisTWSSpieler1_Schaetzung = models.IntegerField(label='', blank=True, null=True)
     aktuellesErgebnisTWSSpieler2_Schaetzung = models.StringField(label='', blank=True, null=True, initial="")
 
+    eintrittZeitAufDerSeite = models.FloatField(initial=-1.0)
 
     # Prüfen, ob man selbst decodieren kann
     SelbstTest = models.StringField(label='')
@@ -200,15 +202,15 @@ class Player(BasePlayer):
                                                       ['5', 'Sexual orientation'],
                                                       ['6', 'Other reasons']], label='Have you ever experienced discrimination because of the following reasons?')
     era4 = models.StringField(choices=[['1', 'Definitely True'], ['2', 'Somewhat True'], ['3', 'Somewhat False'], ['4', 'Definitely False']], widget=widgets.RadioSelect,
-                                                    label='Every year that people age, their energy levels go down a little more.')
+                                                    label='<b>Please indicate to what extent you think the following statements are true.</b><br><br>"Every year that people age, their energy levels go down a little more."')
     era9 = models.StringField(choices=[['1', 'Definitely True'], ['2', 'Somewhat True'], ['3', 'Somewhat False'], ['4', 'Definitely False']], widget=widgets.RadioSelect,
-                                                    label='I expect that as I get older I will become more forgetful.')
+                                                    label='"I expect that as I get older I will become more forgetful."')
     era10 = models.StringField(choices=[['1', 'Definitely True'], ['2', 'Somewhat True'], ['3', 'Somewhat False'], ['4', 'Definitely False']], widget=widgets.RadioSelect,
-                                                    label='It’s an accepted part of aging to have trouble remembering names.')
+                                                    label='"It’s an accepted part of aging to have trouble remembering names."')
     era11 = models.StringField(choices=[['1', 'Definitely True'], ['2', 'Somewhat True'], ['3', 'Somewhat False'], ['4', 'Definitely False']], widget=widgets.RadioSelect,
-                                                    label='Forgetfulness is a natural occurrence just from growing old.')
+                                                    label='"Forgetfulness is a natural occurrence just from growing old."')
     era12 = models.StringField(choices=[['1', 'Definitely True'], ['2', 'Somewhat True'], ['3', 'Somewhat False'], ['4', 'Definitely False']], widget=widgets.RadioSelect,
-                                                    label='It is impossible to escape the mental slowness that happens with aging.')
+                                                    label='"It is impossible to escape the mental slowness that happens with aging."')
 
 
     #Am Ende ggf. mit real_world_currency_per_point im Config korrigieren
@@ -242,7 +244,7 @@ def berechneAuszahlungT1(ergebnisSpieler1, ergebnisSpieler2, schaetzung):
 
     if (minimaleDiff <= schwelle):
         result = 1
-    print('S1: ', ergebnisSpieler1, 'S2: ', ergebnisSpieler2, ' Eingabe: ', schaetzung,  ' diff1: ', diff1, ' diff2: ', diff2 , ' result: ', result)
+    #print('S1: ', ergebnisSpieler1, 'S2: ', ergebnisSpieler2, ' Eingabe: ', schaetzung,  ' diff1: ', diff1, ' diff2: ', diff2 , ' result: ', result)
     return result
 
 # Es wird geprüft, ob er das Intervall dem gegebenen Ergebnisse trifft, wenn ja: +1
@@ -255,7 +257,7 @@ def berechneAuszahlung(ergebnisSpieler, summe, schaetzung):
     schwelle = summe*Constants.schaetzgenauigkeit/2
     if diff1 <= schwelle:
         result = 1
-    print('S1: ', ergebnisSpieler, ' Eingabe: ', schaetzung,  ' diff1: ', diff1, ' result: ', result)
+    #print('S1: ', ergebnisSpieler, ' Eingabe: ', schaetzung,  ' diff1: ', diff1, ' result: ', result)
     return result
 
 # Ist die Anzahl der Probanden pro Rolle schon ausgeschöpft - z.B. 200 - oder gibt es noch frei Plätze
@@ -434,6 +436,35 @@ def reduziereMengeProSequenzUndRolle(player, rollenNummer, sequenzNummer):
     else:
         print("FEHLER: reduziereMengeProSequenzUndRolle / rollenNummer: ", rollenNummer)
 
+# Wir wollen prüfen, wie lange der Spieler auf der SEite war. Die Zeit wird pro Runde gesichert.
+# Da die oTree-Modelle keine Arrays direkt unterstützen und die Funktionalität zu oft benutzt ist (so dass
+# json-Dump nicht performant ist) wird diese Funktion genutzt
+def speichereZeitAufDerSeite(player, dauerAufDerSeite):
+    roundNummer = player.round_number
+    if roundNummer == 1:
+        player.participant.zeitRunde1 = dauerAufDerSeite
+    elif roundNummer == 2:
+        player.participant.zeitRunde2 = dauerAufDerSeite
+    elif roundNummer == 3:
+        player.participant.zeitRunde3 = dauerAufDerSeite
+    elif roundNummer == 4:
+        player.participant.zeitRunde4 = dauerAufDerSeite
+    elif roundNummer == 5:
+        player.participant.zeitRunde5 = dauerAufDerSeite
+    elif roundNummer == 6:
+        player.participant.zeitRunde6 = dauerAufDerSeite
+    elif roundNummer == 7:
+        player.participant.zeitRunde7 = dauerAufDerSeite
+    elif roundNummer == 8:
+        player.participant.zeitRunde8 = dauerAufDerSeite
+    elif roundNummer == 9:
+        player.participant.zeitRunde9 = dauerAufDerSeite
+    elif roundNummer == 10:
+        player.participant.zeitRunde10 = dauerAufDerSeite
+    else:
+        print("FEHLER: speichereZeitAufDerSeite / roundNummer: ", roundNummer)
+
+
 class Intro(Page):
     form_model = 'player'
     form_fields = ["ProlificID"]
@@ -460,6 +491,7 @@ class Intro(Page):
         session = player.session
         player.participant.ProlificID = player.ProlificID;
         gruppe = player.group
+
 
         # Welche Rolle
         # Wir bleiben solange in einer Schleife, bis der Probant einer Rolle (T1, T2 oder T3) zugeordnet ist
@@ -557,14 +589,14 @@ class Intro(Page):
             #else:
              #   print("FEHLER: weiterSequenzSuchen / zufallSequenz: ", zufallSequenz)
 
-        print("Rolle: ", player.zugeordneteRole, " Sequenz #: ",player.gewaehlteSequenz)
-        print("Neue freie Rollen: [", gruppe.anzahlSpielerInDerGruppe1, ", " , gruppe.anzahlSpielerInDerGruppe2, ", " ,gruppe.anzahlSpielerInDerGruppe3, ", " ,gruppe.anzahlSpielerInDerGruppe4, ", ", gruppe.anzahlSpielerInDerGruppe5, ", ", gruppe.anzahlSpielerInDerGruppe6, "]")
-        print("Sequenzen: [[", gruppe.gruppe1_sequenz1, ", " , gruppe.gruppe1_sequenz2, ", " ,gruppe.gruppe1_sequenz3, ", " ,gruppe.gruppe1_sequenz4, "], [" ,
-                               gruppe.gruppe2_sequenz1, ", " , gruppe.gruppe2_sequenz2, ", " ,gruppe.gruppe2_sequenz3, ", " ,gruppe.gruppe2_sequenz4, "], [" ,
-                               gruppe.gruppe3_sequenz1, ", " , gruppe.gruppe3_sequenz2, ", " ,gruppe.gruppe3_sequenz3, ", " ,gruppe.gruppe3_sequenz4, "], [" ,
-                               gruppe.gruppe4_sequenz1, ", " , gruppe.gruppe4_sequenz2, ", " ,gruppe.gruppe4_sequenz3, ", " ,gruppe.gruppe4_sequenz4, "], [" ,
-                               gruppe.gruppe5_sequenz1, ", " , gruppe.gruppe5_sequenz2, ", " ,gruppe.gruppe5_sequenz3, ", " ,gruppe.gruppe5_sequenz4, "], [" ,
-                               gruppe.gruppe6_sequenz1, ", " , gruppe.gruppe6_sequenz2, ", " ,gruppe.gruppe6_sequenz3, ", " ,gruppe.gruppe6_sequenz4, "]]")
+        #print("Rolle: ", player.zugeordneteRole, " Sequenz #: ",player.gewaehlteSequenz)
+        #print("Neue freie Rollen: [", gruppe.anzahlSpielerInDerGruppe1, ", " , gruppe.anzahlSpielerInDerGruppe2, ", " ,gruppe.anzahlSpielerInDerGruppe3, ", " ,gruppe.anzahlSpielerInDerGruppe4, ", ", gruppe.anzahlSpielerInDerGruppe5, ", ", gruppe.anzahlSpielerInDerGruppe6, "]")
+        #print("Sequenzen: [[", gruppe.gruppe1_sequenz1, ", " , gruppe.gruppe1_sequenz2, ", " ,gruppe.gruppe1_sequenz3, ", " ,gruppe.gruppe1_sequenz4, "], [" ,
+        #                       gruppe.gruppe2_sequenz1, ", " , gruppe.gruppe2_sequenz2, ", " ,gruppe.gruppe2_sequenz3, ", " ,gruppe.gruppe2_sequenz4, "], [" ,
+        #                       gruppe.gruppe3_sequenz1, ", " , gruppe.gruppe3_sequenz2, ", " ,gruppe.gruppe3_sequenz3, ", " ,gruppe.gruppe3_sequenz4, "], [" ,
+        #                       gruppe.gruppe4_sequenz1, ", " , gruppe.gruppe4_sequenz2, ", " ,gruppe.gruppe4_sequenz3, ", " ,gruppe.gruppe4_sequenz4, "], [" ,
+        #                       gruppe.gruppe5_sequenz1, ", " , gruppe.gruppe5_sequenz2, ", " ,gruppe.gruppe5_sequenz3, ", " ,gruppe.gruppe5_sequenz4, "], [" ,
+        #                       gruppe.gruppe6_sequenz1, ", " , gruppe.gruppe6_sequenz2, ", " ,gruppe.gruppe6_sequenz3, ", " ,gruppe.gruppe6_sequenz4, "]]")
 
         #TODO HIER NUR UM ALLES IN T1 zu testen - DANACH LÖSCHEN!!!!
         #player.zugeordneteRole = 1;
@@ -782,6 +814,9 @@ class SeiteFuerT1(Page):
 
     @staticmethod
     def is_displayed(player: Player):
+        # Wir wollen messen, wie lange der Spieler auf der Seite war. Hier ist die "Start-Zeit"
+        # Wir wollen auch Teile der Sekunden, daher time.perf_counter() und nicht time.time().
+        player.eintrittZeitAufDerSeite = time.perf_counter()
         return (player.participant.zugeordneteRole == 1 and player.HatSichQualifiziert)
 
     @staticmethod
@@ -800,14 +835,14 @@ class SeiteFuerT1(Page):
         aktuelleSequenz = Constants.sequenzen[player.participant.gewaehlteSequenz-1]
         # Und jetzt das i-te Element
         arbeitsergebnisse = aktuelleSequenz[player.round_number - 1]
-        print("arbeitsergebnisse:", arbeitsergebnisse)
+        #print("arbeitsergebnisse:", arbeitsergebnisse)
         # Die Werte braucht man unten zur Berechung der Auszahlung. Die Summe aber auch als Anzeige, daher schon hier
         player.oldWorker = int(arbeitsergebnisse[0])
         player.youngWorker = int(arbeitsergebnisse[1])
         player.gemeinsamesErgebnisBeiderWorker = player.oldWorker + player.youngWorker
 
-        print(arbeitsergebnisse)
-        print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker);
+
+        #print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker);
 
         summe = player.gemeinsamesErgebnisBeiderWorker
         inputFieldValue = player.field_maybe_none('aktuellesErgebnisTWSSpieler1_Schaetzung')
@@ -829,10 +864,14 @@ class SeiteFuerT1(Page):
     # Berechne die Auszahlung für diese Runde und addiere sie zur Gesamtauszahlung
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
+        # Wir wollen messen, wie lange der Spieler auf der Seite war. Hier ist die "Verlass-Zeit"
+        dauerAufDerSeite = time.perf_counter() - player.eintrittZeitAufDerSeite
+        # Rundenzeiten des Spielers werden in Participant gespeichert.
+        speichereZeitAufDerSeite(player, dauerAufDerSeite)
         # Hat er Intervall für EINEN der beiden Worker getroffen?
         neuePunkteInDieserRunde = berechneAuszahlungT1(player.oldWorker, player.youngWorker, player.aktuellesErgebnisTWSSpieler1_Schaetzung)
         player.participant.VerdientePunkte += neuePunkteInDieserRunde
-        print("Punkte neu: ",player.participant.VerdientePunkte)
+        #print("Punkte neu: ",player.participant.VerdientePunkte)
 
 
 
@@ -844,32 +883,27 @@ class SeiteFuerT1genau(Page):
 
     @staticmethod
     def is_displayed(player: Player):
+        # Wir wollen messen, wie lange der Spieler auf der Seite war. Hier ist die "Start-Zeit"
+        # Wir wollen auch Teile der Sekunden, daher time.perf_counter() und nicht time.time().
+        player.eintrittZeitAufDerSeite = time.perf_counter()
         return (player.participant.zugeordneteRole == 6 and player.HatSichQualifiziert)
 
     @staticmethod
     def vars_for_template(player: Player):
 
 
-        # Ziehe einer der Ergebnisse aus TWS
-        #aktuellAngezeigteErgebnisse = waehleEinErgebnisAusTWS(player)
-
-        #print("Constants.sequenzen:", Constants.sequenzen)
-        #print("player.participant.gewaehlteSequenz:", player.participant.gewaehlteSequenz)
-        #print("player.gewaehlteSequenz:", player.gewaehlteSequenz)
-
         # Arbeitsergebnisse aus der Sequenz
         # Zuerst die Sequenz holen - (-1) weil Array ja mit 0 starte
         aktuelleSequenz = Constants.sequenzen[player.participant.gewaehlteSequenz-1]
         # Und jetzt das i-te Element
         arbeitsergebnisse = aktuelleSequenz[player.round_number - 1]
-        print("arbeitsergebnisse:", arbeitsergebnisse)
+        #print("arbeitsergebnisse:", arbeitsergebnisse)
         # Die Werte braucht man unten zur Berechung der Auszahlung. Die Summe aber auch als Anzeige, daher schon hier
         player.oldWorker = int(arbeitsergebnisse[0])
         player.youngWorker = int(arbeitsergebnisse[1])
         player.gemeinsamesErgebnisBeiderWorker = player.oldWorker + player.youngWorker
 
-        print(arbeitsergebnisse)
-        print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker);
+        #print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker);
 
         summe = player.gemeinsamesErgebnisBeiderWorker
         inputFieldValue = player.field_maybe_none('aktuellesErgebnisTWSSpieler1_Schaetzung')
@@ -891,10 +925,14 @@ class SeiteFuerT1genau(Page):
     # Berechne die Auszahlung für diese Runde und addiere sie zur Gesamtauszahlung
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
+        # Wir wollen messen, wie lange der Spieler auf der Seite war. Hier ist die "Verlass-Zeit"
+        dauerAufDerSeite = time.perf_counter() - player.eintrittZeitAufDerSeite
+        # Rundenzeiten des Spielers werden in Participant gespeichert.
+        speichereZeitAufDerSeite(player, dauerAufDerSeite)
         # Hat er Intervall für EINEN der beiden Worker getroffen?
         neuePunkteInDieserRunde = berechneAuszahlungT1(player.oldWorker, player.youngWorker, player.aktuellesErgebnisTWSSpieler1_Schaetzung)
         player.participant.VerdientePunkte += neuePunkteInDieserRunde
-        print("Punkte neu: ",player.participant.VerdientePunkte)
+        #print("Punkte neu: ",player.participant.VerdientePunkte)
 
 # Nur für die Rolle T2 mit JUNGEN Worker vorne - intern Rolle 2
 class SeiteFuerT2j(Page):
@@ -904,6 +942,9 @@ class SeiteFuerT2j(Page):
 
     @staticmethod
     def is_displayed(player: Player):
+        # Wir wollen messen, wie lange der Spieler auf der Seite war. Hier ist die "Start-Zeit"
+        # Wir wollen auch Teile der Sekunden, daher time.perf_counter() und nicht time.time().
+        player.eintrittZeitAufDerSeite = time.perf_counter()
         return (player.participant.zugeordneteRole == 2  and player.HatSichQualifiziert)
 
     @staticmethod
@@ -913,14 +954,14 @@ class SeiteFuerT2j(Page):
         aktuelleSequenz = Constants.sequenzen[player.participant.gewaehlteSequenz-1]
         # Und jetzt das i-te Element
         arbeitsergebnisse = aktuelleSequenz[player.round_number - 1]
-        print("arbeitsergebnisse:", arbeitsergebnisse)
+        #print("arbeitsergebnisse:", arbeitsergebnisse)
         # Die Werte braucht man unten zur Berechung der Auszahlung. Die Summe aber auch als Anzeige, daher schon hier
         player.oldWorker = int(arbeitsergebnisse[0])
         player.youngWorker = int(arbeitsergebnisse[1])
         player.gemeinsamesErgebnisBeiderWorker = player.oldWorker + player.youngWorker
 
-        print(arbeitsergebnisse)
-        print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker);
+        #print(arbeitsergebnisse)
+        #print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker);
 
         summe = player.gemeinsamesErgebnisBeiderWorker
         inputFieldValue = player.field_maybe_none('aktuellesErgebnisTWSSpieler1_Schaetzung')
@@ -942,11 +983,15 @@ class SeiteFuerT2j(Page):
     # Berechne die Auszahlung für diese Runde und addiere sie zur Gesamtauszahlung
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
+        # Wir wollen messen, wie lange der Spieler auf der Seite war. Hier ist die "Verlass-Zeit"
+        dauerAufDerSeite = time.perf_counter() - player.eintrittZeitAufDerSeite
+        # Rundenzeiten des Spielers werden in Participant gespeichert.
+        speichereZeitAufDerSeite(player, dauerAufDerSeite)
         # Hat er Intervall für den JUNGEN Worker getroffen?
         # JUNGER Worker ist immer der Spieler 2
         neuePunkteInDieserRunde = berechneAuszahlung(player.youngWorker, player.gemeinsamesErgebnisBeiderWorker, player.aktuellesErgebnisTWSSpieler1_Schaetzung)
         player.participant.VerdientePunkte += neuePunkteInDieserRunde
-        print("Punkte neu: ",player.participant.VerdientePunkte)
+        #print("Punkte neu: ",player.participant.VerdientePunkte)
 
 
 # Nur für die Rolle T2 mit ALTEN Worker vorne - intern Rolle 3
@@ -957,6 +1002,9 @@ class SeiteFuerT2a(Page):
 
     @staticmethod
     def is_displayed(player: Player):
+        # Wir wollen messen, wie lange der Spieler auf der Seite war. Hier ist die "Start-Zeit"
+        # Wir wollen auch Teile der Sekunden, daher time.perf_counter() und nicht time.time().
+        player.eintrittZeitAufDerSeite = time.perf_counter()
         return (player.participant.zugeordneteRole == 3 and player.HatSichQualifiziert)
 
     @staticmethod
@@ -966,14 +1014,13 @@ class SeiteFuerT2a(Page):
         aktuelleSequenz = Constants.sequenzen[player.participant.gewaehlteSequenz-1]
         # Und jetzt das i-te Element
         arbeitsergebnisse = aktuelleSequenz[player.round_number - 1]
-        print("arbeitsergebnisse:", arbeitsergebnisse)
+        #print("arbeitsergebnisse:", arbeitsergebnisse)
         # Die Werte braucht man unten zur Berechung der Auszahlung. Die Summe aber auch als Anzeige, daher schon hier
         player.oldWorker = int(arbeitsergebnisse[0])
         player.youngWorker = int(arbeitsergebnisse[1])
         player.gemeinsamesErgebnisBeiderWorker = player.oldWorker + player.youngWorker
 
-        print(arbeitsergebnisse)
-        print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker);
+        #print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker);
 
         summe = player.gemeinsamesErgebnisBeiderWorker
         inputFieldValue = player.field_maybe_none('aktuellesErgebnisTWSSpieler1_Schaetzung')
@@ -995,11 +1042,15 @@ class SeiteFuerT2a(Page):
     # Berechne die Auszahlung für diese Runde und addiere sie zur Gesamtauszahlung
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
+        # Wir wollen messen, wie lange der Spieler auf der Seite war. Hier ist die "Verlass-Zeit"
+        dauerAufDerSeite = time.perf_counter() - player.eintrittZeitAufDerSeite
+        # Rundenzeiten des Spielers werden in Participant gespeichert.
+        speichereZeitAufDerSeite(player, dauerAufDerSeite)
         # Hat er Intervall für den Alten Worker getroffen?
         # ALTER Worker ist immer der Spieler 1
         neuePunkteInDieserRunde = berechneAuszahlung(player.oldWorker, player.gemeinsamesErgebnisBeiderWorker, player.aktuellesErgebnisTWSSpieler1_Schaetzung)
         player.participant.VerdientePunkte += neuePunkteInDieserRunde
-        print("Punkte neu: ",player.participant.VerdientePunkte)
+        #print("Punkte neu: ",player.participant.VerdientePunkte)
 
 
 # Nur für die Rolle T3 mit JUNGEN Worker vorne - intern Rolle 4
@@ -1010,6 +1061,9 @@ class SeiteFuerT3j(Page):
 
     @staticmethod
     def is_displayed(player: Player):
+        # Wir wollen messen, wie lange der Spieler auf der Seite war. Hier ist die "Start-Zeit"
+        # Wir wollen auch Teile der Sekunden, daher time.perf_counter() und nicht time.time().
+        player.eintrittZeitAufDerSeite = time.perf_counter()
         return (player.participant.zugeordneteRole == 4 and player.HatSichQualifiziert)
 
     @staticmethod
@@ -1019,14 +1073,14 @@ class SeiteFuerT3j(Page):
         aktuelleSequenz = Constants.sequenzen[player.participant.gewaehlteSequenz-1]
         # Und jetzt das i-te Element
         arbeitsergebnisse = aktuelleSequenz[player.round_number - 1]
-        print("arbeitsergebnisse:", arbeitsergebnisse)
+        #print("arbeitsergebnisse:", arbeitsergebnisse)
         # Die Werte braucht man unten zur Berechung der Auszahlung. Die Summe aber auch als Anzeige, daher schon hier
         player.oldWorker = int(arbeitsergebnisse[0])
         player.youngWorker = int(arbeitsergebnisse[1])
         player.gemeinsamesErgebnisBeiderWorker = player.oldWorker + player.youngWorker
 
-        print(arbeitsergebnisse)
-        print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker);
+
+        #print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker);
 
         summe = player.gemeinsamesErgebnisBeiderWorker
         inputFieldValue = player.field_maybe_none('aktuellesErgebnisTWSSpieler1_Schaetzung')
@@ -1048,12 +1102,15 @@ class SeiteFuerT3j(Page):
     # Berechne die Auszahlung für diese Runde und addiere sie zur Gesamtauszahlung
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
-
+        # Wir wollen messen, wie lange der Spieler auf der Seite war. Hier ist die "Verlass-Zeit"
+        dauerAufDerSeite = time.perf_counter() - player.eintrittZeitAufDerSeite
+        # Rundenzeiten des Spielers werden in Participant gespeichert.
+        speichereZeitAufDerSeite(player, dauerAufDerSeite)
         # Hat er Intervall für den JUNGEN Worker getroffen?
         # JUNGER Worker ist immer der Spieler 2
         neuePunkteInDieserRunde = berechneAuszahlung(player.youngWorker, player.gemeinsamesErgebnisBeiderWorker, player.aktuellesErgebnisTWSSpieler1_Schaetzung)
         player.participant.VerdientePunkte += neuePunkteInDieserRunde
-        print("Punkte neu: ",player.participant.VerdientePunkte)
+        #print("Punkte neu: ",player.participant.VerdientePunkte)
 
 
 
@@ -1065,6 +1122,10 @@ class SeiteFuerT3a(Page):
 
     @staticmethod
     def is_displayed(player: Player):
+        # Wir wollen messen, wie lange der Spieler auf der Seite war. Hier ist die "Start-Zeit"
+        # Wir wollen auch Teile der Sekunden, daher time.perf_counter() und nicht time.time().
+        player.eintrittZeitAufDerSeite = time.perf_counter()
+        #print("Komme gleich auf die Seite: ", player.eintrittZeitAufDerSeite)
         return (player.participant.zugeordneteRole == 5 and player.HatSichQualifiziert)
 
     @staticmethod
@@ -1074,14 +1135,13 @@ class SeiteFuerT3a(Page):
         aktuelleSequenz = Constants.sequenzen[player.participant.gewaehlteSequenz-1]
         # Und jetzt das i-te Element
         arbeitsergebnisse = aktuelleSequenz[player.round_number - 1]
-        print("arbeitsergebnisse:", arbeitsergebnisse)
+        #print("arbeitsergebnisse:", arbeitsergebnisse)
         # Die Werte braucht man unten zur Berechung der Auszahlung. Die Summe aber auch als Anzeige, daher schon hier
         player.oldWorker = int(arbeitsergebnisse[0])
         player.youngWorker = int(arbeitsergebnisse[1])
         player.gemeinsamesErgebnisBeiderWorker = player.oldWorker + player.youngWorker
 
-        print(arbeitsergebnisse)
-        print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker);
+        #print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker);
 
         summe = player.gemeinsamesErgebnisBeiderWorker
         inputFieldValue = player.field_maybe_none('aktuellesErgebnisTWSSpieler1_Schaetzung')
@@ -1103,11 +1163,17 @@ class SeiteFuerT3a(Page):
     # Berechne die Auszahlung für diese Runde und addiere sie zur Gesamtauszahlung
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
+        # Wir wollen messen, wie lange der Spieler auf der Seite war. Hier ist die "Verlass-Zeit"
+        dauerAufDerSeite = time.perf_counter() - player.eintrittZeitAufDerSeite
+        # Rundenzeiten des Spielers werden in Participant gespeichert.
+        speichereZeitAufDerSeite(player, dauerAufDerSeite)
+        #print("War auf Seite: ", dauerAufDerSeite, " s")
+
         # Hat er Intervall für den Alten Worker getroffen?
         # ALTER Worker ist immer der Spieler 1
         neuePunkteInDieserRunde = berechneAuszahlung(player.oldWorker, player.gemeinsamesErgebnisBeiderWorker, player.aktuellesErgebnisTWSSpieler1_Schaetzung)
         player.participant.VerdientePunkte += neuePunkteInDieserRunde
-        print("Punkte neu: ",player.participant.VerdientePunkte)
+        #print("Punkte neu: ",player.participant.VerdientePunkte)
 
 
 
