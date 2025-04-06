@@ -7,7 +7,7 @@
 <div>Estimate {{player.round_number}} of {{ Constants.num_rounds }}</div>
 
 
-
+</div>
 
 <form>
     <style>
@@ -57,10 +57,9 @@
     </style>
 
     <table class="B-container">
-        <tr><td colspan="4">&nbsp;</td></tr>
+        <tr><td colspan="2">&nbsp;</td></tr>
         <tr>
-            <td colspan="4">
-
+            <td colspan="2">
                 <div>
                     <a href="javascript:void(0)" onclick="openModal()">
                         <img src="{% static 'HistogramAll.jpg' %}" alt="Histogram">
@@ -71,78 +70,71 @@
                     <span class="close" onclick="closeModal()">&times;</span>
                     <img class="modal-content" id="modalImage">
                 </div>
-
             </td>
         </tr>
 
         <!-- 2 leere Zeilen als Abstand -->
 
         <tr>
-            <td colspan="4" style="border-bottom: 2px solid black;">
+            <td colspan="2" style="border-bottom: 2px solid black;">
                 &nbsp;
             </td>
         </tr>
         <tr>
-            <td colspan="4" >
+            <td colspan="2" >
                 &nbsp;
             </td>
         </tr>
         <tr>
-            <td colspan="4">
+            <td colspan="2">
                 &nbsp;The workers were recruited in the UK, working independently on the encoding task.
             </td>
         </tr>
         <tr>
-            <td colspan="4">
+            <td colspan="2">
                 &nbsp;
             </td>
         </tr>
-
 
 
         <!-- 2 leere Zeilen als Abstand ENDE -->
         <!-- Beide zusammen -->
         <tr>
 
-            <td colspan="2" style="text-align: right;">The team of two workers solved a total of: </td>
-            <td colspan="2" style="text-align: left;font-size: 130%"><b>{% summe %} tasks</b>. </td>
+            <td style="text-align: right;">The team of two workers solved a total of: </td>
+            <td style="text-align: left;font-size: 120%"><b>{% summe %} tasks.</b> </td>
         </tr>
         <!-- 1 leere Zeile als Abstand -->
         <tr>
-            <td colspan="4">
+            <td colspan="2">
                 &nbsp;
             </td>
         </tr>
-        <tr>
-            <td colspan="4" style="text-align: center;font-size: 120%">
-                &nbsp;<strong>Your estimate for the...</strong>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="4">
-                &nbsp;
-            </td>
-        </tr>
+        <!-- Worker 1 -->
         <tr>
             <td style="text-align: right;">
-                <label for="Spieler1_Schaetzung" style="font-size: 120%"><b>one</b> worker</label>
+                <label for="aktuellesErgebnisTWSSpieler1_Schaetzung"><b>Your estimate for one worker</b>&nbsp;&nbsp;</label>
             </td>
-            <td style="text-align: center;">
-                <input type="number" id="Spieler1_Schaetzung" name="Spieler1_Schaetzung" value="{{ Spieler1_Schaetzung }}" max="{% summe %}" required>
+            <td style="text-align: left;">
+                <input type="number" id="aktuellesErgebnisTWSSpieler1_Schaetzung" name="aktuellesErgebnisTWSSpieler1_Schaetzung" value="{{ aktuellesErgebnisTWSSpieler1_Schaetzung }}" max="{% summe %}" required>
             </td>
+        </tr>
+        <!-- 1 leere Zeile als Abstand -->
+        <tr>
+            <td colspan="2">
+                &nbsp;
+            </td>
+        </tr>
+        <!-- Worker 2 -->
+        <tr>
             <td  style="text-align: right;">
-                <label for="calculated_field" style="font-size: 120%"><b>the other</b> worker&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                 <b> Your estimate for the other worker</b>&nbsp;&nbsp;<br>(auto-calculated based on your input)&nbsp;&nbsp;
             </td>
             <td  style="text-align: left;">
                  <input type="text" id="calculated_field" style="background-color: #f0f0f0;" readonly>
             </td>
         </tr>
-        <tr>
-            <td colspan="3">
-                &nbsp;&nbsp;
-            </td>
-            <td style="text-align: left;">(auto-calculated based on<br>your input)</td>
-        </tr>
+
 
         <!-- 2 leere Zeilen als Abstand -->
 
@@ -158,7 +150,7 @@
         </tr>
 
         <script>
-            document.getElementById("Spieler1_Schaetzung").focus();
+            document.getElementById("aktuellesErgebnisTWSSpieler1_Schaetzung").focus();
         </script>
 
     </table>
@@ -170,7 +162,7 @@
 
 <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var inputField = document.getElementById('Spieler1_Schaetzung');
+            var inputField = document.getElementById('aktuellesErgebnisTWSSpieler1_Schaetzung');
             var calculatedField = document.getElementById('calculated_field');
             var summeUebergeben =  {{ summe }};
 
@@ -182,7 +174,7 @@
                     calculatedField.value = calculatedValue;
                 });
             } else {
-                console.error('Element with ID Spieler1_Schaetzung not found.');
+                console.error('Element with ID aktuellesErgebnisTWSSpieler1_Schaetzung not found.');
             }
         });
 

@@ -89,7 +89,7 @@
         </tr>
         <tr>
             <td colspan="4">
-                &nbsp;The workers were recruited in the UK, working independently on the encoding task.
+                &nbsp;The workers were recruited in the UK, with one aged 22-29 and one aged 52-59 per team, <br>working independently on the encoding task.
             </td>
         </tr>
         <tr>
@@ -125,13 +125,13 @@
         </tr>
         <tr>
             <td style="text-align: right;">
-                <label for="Spieler1_Schaetzung" style="font-size: 120%"><b>one</b> worker</label>
+                <label for="Spieler1_Schaetzung" style="font-size: 120%"><b>{{player.anzeigeLinks}}</b> worker</label>
             </td>
             <td style="text-align: center;">
                 <input type="number" id="Spieler1_Schaetzung" name="Spieler1_Schaetzung" value="{{ Spieler1_Schaetzung }}" max="{% summe %}" required>
             </td>
             <td  style="text-align: right;">
-                <label for="calculated_field" style="font-size: 120%"><b>the other</b> worker&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                <label for="calculated_field" style="font-size: 120%"><b>{{player.anzeigeRechts}}</b> worker&nbsp;&nbsp;&nbsp;&nbsp;</label>
             </td>
             <td  style="text-align: left;">
                  <input type="text" id="calculated_field" style="background-color: #f0f0f0;" readonly>
