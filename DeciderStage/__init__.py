@@ -12,8 +12,8 @@ from uvicorn import Config
 
 class Constants(BaseConstants):
     name_in_url = 'DeciderStage'
-    #TODO: Es sollen zwar 800 echte sein, zum Testsen kann man jede vielfache von 32 nutzen.
-    players_per_group = 24
+
+    #players_per_group = 24
 
     # Es gibt 4 Gruppen:
     #   1 - ohne Nennung Jung/Alt und mit einem Histogramm
@@ -25,10 +25,14 @@ class Constants(BaseConstants):
     #maximaleAnzahlProGruppe = players_per_group / 4
 
     # ... soll aber jetzt dynamisch sein. Es müssen aber Vierfache sein, damit man auf Sequenzen aufteilen kann
-    maximaleAnzahlProGruppeT1 = 4
-    maximaleAnzahlProGruppeT2 = 4
-    maximaleAnzahlProGruppeT3 = 8
-    maximaleAnzahlProGruppeT4 = 8
+    maximaleAnzahlProGruppeT1 = 16
+    maximaleAnzahlProGruppeT2 = 16
+    maximaleAnzahlProGruppeT3 = 16
+    maximaleAnzahlProGruppeT4 = 16
+
+    # Abweichend von der vorherigen Logik, ist players_per_group die Summe von maximaleAnzahlProGruppe und nicht
+    # umgekehrt, dass maximaleAnzahlProGruppe anteilig players_per_group aufteilen.
+    players_per_group = maximaleAnzahlProGruppeT1 + maximaleAnzahlProGruppeT2 + maximaleAnzahlProGruppeT3 + maximaleAnzahlProGruppeT4
 
 
     # Es gibt 4 vorgegebene Sequenzen aus dem TeamWork Stage.
@@ -65,7 +69,9 @@ class Constants(BaseConstants):
     ################### ENDE Auszahlungen für das Test-Spiel (RealEffortTask 20-30 Sekunden) ##########
 
     ########## ECHT ######### Echte Auszahlungen für Probalnden ### ECHT #######
-    # GBP flat
+    # Quiz-Versager
+    auszahlungAnQuizVersager = 0.50
+    # GBP sockel
     festerAnteilDerBezahlung = 1.15
     # Genauigkiet - wie Nah muss man das Ergebnis eines Workers treffen. Ist relativ zum gemeinsamen Output der Workers
     # 0.1 heißt 10% und damit ein Intervall [realValue-5% , realValue + 5% des gemeinsamen outputs]
@@ -83,6 +89,10 @@ class Constants(BaseConstants):
     # Umrechnungfaktor aus den Punkten / E$ z.B. in DKK oder USD
     waehrungsFaktor = 1
     waehrungsName = 'USD'
+
+    #Schafft der Proband die Quize nicht, wird er anders bezahlt, daher eine andere Prolific-StuidenNummer
+    FULL_STUDIENNUMMER = 'CC1LPFS5'
+    FAILED_STUDIENNUMMER = 'CI5IF1F2'
 
 
 
@@ -540,17 +550,17 @@ class Intro(Page):
                 setattr(player, f'jungOderAlt{i}', 1)  # junger Spieler zuerst
 
         # Ausgabe der Ergebnisse
-        print("Gezogene Zahlen: ", random_integers)
-        for i in range(1, 11):
-            print(f"player.jungOderAlt{i}: {getattr(player, f'jungOderAlt{i}')}")
+        #print("Gezogene Zahlen: ", random_integers)
+        #for i in range(1, 11):
+        #    print(f"player.jungOderAlt{i}: {getattr(player, f'jungOderAlt{i}')}")
 
 
-        print("Rolle: ", player.zugeordneteRole, " Sequenz #: ",player.gewaehlteSequenz)
-        print("Neue freie Rollen: [", gruppe.anzahlSpielerInDerGruppe1, ", " , gruppe.anzahlSpielerInDerGruppe2, ", " ,gruppe.anzahlSpielerInDerGruppe3, ", " ,gruppe.anzahlSpielerInDerGruppe4, "]")
-        print("Sequenzen: [[", gruppe.gruppe1_sequenz1, ", " , gruppe.gruppe1_sequenz2, ", " ,gruppe.gruppe1_sequenz3, ", " ,gruppe.gruppe1_sequenz4, "], [" ,
-                               gruppe.gruppe2_sequenz1, ", " , gruppe.gruppe2_sequenz2, ", " ,gruppe.gruppe2_sequenz3, ", " ,gruppe.gruppe2_sequenz4, "], [" ,
-                               gruppe.gruppe3_sequenz1, ", " , gruppe.gruppe3_sequenz2, ", " ,gruppe.gruppe3_sequenz3, ", " ,gruppe.gruppe3_sequenz4, "], [" ,
-                               gruppe.gruppe4_sequenz1, ", " , gruppe.gruppe4_sequenz2, ", " ,gruppe.gruppe4_sequenz3, ", " ,gruppe.gruppe4_sequenz4, "]]")
+        #print("Rolle: ", player.zugeordneteRole, " Sequenz #: ",player.gewaehlteSequenz)
+        #print("Neue freie Rollen: [", gruppe.anzahlSpielerInDerGruppe1, ", " , gruppe.anzahlSpielerInDerGruppe2, ", " ,gruppe.anzahlSpielerInDerGruppe3, ", " ,gruppe.anzahlSpielerInDerGruppe4, "]")
+        #print("Sequenzen: [[", gruppe.gruppe1_sequenz1, ", " , gruppe.gruppe1_sequenz2, ", " ,gruppe.gruppe1_sequenz3, ", " ,gruppe.gruppe1_sequenz4, "], [" ,
+        #                       gruppe.gruppe2_sequenz1, ", " , gruppe.gruppe2_sequenz2, ", " ,gruppe.gruppe2_sequenz3, ", " ,gruppe.gruppe2_sequenz4, "], [" ,
+        #                       gruppe.gruppe3_sequenz1, ", " , gruppe.gruppe3_sequenz2, ", " ,gruppe.gruppe3_sequenz3, ", " ,gruppe.gruppe3_sequenz4, "], [" ,
+        #                       gruppe.gruppe4_sequenz1, ", " , gruppe.gruppe4_sequenz2, ", " ,gruppe.gruppe4_sequenz3, ", " ,gruppe.gruppe4_sequenz4, "]]")
 
         #TODO HIER NUR UM ALLES IN T2 zu testen - DANACH LÖSCHEN!!!!
         #player.zugeordneteRole = 2;
@@ -628,9 +638,11 @@ class Quiz(Page):
             else:
                 #keine Freiversuche mehr
                 #print('ELSE!!')
+                player.participant.StudienNumber = Constants.FAILED_STUDIENNUMMER
                 player.HatSichQualifiziert = False
         else:
             #print('KORREKT!!')
+            player.participant.StudienNumber = Constants.FULL_STUDIENNUMMER
             pass
 
     @staticmethod
@@ -718,9 +730,11 @@ class Quiz2(Page):
                 return 'Try again please. One or more answers are not yet correct. You have ' + str(player.FreiVersucheImQuiz2) + ' attempts left.'
             else:
                 #keine Freiversuche mehr
+                player.participant.StudienNumber = Constants.FAILED_STUDIENNUMMER
                 player.HatSichQualifiziert = False
         else:
             #print('KORREKT!!')
+            player.participant.StudienNumber = Constants.FULL_STUDIENNUMMER
             pass
 
     @staticmethod
@@ -764,7 +778,7 @@ class SeiteFuerT1(Page):
         player.gemeinsamesErgebnisBeiderWorker = player.oldWorker + player.youngWorker
 
 
-        print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker);
+        #print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker);
 
         summe = player.gemeinsamesErgebnisBeiderWorker
         inputFieldValue = player.field_maybe_none('Spieler1_Schaetzung')
@@ -825,7 +839,7 @@ class SeiteFuerT2(Page):
         player.youngWorker = int(arbeitsergebnisse[1])
         player.gemeinsamesErgebnisBeiderWorker = player.oldWorker + player.youngWorker
 
-        print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker);
+        #print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker);
 
         summe = player.gemeinsamesErgebnisBeiderWorker
         inputFieldValue = player.field_maybe_none('Spieler1_Schaetzung')
@@ -897,7 +911,7 @@ class SeiteFuerT3(Page):
 
 
         #print(arbeitsergebnisse)
-        print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker, ' real eff: ', player.realEffort);
+        #print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker, ' real eff: ', player.realEffort);
 
         summe = player.gemeinsamesErgebnisBeiderWorker
         inputFieldValue = player.field_maybe_none('Spieler1_Schaetzung')
@@ -972,7 +986,7 @@ class SeiteFuerT4(Page):
 
 
         #print(arbeitsergebnisse)
-        print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker, ' real eff: ', player.realEffort);
+        #print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker, ' real eff: ', player.realEffort);
 
         summe = player.gemeinsamesErgebnisBeiderWorker
         inputFieldValue = player.field_maybe_none('Spieler1_Schaetzung')
@@ -1018,9 +1032,10 @@ class SelbstEinschaetzungUmfrage(Page):
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
-        verdient = player.participant.VerdientePunkte * Constants.bezahlungProRichtigeSchaetzung + Constants.festerAnteilDerBezahlung
-        player.payoff = verdient;
-        player.participant.payoff = verdient;
+        #verdient = player.participant.VerdientePunkte * Constants.bezahlungProRichtigeSchaetzung + Constants.festerAnteilDerBezahlung
+        #player.payoff = verdient;
+        #player.participant.payoff = verdient;
+        pass
 
 # Auszahlung und Statistik werden vorbereitet
 class AuszahlungUmfrage(Page):
@@ -1036,7 +1051,10 @@ class AuszahlungUmfrage(Page):
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
+
         verdient = player.participant.VerdientePunkte * Constants.bezahlungProRichtigeSchaetzung + Constants.festerAnteilDerBezahlung
+        if (not player.HatSichQualifiziert):
+            verdient = Constants.auszahlungAnQuizVersager
         player.payoff = verdient;
         player.participant.payoff = verdient;
 

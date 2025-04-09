@@ -7,11 +7,15 @@
 <br>
 
 
-</div>
-Your earnings: You correctly estimated <b>{{ player.participant.VerdientePunkte }} </b> tasks. Together with the basic fee, this corresponds to <b>{{ player.participant.payoff|to2 }}</b>.
-    <br>
-<div>To ensure you receive payment, <b>please click the following link</b> to return to Prolific: <a href="https://app.prolific.com/submissions/complete?cc=CC1LPFS5">Back to Prolific</a>.
-    <br>If you experience any issues with the link, you can use the survey code: <b>CC1LPFS5</b>.</div> <br>
+{% if player.participant.StudienNumber == Constants.FULL_STUDIENNUMMER %}
+    <p>Your earnings are: You correctly estimated <b>{{ player.participant.VerdientePunkte }}</b> tasks. Together with the basic fee, this corresponds to <b>{{ player.participant.payoff|to2 }}</b>.</p>
+{% else %}
+    <p>Your earnings are {{ player.participant.payoff|to2 }} because you did not correctly answer the comprehension questions within the maximum number of attempts.</p>
+{% endif %}
+
+
+<div>To ensure you receive payment, <b>please click the following link</b> to return to Prolific: <a href="https://app.prolific.com/submissions/complete?cc={{player.participant.StudienNumber}}">Back to Prolific</a>.
+    <br>If you experience any issues with the link, you can use the survey code: <b>{{player.participant.StudienNumber}}</b>.</div> <br>
 
 
 <b>Thank you very much for your participation!</b>
