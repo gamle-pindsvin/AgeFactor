@@ -25,10 +25,10 @@ class Constants(BaseConstants):
     #maximaleAnzahlProGruppe = players_per_group / 4
 
     # ... soll aber jetzt dynamisch sein. Es müssen aber Vierfache sein, damit man auf Sequenzen aufteilen kann
-    maximaleAnzahlProGruppeT1 = 16
-    maximaleAnzahlProGruppeT2 = 16
-    maximaleAnzahlProGruppeT3 = 16
-    maximaleAnzahlProGruppeT4 = 16
+    maximaleAnzahlProGruppeT1 = 200
+    maximaleAnzahlProGruppeT2 = 200
+    maximaleAnzahlProGruppeT3 = 200
+    maximaleAnzahlProGruppeT4 = 200
 
     # Abweichend von der vorherigen Logik, ist players_per_group die Summe von maximaleAnzahlProGruppe und nicht
     # umgekehrt, dass maximaleAnzahlProGruppe anteilig players_per_group aufteilen.
@@ -1047,7 +1047,7 @@ class AuszahlungUmfrage(Page):
 
     @staticmethod
     def is_displayed(player: Player):
-        return (player.round_number == Constants.num_rounds or not player.HatSichQualifiziert)
+        return (player.round_number == Constants.num_rounds)
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
@@ -1065,7 +1065,14 @@ class Ergebnis(Page):
 
     @staticmethod
     def is_displayed(player: Player):
-        return (player.round_number == Constants.num_rounds or not player.HatSichQualifiziert)
+        return (player.round_number == Constants.num_rounds)
+
+# Ergebnis für Spieler, die die Quize NICHT korrekt beantwortet haben
+class ErgebnisOhneQuiz(Page):
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return (not player.HatSichQualifiziert)
 
 
-page_sequence = [Intro, Intro2, Quiz, RealEffortTask, Quiz2, BeforeEstimation, SeiteFuerT1, SeiteFuerT2, SeiteFuerT3, SeiteFuerT4, SelbstEinschaetzungUmfrage, AuszahlungUmfrage, Ergebnis]
+page_sequence = [Intro, Intro2, Quiz, RealEffortTask, Quiz2, BeforeEstimation, SeiteFuerT1, SeiteFuerT2, SeiteFuerT3, SeiteFuerT4, SelbstEinschaetzungUmfrage, AuszahlungUmfrage, Ergebnis, ErgebnisOhneQuiz]

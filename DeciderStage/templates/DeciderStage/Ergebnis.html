@@ -7,11 +7,9 @@
 <br>
 
 
-{% if player.participant.StudienNumber == Constants.FULL_STUDIENNUMMER %}
+
     <p>Your earnings are: You correctly estimated <b>{{ player.participant.VerdientePunkte }}</b> tasks. Together with the basic fee, this corresponds to <b>{{ player.participant.payoff|to2 }}</b>.</p>
-{% else %}
-    <p>Your earnings are {{ player.participant.payoff|to2 }} because you did not correctly answer the comprehension questions within the maximum number of attempts.</p>
-{% endif %}
+
 
 
 <div>To ensure you receive payment, <b>please click the following link</b> to return to Prolific: <a href="https://app.prolific.com/submissions/complete?cc={{player.participant.StudienNumber}}">Back to Prolific</a>.
