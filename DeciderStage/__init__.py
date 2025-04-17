@@ -70,7 +70,7 @@ class Constants(BaseConstants):
 
     ########## ECHT ######### Echte Auszahlungen für Probalnden ### ECHT #######
     # Quiz-Versager
-    auszahlungAnQuizVersager = 0.50
+    auszahlungAnQuizVersager = 0.40
     # GBP sockel
     festerAnteilDerBezahlung = 1.15
     # Genauigkiet - wie Nah muss man das Ergebnis eines Workers treffen. Ist relativ zum gemeinsamen Output der Workers

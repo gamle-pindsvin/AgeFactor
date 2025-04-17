@@ -5,6 +5,10 @@
 
 {{ block content }}
 <div>Estimate {{player.round_number}} of {{ Constants.num_rounds }}</div>
+<br>
+<div><b>Remember:</b> You will earn &pound; {{ Constants.bezahlungProRichtigeSchaetzung|to2 }} for each estimate that is "close enough" to the actual workers' performances.</div>
+<br>
+
 
 
 
@@ -115,7 +119,7 @@
         </tr>
         <tr>
             <td colspan="4" style="text-align: center;font-size: 120%">
-                &nbsp;<strong>Your estimate for the...</strong>
+                &nbsp;<strong>Your estimate for ...</strong>
             </td>
         </tr>
         <tr>

@@ -5,7 +5,9 @@
 
 {{ block content }}
 <div>Estimate {{player.round_number}} of {{ Constants.num_rounds }}</div>
-
+<br>
+<div><b>Remember:</b> You will earn &pound; {{ Constants.bezahlungProRichtigeSchaetzung|to2 }} for each estimate that is "close enough" to the actual workers' performances.</div>
+<br>
 
 
 
@@ -94,9 +96,20 @@
         </tr>
         <tr>
             <td colspan="4">
+                Note that whether the left-hand field below refers to the older or the younger worker <b>may change</b> from one estimate to the next.
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
                 &nbsp;
             </td>
         </tr>
+        <tr>
+            <td colspan="4">
+                &nbsp;
+            </td>
+        </tr>
+
 
 
 
@@ -113,18 +126,7 @@
                 &nbsp;
             </td>
         </tr>
-        <tr>
-            <td colspan="4">
-                Only the left-hand field requires your input; the other will be auto-filled.<br>
-                <b>Note that whether the left-hand field refers to the older or the younger worker may change from one estimate to the next.</b><br>
-                Before continuing, always check that your entry reflects your best estimate.
-            </td>
-        </tr>
-        <tr>
-            <td colspan="4">
-                &nbsp;
-            </td>
-        </tr>
+
 
         <tr>
             <td colspan="4" style="text-align: center;font-size: 120%">
@@ -138,7 +140,7 @@
         </tr>
         <tr>
             <td style="text-align: right;">
-                <label for="Spieler1_Schaetzung" style="font-size: 120%"><b>{{player.anzeigeLinks}}</b> worker</label>
+                <label for="Spieler1_Schaetzung" style="font-size: 130%"><b>{{player.anzeigeLinks}}</b> worker</label>
             </td>
             <td style="text-align: center;">
                 <input type="number" id="Spieler1_Schaetzung" name="Spieler1_Schaetzung" value="{{ Spieler1_Schaetzung }}" max="{% summe %}" required>
