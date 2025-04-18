@@ -223,7 +223,7 @@ class Player(BasePlayer):
                                          ['2', 'Household with only adults of the same generation (e.g., housemates, couple without children, siblings)'],
                                          ['3', 'Household with adults and children (e.g., parents with children under 18, guardians with dependents)'],
                                          ['4', 'Multigenerational household (e.g., at least two adult generations living together, such as grandparents, parents, and children)'],
-                                         ['5', 'Other']], widget=widgets.RadioSelect, label='Which of the following best describes your household comjungOderAlt?')
+                                         ['5', 'Other']], widget=widgets.RadioSelect, label='Which of the following best describes your household composition?')
     OlderInPrivate = models.StringField(choices=[['1', 'Very frequently'],
                                             ['2', 'Occasionally'],
                                             ['3', 'Sometimes'],
