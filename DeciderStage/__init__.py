@@ -25,10 +25,10 @@ class Constants(BaseConstants):
     #maximaleAnzahlProGruppe = players_per_group / 4
 
     # ... soll aber jetzt dynamisch sein. Es müssen aber Vierfache sein, damit man auf Sequenzen aufteilen kann
-    maximaleAnzahlProGruppeT1 = 200
-    maximaleAnzahlProGruppeT2 = 200
-    maximaleAnzahlProGruppeT3 = 200
-    maximaleAnzahlProGruppeT4 = 200
+    maximaleAnzahlProGruppeT1 = 0
+    maximaleAnzahlProGruppeT2 = 29
+    maximaleAnzahlProGruppeT3 = 0
+    maximaleAnzahlProGruppeT4 = 0
 
     # Abweichend von der vorherigen Logik, ist players_per_group die Summe von maximaleAnzahlProGruppe und nicht
     # umgekehrt, dass maximaleAnzahlProGruppe anteilig players_per_group aufteilen.
@@ -43,6 +43,7 @@ class Constants(BaseConstants):
     maximalAnzahlSequenzProGruppeT2 =  maximaleAnzahlProGruppeT2 / 4
     maximalAnzahlSequenzProGruppeT3 =  maximaleAnzahlProGruppeT3 / 4
     maximalAnzahlSequenzProGruppeT4 =  maximaleAnzahlProGruppeT4 / 4
+
 
     # Auch hier
 
@@ -114,18 +115,28 @@ class Group(BaseGroup):
     gruppe1_sequenz2 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT1)
     gruppe1_sequenz3 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT1)
     gruppe1_sequenz4 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT1)
-    gruppe2_sequenz1 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT2)
-    gruppe2_sequenz2 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT2)
-    gruppe2_sequenz3 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT2)
-    gruppe2_sequenz4 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT2)
+
+    #gruppe2_sequenz1 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT2)
+    #gruppe2_sequenz2 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT2)
+    #gruppe2_sequenz3 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT2)
+    #gruppe2_sequenz4 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT2)
+    gruppe2_sequenz1 = models.IntegerField(initial=7)
+    gruppe2_sequenz2 = models.IntegerField(initial=6)
+    gruppe2_sequenz3 = models.IntegerField(initial=9)
+    gruppe2_sequenz4 = models.IntegerField(initial=7)
+
     gruppe3_sequenz1 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT3)
     gruppe3_sequenz2 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT3)
     gruppe3_sequenz3 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT3)
     gruppe3_sequenz4 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT3)
+
+
+
     gruppe4_sequenz1 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT4)
     gruppe4_sequenz2 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT4)
     gruppe4_sequenz3 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT4)
     gruppe4_sequenz4 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT4)
+
 
 
 class Player(BasePlayer):

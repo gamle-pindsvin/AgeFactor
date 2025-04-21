@@ -1,0 +1,26 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}Finished{% endblock %}
+
+{% block content %}
+<br>
+
+
+<div>
+You have solved <b>{{ player.participant.AnzahlRichtigerAntworten }}</b> tasks correctly.
+Your earnings are <b>{{ player.participant.payoff|to2 }}</b>.<br>
+</div>
+<br>
+
+<div>To confirm that you finished the study and <b>get paid</b>, click the following link <a href="https://app.prolific.com/submissions/complete?cc=C1D5Z8XY">Back to Prolific</a>. Otherwise the study will not be remunerated. If you have problems with the link, you can use the survey code <b>C1D5Z8XY</b>.</div> <br>
+
+<b>Thank you very much for your participation!</b>
+
+<br>
+
+
+
+<!--{% next_button %}-->
+
+{% endblock %}

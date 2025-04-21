@@ -1,0 +1,27 @@
+{{ extends "global/Page.html" }}
+{{ load otree }}
+
+{{ block title }}Welcome{{ endblock }}
+
+{{ block content }}
+
+<br>
+<div>Welcome to this economic study. The effort you provide here can result in a considerable monetary gain. It is crucial that you read these instructions attentively. In contrast to some other social sciences, economic studies adhere to a strict non-deception policy, ensuring that all information provided to you is accurate.</div>
+<br>
+<div>This study is divided into three parts: a <u>Practice Part</u>, where no money can be earned, a <u>Task Part</u>, where you can earn money, and a short <u>Questionnaire</u>. The Practice Part includes reading the instructions, familiarising yourself with the task and answering one comprehension question. It is essential that you complete the Practice Part successfully before you can proceed to the Task Part. If it is not completed successfully, you will only receive the fixed payment of &pound; {{ Constants.festerAnteilderBezahlung|to2 }}. Once you have successfully answered all comprehension questions, you can move on to the Task Part. In this section, you can earn money by completing a series of short tasks. After the Task Part, a short questionnaire needs to be completed.</div>
+<br>
+<div>To <b>be paid</b> according to the effort provided in the Task Part, it is necessary that you complete the study. Please remember, to exit this study and receive your payment, you must click the <b>"Back to Prolific" link provided upon completion</b> and then enter the completion code. If you exit the study without following this procedure, you will not receive any payment.</div>
+<br>
+<div>Please note that you cannot exit the study and receive payment until the Task Part and the Questionnaire have concluded. You will
+    <b>not be paid</b> according to the effort provided in the Task Part if you leave the study before the Task Part is over, or the Questionnaire is not completed. If you decide to leave before conclusion, you will not be able to participate again.</div>
+
+    <br>
+    <b>Please enter your Prolific-ID:</b>
+
+    {% formfield player.ProlificID %}
+<br>
+<div> Note that you will not be able to go back once you press a "Next" button.</div>
+<br>
+{{ next_button }}
+
+{{ endblock }}

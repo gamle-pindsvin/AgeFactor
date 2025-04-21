@@ -1,0 +1,51 @@
+{{ extends "global/Page.html" }}
+{{ load otree }}
+
+{{ block title }}Instructions{{ endblock }}
+
+{{ block content }}
+<br>
+<br>
+<b>Task Part</b>
+<div>In the Task Part, you will see a series of <b>words</b> (combinations of letters), each consisting of three capital letters. Your task is to encode each word by replacing each letter with a corresponding 3-digit number according to a provided code. You may <b>work at your own pace</b> within a <b>seven minute time frame</b>. Make sure to manage your time effectively to maximize your earnings.</div>
+<br>
+<div>How to encode: Each of 24 letters in the alphabet is linked to a specific 3-digit number. You will be presented with one word at a time. You will use a reference table above the word to find the correct number for each letter.</div>
+<br>
+<div>Please consider the following screenshot for an <b>example</b>.</div>
+<img style=" max-width: 100%;height: auto;" src="{% static "ExampleIntroAusBMPAlsPNG.png" %}">
+<div>In this example, the word is BDF. According to the reference table, H = 595, U = 901, and R = 536. In the screenshot, “595901536” has already been entered in the field below the word.</div>
+<br>
+<div>When the code for the word is complete, it needs to be confirmed by clicking on the <b>“OK” button, or</b> by pressing the <b>“Enter” key</b>. <div>Once you successfully encode a word, the computer will provide a new word to encode. This process will continue for <b>exactly seven minutes (420 seconds)</b>, with the table remaining the same throughout. In the top-right corner of the screen, you will see the remaining time. </div>
+
+<br>
+<div>If the code is incorrect, the computer will not increase the tally of correct answers shown in the top-right corner. If you press the "OK” button or the "Enter" key after a wrong input, the computer will notify that the input was not correct and present you with a new word to encode. </div>
+<br>
+<b>Earning Money</b>
+<br>
+<br>
+<div>You will earn a <b>payment per word</b> that you encoded correctly. In the top-right corner of the page, you see the number of words encoded so far. You receive &pound; {{ Constants.bezahlungProAntwort|to2 }} for each encoded word. In addition, you will also receive a fixed amount of  &pound; {{ Constants.festerAnteilderBezahlung|to2 }}, irrespective of the number of words encoded.</div>
+<br>
+<div>Note that only you will benefit financially from your work; neither the authors of this study nor anyone else will derive earnings from your efforts. The numbers that you input serve no purpose beyond this study.</div>
+<br>
+<b>Concluding the experiment</b>
+<br><br>
+<div>When the seven minutes are over, you will automatically see the questionnaire (which takes about 1 minute to complete). When the questionnaire is completed, you will automatically see a message informing you about your earnings. The message also includes the <u>Prolific link that you need to click to validate your participation</u>.</div>
+<br>
+<br>
+<b>Practice Part</b>
+<br><br>
+<div>Before entering the Task Part, we ask you to complete the Practice Part. There, we ask you to code two words to familiarize yourself with the task and to answer one comprehension question. You have five attempts in total to enter the two codes and answer the comprehension question correctly. Using more than five attempts will end the experiment for you, and you will only receive the basic fee of &pound; 0.40 Note that in the Practice Part, no additional earnings are awarded for correct answers.</div>
+<br>
+
+
+<div> This is the end of the instructions.
+    <br><br>
+        {{ formfields }}
+
+    <i>I confirm that I have read the instructions and the <a href="{% static "Consent.pdf" %}" target="_blank">Informed Consent</a> carefully and that I am ready to start the Practice Part.
+        </i></div>
+    <br>
+    <br>
+{{ next_button }}
+
+{{ endblock }}

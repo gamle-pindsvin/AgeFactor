@@ -1,0 +1,54 @@
+{{ extends "global/CSS_Page.html" }}
+{{ load otree }}
+
+{{ block title }}Message and decision{{ endblock }}
+
+{{ block app_scripts }}
+<!-- Soll nicht zurück springen können -->
+<script>
+window.location.hash="no-back-button";
+window.location.hash="Again-No-back-button";//again because google chrome don't insert first hash into history
+window.onhashchange=function(){window.location.hash="no-back-button";}
+</script>
+{{ endblock }}
+
+{{ block content }}
+
+<div><label>
+    Player X decided to send you the following message:<br>
+    <b>&ldquo;Project {{ group.EntscheiderEmpfehlung }} earns you most money.&rdquo;</b>
+</label>
+</div>
+
+<div><label>
+    Which Project do you want to implement? Please press the corresponding button.
+</label>
+</div>
+<div>&nbsp;</div>
+<table>
+
+    <tr>
+        <td colspan="2" style="border: 3px solid #FFF;">
+            <button name="Entscheidung" value="A" class="btn btn-primary btn-large" style="padding-right: 5px;">Project A&nbsp;&nbsp;</button>
+        </td>
+        <td colspan="2" style="border: 3px solid #FFF;">
+            <button name="Entscheidung" value="B" class="btn btn-primary btn-large" style="padding-right: 5px;">Project B&nbsp;&nbsp;</button>
+        </td>
+        <td colspan="2" style="border: 3px solid #FFF;">
+            <button name="Entscheidung" value="C" class="btn btn-primary btn-large" style="padding-right: 5px;">Project C&nbsp;&nbsp;</button>
+        </td>
+        <td colspan="2" style="border: 3px solid #FFF;">
+            <button name="Entscheidung" value="D" class="btn btn-primary btn-large" style="padding-right: 5px;">Project D&nbsp;&nbsp;</button>
+        </td>
+        <td colspan="2" style="border: 3px solid #FFF;">
+            <button name="Entscheidung" value="E" class="btn btn-primary btn-large" style="padding-right: 5px;">Project E&nbsp;&nbsp;</button>
+        </td>
+        <td colspan="2" style="border: 3px solid #FFF;">
+            <button name="Entscheidung" value="F" class="btn btn-primary btn-large" style="padding-right: 5px;">Project F&nbsp;&nbsp;</button>
+        </td>
+    </tr>
+</table>
+
+
+
+{{ endblock }}

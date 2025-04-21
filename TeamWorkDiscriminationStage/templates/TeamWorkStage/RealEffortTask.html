@@ -1,0 +1,169 @@
+{{ extends "global/CSS_Page.html" }}
+{{ load otree }}
+
+{{ block title }} &nbsp; {{ endblock }}
+
+{{ block content }}
+
+<!--<div id="imagePlaceholder"> <img src="{% static "KodierungsTabelle.jpg" %}" alt="Table not found"></div>-->
+<div>
+    <table  style="width:100%; text-align:center; border-collapse: collapse;">
+        <tr>
+            <td><b>A</b>: 222</td><td><b>B</b>: 884</td><td><b>C</b>: 527</td><td><b>D</b>: 458</td> <td><b>E</b>: 290</td><td><b>F</b>: 763</td><td><b>G</b>: 318</td><td><b>H</b>: 396</td>
+        </tr>
+        <tr>
+            <td style="border-left: 1px solid white;border-right: 1px solid white;" colspan="8">&nbsp</td>
+        </tr>
+        <tr>
+            <td><b>I</b>: 581</td><td><b>J</b>: 279</td><td><b>K</b>: 168</td><td><b>L</b>: 289</td> <td><b>M</b>: 474</td><td><b>N</b>: 625</td><td><b>O</b>: 540</td><td><b>P</b>: 601</td>
+        </tr>
+        <tr>
+            <td style="border-left: 1px solid white;border-right: 1px solid white;" colspan="8">&nbsp</td>
+        </tr>
+        <tr>
+            <td><b>R</b>: 258</td><td><b>S</b>: 921</td><td><b>T</b>: 375</td><td><b>U</b>: 753</td> <td><b>V</b>: 471</td><td><b>W</b>: 187</td><td><b>X</b>: 244</td><td><b>Y</b>: 555</td>
+        </tr>
+
+    </table>
+</div>
+<div id="timer">{{dauerDesThreatmentsInSekunden}} Seconds</div>
+<div id="score">Correct answers: 0</div>
+<div type="text" id="display" style="margin-top: 40px; font-size: 2em;text-align: center;align-items: center; display: flex;justify-content: center;">&nbsp;</div>
+<div>
+    <input type="text" id="inputField"  placeholder="Enter the code" oninput="resetInputStyle()" onkeydown="if (event.key === 'Enter') compareNumbers()">
+</div>
+<button id="compareButton" onclick="compareNumbers()">OK</button>
+<div id="feedback"></div>
+
+<script>
+    // BUTTON soll nicht weiter schicken, sondern nur die Funktion ausführen
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('compareButton').addEventListener('click',
+                function(event) {
+                    event.preventDefault();
+                    // nur einmal absenden, daher hier ausgeklammert
+                    //!! compareNumbers();
+            });
+        });
+
+
+
+
+        const encoding = {
+            'A' :  '222',
+            'B' :  '884',
+            'C' :  '527',
+            'D' :  '458',
+            'E' :  '290',
+            'F' :  '763',
+            'G' :  '318',
+            'H' :  '396',
+            'I' :  '581',
+            'J' :  '279',
+            'K' :  '168',
+            'L' :  '289',
+            'M' :  '474',
+            'N' :  '625',
+            'O' :  '540',
+            'P' :  '601',
+            'R' :  '258',
+            'S' :  '921',
+            'T' :  '375',
+            'U' :  '753',
+            'V' :  '471',
+            'W' :  '187',
+            'X' :  '244',
+            'Y' :  '555'
+        };
+
+
+
+        function getRandomChar() {
+            const chars = Object.keys(encoding);
+            return chars[Math.floor(Math.random() * chars.length)];
+        }
+
+        function getRandomString(length) {
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += getRandomChar();
+            }
+            return result;
+        }
+
+        function getEncodedString(str) {
+            return str.split('').map(char => encoding[char]).join('');
+        }
+
+        function compareNumbers() {
+            const input = document.getElementById('inputField').value;
+            const encodedString = getEncodedString(randomString);
+            const feedbackElement = document.getElementById('feedback');
+            if (input === encodedString) {
+                correctAnswers++;
+                feedbackElement.innerText = "Correct!";
+                feedbackElement.style.color = "green";
+                document.getElementById('inputField').style.borderColor = "green";
+            } else {
+                feedbackElement.innerText = "Wrong!";
+                feedbackElement.style.color = "red";
+                document.getElementById('inputField').style.borderColor = "red";
+            }
+
+            setTimeout(() => {
+                feedbackElement.innerText = "";
+            }, 1000);
+liveSend(correctAnswers);
+            document.getElementById('score').innerText = `Correct answers: ${correctAnswers}`;
+
+
+// TODO - war 5!!
+
+            randomString = getRandomString(3);
+            document.getElementById('display').innerText = randomString;
+            document.getElementById('inputField').value = '';
+            document.getElementById('inputField').focus();
+        }
+
+        function resetInputStyle() {
+            document.getElementById('inputField').style.borderColor = "#00f";
+        }
+
+        let correctAnswers = 0;
+        let randomString = getRandomString(3);  // Initialisierung der zufälligen Zeichenkette
+        document.getElementById('display').innerText = randomString;  // Anzeige der zufälligen Zeichenkette
+        let timeLeft = {{Constants.dauerDesThreatmentsInSekunden}};
+        const timerElement = document.getElementById('timer');
+
+        function countdown() {
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                showNextPage();
+            } else {
+                timerElement.innerText = timeLeft + " Seconds";
+                if (timeLeft <= 5) {
+                    timerElement.style.color = "red";
+                    timerElement.classList.add("blink");
+                } else if (timeLeft <= 10) {
+                    timerElement.style.color = "red";
+                    timerElement.classList.remove("blink");
+                } else {
+                    timerElement.style.color = "green";
+                    timerElement.classList.remove("blink");
+                }
+                timeLeft--;
+            }
+        }
+
+        function showNextPage() {
+          liveSend({type: 'next'});
+        }
+
+        const timerInterval = setInterval(countdown, 1000);
+        window.onload = function() {
+            document.getElementById('inputField').focus();
+        }
+    </script>
+
+
+{{ endblock }}
