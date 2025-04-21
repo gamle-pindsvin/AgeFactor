@@ -32,7 +32,9 @@
 <div>
     <input type="text" id="inputField"  placeholder="Enter the code" oninput="resetInputStyle()" onkeydown="if (event.key === 'Enter') compareNumbers()">
 </div>
-<button id="compareButton" onclick="compareNumbers()">OK</button>
+<button id="compareButton" class="realTaskButtonStyle" onclick="compareNumbers()">OK</button>
+<button id="abortButton" class="realTaskButtonStyle" onclick="abortProcessing()">Abbrechen</button>
+
 <div id="feedback"></div>
 
 <script>
@@ -116,9 +118,6 @@
 liveSend(correctAnswers);
             document.getElementById('score').innerText = `Correct answers: ${correctAnswers}`;
 
-
-// TODO - war 5!!
-
             randomString = getRandomString(3);
             document.getElementById('display').innerText = randomString;
             document.getElementById('inputField').value = '';
@@ -158,6 +157,12 @@ liveSend(correctAnswers);
         function showNextPage() {
           liveSend({type: 'next'});
         }
+
+        function abortProcessing() {
+            clearInterval(timerInterval); // Countdown stoppen
+            liveSend(-1); // Zur nächsten Seite wechseln
+        }
+
 
         const timerInterval = setInterval(countdown, 1000);
         window.onload = function() {

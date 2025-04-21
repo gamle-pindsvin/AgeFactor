@@ -11,9 +11,9 @@ from uvicorn import Config
 
 
 class Constants(BaseConstants):
-    name_in_url = 'TeamWorkStage'
+    name_in_url = 'TeamWorkDiscriminationStage'
     #TODO: MUSS MEHR SEIN, als die tatsächlich mögliche Anzahl der Teilnehmer also deutlich mehr als 12!!!
-    players_per_group = 200
+    players_per_group = 12
     num_rounds = 1
     # Wie lange soll die Aufgabe gelöst werden
     dauerDesThreatmentsInSekunden = 420
@@ -98,6 +98,7 @@ class Intro(Page):
         player.participant.payoff = 0
         #player.AuszahlungInWaehrung = 0
         player.VerdientePunkte = 0.0
+        player.participant.VerdientePunkte = 0.0
         player.AnzahlRichtigerAntworten = 0
         player.participant.AnzahlRichtigerAntworten = 0
         player.FreiVersucheImQuiz = 5
@@ -162,7 +163,7 @@ class Quiz(Page):
 
 class RealEffortTask(Page):
     form_model = 'player'
-    form_fields = ["AnzahlRichtigerAntworten"]
+    #form_fields = ["AnzahlRichtigerAntworten"]
     timeout_seconds = Constants.dauerDesThreatmentsInSekunden
 
     @staticmethod
@@ -181,34 +182,49 @@ class RealEffortTask(Page):
     def live_method(player, data):
         # Initial auszahlung = 0
         auszahlung = 0.0
-       # Nur wenn data nicht NULL ist
-        if data is not None:
+       # Nur wenn data nicht NULL ist UND keine -1 übergeben wurde (was das Button ABBRECHEN macht!)
+        if data is not None and data != -1:
+            # OK-Button
             player.participant.AnzahlRichtigerAntworten = data
             player.AnzahlRichtigerAntworten = data
             #print('$$ 1 $$ player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten , ' player.AnzahlRichtigerAntworten: ', player.AnzahlRichtigerAntworten)
 
             # BERECHNE die Auszahlung
             auszahlung = Constants.festerAnteilderBezahlung + data*Constants.bezahlungProAntwort
+            player.VerdientePunkte = auszahlung
+            player.participant.VerdientePunkte = auszahlung
+
+            # Umrechnnen in verschiedene Währungen?
+            player.payoff = auszahlung * Constants.waehrungsFaktor
+            player.participant.payoff = auszahlung * Constants.waehrungsFaktor
+
+            print('player.participant.ProlificID: ', player.participant.ProlificID, ' player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten, ' player.participant.VerdientePunkte: ', player.participant.VerdientePunkte)
         else:
-            player.participant.AnzahlRichtigerAntworten = 0
-            player.AnzahlRichtigerAntworten = 0
-            auszahlung = Constants.festerAnteilderBezahlung
+            # Abbrechen-Button
+            print('ABBRECHEN 1: ', ' player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten)
+            # Die Auszahlung
 
-        player.VerdientePunkte = auszahlung
-        player.participant.VerdientePunkte = auszahlung
+            print('$$ 22222222222222222222222222222222222222222222222222222222222222222222  $$')
+            for key, value in player.participant.vars.items():
+                print(key, value)
 
-        # Umrechnnen in verschiedene Währungen?
-        player.payoff = auszahlung * Constants.waehrungsFaktor
-        player.participant.payoff = auszahlung * Constants.waehrungsFaktor
-        #player.AuszahlungInWaehrung = auszahlung * Constants.waehrungsFaktor
+            print('$$ 22222222222222222222222222222222222222222222222222222222222222222222  ENDE $$')
 
-        #print('player.participant.ProlificID: ', player.participant.ProlificID, ' player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten, ' player.participant.VerdientePunkte: ', player.participant.VerdientePunkte)
-        #print('player.ProlificID: ', player.ProlificID, ' player.AnzahlRichtigerAntworten: ', player.AnzahlRichtigerAntworten, ' player.VerdientePunkte: ', player.VerdientePunkte)
-        #print('received a bid from', player.id_in_group, ':', data)
-        #print('player.participant.AnzahlRichtigerAntworten', player.participant.AnzahlRichtigerAntworten)
-        #print('$$ 2 $$ player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten , ' player.AnzahlRichtigerAntworten: ', player.AnzahlRichtigerAntworten)
+            if 'VerdientePunkte' in player.participant.vars:
+                wert = player.participant.vars['VerdientePunkte']
+                print('$$ 22222222222222222222222222222222222222222222222222222222222222222222  $$ wert: ', wert)
+            else:
+                wert = None  # oder einen anderen Standardwert
 
 
+
+            #if player.participant.VerdientePunkte is None:
+            #    player.participant.VerdientePunkte = Constants.festerAnteilderBezahlung
+            #    player.participant.AnzahlRichtigerAntworten = 0
+
+            print('ABBRECHEN 2: ', ' player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten, ' player.participant.VerdientePunkte: ', player.participant.VerdientePunkte)
+            print('ABBRECHEN: ', ' player.AnzahlRichtigerAntworten: ', player.AnzahlRichtigerAntworten, ' player.participant.VerdientePunkte: ', player.participant.VerdientePunkte)
+            return {player.id_in_group: 'next_page'}
 
 # Auszahlung und Statistik werden vorbereitet
 class AuszahlungUmfrage(Page):
@@ -238,17 +254,7 @@ class AuszahlungUmfrage(Page):
 class Ergebnis(Page):
     form_model = 'player'
 
-    @staticmethod
-    def vars_for_template(player: Player):
-        player.AnzahlRichtigerAntworten = player.participant.AnzahlRichtigerAntworten
-        #print('player.participant.ProlificID: ', player.participant.ProlificID, ' player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten, ' player.participant.VerdientePunkte: ', player.participant.VerdientePunkte)
-        #print('player.ProlificID: ', player.ProlificID, ' player.AnzahlRichtigerAntworten: ', player.AnzahlRichtigerAntworten, ' player.VerdientePunkte: ', player.VerdientePunkte)
-        #print('$$ 3 $$ player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten )
-        return {
-            'ProlificID-P': player.participant.ProlificID,
-            'Anzahl-P': player.participant.AnzahlRichtigerAntworten,
-            'Auszahlung-P': player.participant.VerdientePunkte
-        }
+
 
 
 page_sequence = [Intro, Intro2, Quiz, RealEffortTask, AuszahlungUmfrage, Ergebnis]
