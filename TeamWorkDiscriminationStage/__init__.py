@@ -244,7 +244,52 @@ class Quiz(Page):
     def before_next_page(player: Player, timeout_happened):
         pass
 
+# Erklärung, was eine Histogramm ist.
+class BeforeEstimation(Page):
+    form_model = 'player'
 
+    @staticmethod
+    def is_displayed(player: Player):
+        return (player.HatSichQualifiziert and player.round_number == 1)
+    
+
+        
+        #   2 - Jung und mit einem Histogramm
+        #   3 - Alt und mit ZWEI Histogrammen
+        #   4 - Jung und mit ZWEI Histogrammen
+#  Rolle 1 - Alt und mit einem Histogramm
+class WageInformationA1(Page):
+    form_model = 'player'
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return (player.HatSichQualifiziert and player.participant.zugeordneteRole == 1)
+    
+#  2 - Jung und mit einem Histogramm
+class WageInformationJ1(Page):
+    form_model = 'player'
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return (player.HatSichQualifiziert and player.participant.zugeordneteRole == 2)
+    
+#  3 - Alt und mit ZWEI Histogrammen
+class WageInformationA2(Page):
+    form_model = 'player'
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return (player.HatSichQualifiziert and player.participant.zugeordneteRole == 3)
+    
+#  4 - Jung und mit ZWEI Histogrammen
+class WageInformationJ2(Page):
+    form_model = 'player'
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return (player.HatSichQualifiziert and player.participant.zugeordneteRole == 4)
+    
+# Eigentliches Encoding-Spiel
 class RealEffortTask(Page):
     form_model = 'player'
     # form_fields = ["AnzahlRichtigerAntworten"]
@@ -350,4 +395,4 @@ class Ergebnis(Page):
 
 
 
-page_sequence = [Intro, Intro2, Quiz, RealEffortTask, AuszahlungUmfrage, Ergebnis]
+page_sequence = [Intro, Intro2, Quiz, BeforeEstimation, WageInformationA1, WageInformationA2, WageInformationJ1, WageInformationJ2,  RealEffortTask, AuszahlungUmfrage, Ergebnis]
