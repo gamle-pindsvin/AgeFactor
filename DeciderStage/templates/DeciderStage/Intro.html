@@ -1,0 +1,32 @@
+{{ extends "global/Page.html" }}
+{{ load otree }}
+
+{{ block title }}Welcome{{ endblock }}
+
+{{ block content }}
+
+<br>
+<div>Welcome to this economic study. The effort you provide here can result in a considerable monetary gain. It is crucial that you read these instructions attentively. In contrast to some other social sciences, economic studies adhere to a strict non-deception policy, ensuring that all information provided to you is accurate.</div>
+<br>
+<div>This study aims to understand how accurately you and others can estimate a person's performance on a task based on the total performance of the team to which the person belonged. In an earlier part of this study, a large number of individuals, referred to as workers, have already completed an encoding task: Each worker was asked to translate strings of letters into numbers. The performance of each worker was recorded.</div>
+<br>
+<div> Your role now is to act as an <b>estimator</b>. You will be shown the total performance of teams consisting of two workers. For example, you might see "A team of two workers solved 150 tasks." (Note that this number is deliberately unrealistically high.) Based on this information, you will estimate how many tasks were solved by each worker on the team. We will provide you with some basic information about performances. The accuracy of your estimates will influence your payment: <b>More accurate estimates will result in a higher bonus.</b></div>
+<br>
+<div> The study is divided into three parts: a <u>Practice Part</u>, where you will have the opportunity to try out the encoding task that the workers have completed. This will allow you to familiarize yourself with the task before proceeding to the main part of the study, the <u>Estimation Part</u>. There you can earn money by estimating individual performances. Finally, there will be a short <u>Questionnaire</u>. The Practice Part includes reading the instructions, familiarising yourself with the task and answering one comprehension question.</div>
+<div> It is essential that you complete the Practice Part successfully before you can proceed to the Estimation Part. If it is not completed successfully, you will only receive the fixed payment of &pound;{{ Constants.auszahlungAnQuizVersager|to2 }}. Once you have completed the Practice Part, you move on to the Estimation Part. There, you can earn money by completing a series of estimation tasks. After that, a short questionnaire needs to be completed.</div>
+<br>
+<div>To <b>receive the study payment of &pound;{{ Constants.festerAnteilDerBezahlung|to2 }} plus a bonus</b> according to the accuracy of your estimates in the Estimation Part, it is essential to complete the study. Please ensure that to exit this study and claim your payment, you click the <b>"Back to Prolific" link provided upon completion</b> and then enter the completion code. Exiting the study without following this procedure will result in no payment.</div>
+<br>
+<div>Please note that you cannot exit the study and receive payment until the Estimation Part and the Questionnaire have concluded. You will
+    <b>not be paid</b> according to the accuracy of your estimates from the Estimation Part if you leave the study before the Estimation Part is over, or the Questionnaire is not completed. If you decide to leave before conclusion, you will not be able to participate again.</div>
+
+    <br>
+    <b>Please enter your Prolific-ID:</b>
+
+    {% formfield player.ProlificID %}
+<br>
+<div> Note that you will not be able to go back once you press a "Next" button.</div>
+<br>
+{{ next_button }}
+
+{{ endblock }}
