@@ -1,0 +1,117 @@
+{{ extends "global/CSS_Page.html" }}
+{{ load otree }}
+
+{{ block title }}Practice Part (1){{ endblock }}
+
+{{ block app_scripts }}
+<!-- Soll nicht zurück springen können -->
+<script>
+window.location.hash="no-back-button";
+window.location.hash="Again-No-back-button";//again because google chrome don't insert first hash into history
+window.onhashchange=function(){window.location.hash="no-back-button";}
+</script>
+{{ endblock }}
+
+{{ block content }}
+
+
+
+
+<div style="text-align: left;"><br>This Practice Part contains three elements, (1), (2), and (3). The first is intended to familiarize you with the encoding task. Please complete question (1) using the table below.</br>
+    <br>Then, on the next page, you will (2) encode words using a similar table for exactly <b>thirty seconds</b>. The remaining time will be shown in the upper right corner. This solely has the pupose of giving you a feel for the time pressure and task difficulty. </br>
+    After that, you will see (3) one comprehension question.
+</div>
+<br>
+<div style="text-align: left;"> You have two attempts to answer correctly. If you cannot answer correctly within two trials, the study will end for you, and you will only receive &pound;{{ Constants.auszahlungAnQuizVersager|to2 }}. </div>
+<br><br>
+<div>
+
+    <table border="1" style="width:100%; text-align:center; border-collapse: collapse;">
+        <tr><td style="border: 1px solid white;" colspan="8">&nbsp <b>Practice Table</b></td></tr>
+        <tr><td style="border-left: 1px solid white;border-right: 1px solid white;border-top: 1px solid white" colspan="8">&nbsp </td></tr>
+        </tr>
+        <tr>
+            <td><b>A</b>: 167</td>
+            <td><b>B</b>: 618</td>
+            <td><b>C</b>: 412</td>
+            <td><b>D</b>: 442</td>
+            <td><b>E</b>: 820</td>
+            <td><b>F</b>: 395</td>
+            <td><b>G</b>: 263</td>
+            <td><b>H</b>: 595</td>
+
+        </tr>
+        <tr>
+            <td style="border-left: 1px solid white;border-right: 1px solid white;" colspan="8">&nbsp</td>
+        </tr>
+        <tr>
+            <td><b>I</b>: 958</td>
+            <td><b>J</b>: 890</td>
+            <td><b>K</b>: 136</td>
+            <td><b>L</b>: 126</td>
+            <td><b>M</b>: 288</td>
+            <td><b>N</b>: 843</td>
+            <td><b>O</b>: 146</td>
+            <td><b>P</b>: 600</td>
+
+        </tr>
+        <tr>
+            <td style="border-left: 1px solid white;border-right: 1px solid white;" colspan="8">&nbsp</td>
+        </tr>
+        <tr>
+            <td><b>R</b>: 536</td>
+            <td><b>S</b>: 896</td>
+            <td><b>T</b>: 513</td>
+            <td><b>U</b>: 901</td>
+            <td><b>V</b>: 558</td>
+            <td><b>W</b>: 982</td>
+            <td><b>X</b>: 156</td>
+            <td><b>Y</b>: 123</td>
+
+        </tr>
+
+
+    </table>
+</div>
+
+<table border="0" style="width:100%; text-align:center; border-collapse: collapse;">
+
+
+    <tr><td colspan="3" class="td3">&nbsp;</td></tr>
+
+
+    <tr><td colspan="3" class="td3"><b>How would you encode <b>AYN</b>?</b></td></tr>
+    <tr colspan="3" style="border: 3px solid #000;">
+
+        <td colspan="1">
+            <b>a</b>
+        </td>
+        <td colspan="1">
+            <b>b</b>
+        </td>
+        <td colspan="1">
+            <b>c</b>
+        </td>
+
+    </tr>
+    <tr style="border: 3px solid #000;">
+        <td>167618412</td>
+        <td>AYN</td>
+        <td>167123843</td>
+    </tr>
+    <tr style="border-top: 3px none #000;">
+
+        <td colspan="3" class="td4">
+            <b>{% formfield player.QuizKodieren2 %}</b>
+        </td>
+
+    </tr>
+
+
+
+</table>
+
+
+{% next_button %}
+
+{{ endblock }}

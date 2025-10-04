@@ -1,0 +1,234 @@
+{{ extends "global/CSS_Page.html" }}
+{{ load otree }}
+
+{{ block title }}Make your hiring decision{{ endblock }}
+
+{{ block content }}
+<div>Candidate pair {{player.round_number}} of {{ Constants.num_rounds }}</div>
+<br>
+<div><b>Remember:</b> Your earnings measured in points will equal the number of tasks actually solved by your chosen candidate. <br>Your points will be converted into British pounds at a rate of {{ Constants.punkteUmrechnungInPenny }} points = £0.01.</div>
+<br>
+
+
+
+<form>
+    <style>
+        img {
+          max-width: 100%;
+          height: auto;
+        }
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 20px;
+}
+
+.button-container button {
+    font-size: 1.4em;
+    padding: 15px 30px;
+    min-width: 180px;
+    border-radius: 8px;
+    background-color: #66b3ff; /* Helles Blau */
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+/* Optional: Hover-Effekt */
+.button-container button:hover {
+    background-color: #3399ff; /* Etwas dunkler beim Hover */
+}
+
+/* Beim Klick (active) */
+.button-container button:active {
+    background-color: #0066cc; /* Dunkles Blau beim Klick */
+}
+        /* Stile für das modale Fenster */
+        .modal {
+          display: none;
+          position: fixed;
+          z-index: 1;
+          padding-top: 60px;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          overflow: auto;
+          background-color: rgb(0,0,0);
+          background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+          margin: auto;
+          display: block;
+          width: 200%;
+          max-width: 1400px;
+        }
+
+        .close {
+          position: absolute;
+          top: 15px;
+          right: 35px;
+          color: #fff;
+          font-size: 40px;
+          font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+          color: #bbb;
+          text-decoration: none;
+          cursor: pointer;
+        }
+
+    </style>
+
+    <table class="B-container">
+        <tr><td colspan="4">&nbsp;</td></tr>
+        <tr>
+            <td colspan="4">
+
+                <div>
+                    <a href="javascript:void(0)" onclick="openModal()">
+                        <img src="{% static 'HistogramAll.jpg' %}" alt="Histogram">
+                    </a>
+                </div>
+                <!-- Modales Fenster -->
+                <div id="myModal" class="modal">
+                    <span class="close" onclick="closeModal()">&times;</span>
+                    <img class="modal-content" id="modalImage">
+                </div>
+
+            </td>
+        </tr>
+
+        <!-- 2 leere Zeilen als Abstand -->
+
+        <tr>
+            <td colspan="4" style="border-bottom: 2px solid black;">
+                &nbsp;
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" >
+                &nbsp;
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                &nbsp;The candidates were recruited in the UK, with one <strong>aged 22-29</strong> and one <strong>aged 52-59</strong> per pair, <br>working independently on the encoding task.
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                Note that whether the left-hand field below refers to the older or the younger candidate <b>may change</b> <br>from one hiring decision to the next.
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                &nbsp;
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                &nbsp;
+            </td>
+        </tr>
+
+
+        <!-- 2 leere Zeilen als Abstand ENDE -->
+        <!-- Beide zusammen -->
+        <tr>
+            <td colspan="4" style="text-align: center;">
+                The pair of two candidates solved a total of:
+                <span style="font-size: 130%;"><b>{% summe %} tasks</b></span>
+            </td>
+        </tr>
+  
+        <tr>
+            <td colspan="4">
+                &nbsp;
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" style="text-align: center;font-size: 120%">
+               &nbsp;<strong>I want to hire the ...</strong>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                &nbsp;
+            </td>
+        </tr>
+
+        <tr>
+                    <td colspan="4">
+                        <div class="button-container">
+                            <button name="Entscheidung" value="{{player.anzeigeLinks}}" class="btn btn-primary btn-large"><b>{{player.anzeigeLinks}}</b> worker</button>
+                            <button name="Entscheidung" value="{{player.anzeigeRechts}}" class="btn btn-primary btn-large"><b>{{player.anzeigeRechts}}</b> worker</button>
+                        </div>
+                    </td>
+        </tr>
+
+
+        <!-- 2 leere Zeilen als Abstand -->
+
+        <tr>
+            <td colspan="2">
+                &nbsp;
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                &nbsp;
+            </td>
+        </tr>
+
+
+
+    </table>
+
+
+
+
+</form>
+
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var inputField = document.getElementById('Spieler1_Schaetzung');
+            var calculatedField = document.getElementById('calculated_field');
+            var summeUebergeben =  {{ summe }};
+
+            if (inputField) {
+                inputField.addEventListener('input', function() {
+                    var inputValue = inputField.value;
+                    var parsedValue = parseInt(inputValue) || 0;
+                    var calculatedValue = summeUebergeben - parsedValue;
+                    calculatedField.value = calculatedValue;
+                });
+            } else {
+                console.error('Element with ID Spieler1_Schaetzung not found.');
+            }
+        });
+
+        <!-- Soll nicht zurück springen können -->
+        window.location.hash="no-back-button";
+        window.location.hash="Again-No-back-button";//again because google chrome don't insert first hash into history
+        window.onhashchange=function(){window.location.hash="no-back-button";}
+
+            function openModal() {
+                document.getElementById('myModal').style.display = "block";
+                document.getElementById('modalImage').src = "{% static 'HistogramAll.jpg' %}";
+            }
+
+            function closeModal() {
+                document.getElementById('myModal').style.display = "none";
+            }
+
+    </script>
+
+
+
+{{ endblock }}

@@ -1,0 +1,126 @@
+{{ extends "global/Page.html" }}
+{{ load otree }}
+
+{{ block title }}Instructions{{ endblock }}
+
+{{ block content }}
+<form method="post">
+<style>
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        padding-top: 60px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+        margin: auto;
+        display: block;
+        width: 150%;
+        max-width: 1400px;
+    }
+
+    .close {
+        position: absolute;
+        top: 15px;
+        right: 35px;
+        color: #fff;
+        font-size: 40px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: #bbb;
+        text-decoration: none;
+        cursor: pointer;
+    }
+</style>
+
+<br><br>
+<b>Practice Part</b>
+<div>In this part, you will have the opportunity to try out the encoding task that the candidates completed. It involved encoding a series of words (combinations of letters), each consisting of three capital letters, by replacing each letter with a corresponding 3-digit number according to a provided code.</div>
+<br>
+<div>Please consider the following screenshot for an <b>example</b> of the encoding task.</div>
+
+<a href="javascript:void(0)" onclick="openModal()">
+    <img src="{% static 'ExampleIntroAusBMPAlsPNG.png' %}">
+</a>
+
+<div id="myModal" class="modal">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <img class="modal-content" id="modalImage">
+</div>
+
+<br>
+<div>In this example, the word is HUR. According to the reference table, H = 595, U = 901, and R = 536. In the screenshot, “595901536” has already been entered in the field below the word.</div>
+<br><br>
+<div>To help you understand the task of the candidates, you will be shown a reference table similar to the one above that links each of 24 letters in the alphabet to a specific 3-digit number. You will first be asked a comprehension question. Then, you will spend <b>{{ Constants.dauerDesThreatmentsInSekunden }} seconds</b> encoding 3-letter strings while the clock ticks. This will give you a feel for the time pressure and task difficulty.</div>
+<br>
+<div>When the code for a word is complete, it needs to be confirmed by clicking on the <b>“OK” button</b> or by pressing the <b>“Enter” key</b>. Once a word has been successfully encoded, the computer will provide a new word to encode.</div>
+<br>
+<div><u>For candidates, this process continued for exactly seven minutes (420 seconds)</u> that they spent working at their own pace, receiving a payment for each completed word. The table remained the same throughout their work phase. In the top-right corner of the screen, the remaining time is shown.<br>
+If a code was incorrect, the computer did not increase the tally of correct answers shown in the top-right corner. The computer notified the candidates in case an input was not correct and presented them with a new word to encode.</div>
+
+<br><br>
+<b>Hiring Part</b>
+<div>In the Hiring Part, you will be shown the performance of pairs of two candidates who - independently of each other - worked on encoding tasks. Based on this information, you will decide which of the two candidates you would like to hire. You will make hiring decisions for <b>ten different pairs</b>.</div>
+
+<br><br><br>
+<b>Earning Money</b>
+<div>Your payment will depend on the performance of the candidate you hire. Specifically, your bonus (measured in points) will equal the number of tasks actually solved by your chosen candidate. The better the candidate you hire has performed in the task, the higher your bonus will be. At the end of the study, the points you earned will be converted into British pounds at a rate of {{ Constants.punkteUmrechnungInPenny }} points = £0.01. For example, hiring a candidate who solved 37 tasks gives you 37 points, corresponding to &pound;{{ wertVon37Punkten }}.</div>
+<div>In addition, you will also receive a fixed amount of &pound;{{ Constants.festerAnteilDerBezahlung|to2 }}, irrespective of the accuracy of your estimates.</div>
+<br>
+<div>Before entering the Hiring Part, we ask you to complete the Practice Part. There, you will answer a comprehension question, complete the encoding task yourself, and then answer a second comprehension question. You have two attempts to answer each comprehension question correctly. Using more than two attempts for one of the questions will end the experiment for you, and you will only receive the basic fee of &pound;{{ Constants.auszahlungAnQuizVersager|to2 }}. Note that in the Practice Part, no additional earnings are awarded for correct answers.</div>
+
+<br><br>
+<b>Concluding the experiment</b>
+<br><br>
+<div>When you have made your hiring decisions for ten pairs of candidates, you will automatically see the questionnaire (which takes about 1 minute to complete). Once the questionnaire is completed, you will see a message informing you about your total earnings. The message also includes the <u>Prolific link that you need to click to validate your participation</u>.</div>
+
+<div>This is the end of the instructions.<br><br>
+{{ formfields }}
+
+<i>I confirm that I have read the instructions and the <a href="{% static "Consent.pdf" %}" target="_blank">Informed Consent</a> carefully and that I am ready to start the Practice Part.</i></div>
+<br><br>
+{{ next_button }}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var showExplanationLink = document.getElementById('showExplanationLink');
+        var explanation = document.getElementById('explanation');
+
+        showExplanationLink.addEventListener('click', function(event) {
+            liveSend(1);
+            event.preventDefault();
+            if (explanation.style.display === 'none') {
+                explanation.style.display = 'block';
+            } else {
+                explanation.style.display = 'none';
+            }
+        });
+    });
+
+    function openModal() {
+        document.getElementById('myModal').style.display = "block";
+        document.getElementById('modalImage').src = "{% static 'ExampleIntroAusBMPAlsPNG.png' %}";
+    }
+
+    function closeModal() {
+        document.getElementById('myModal').style.display = "none";
+    }
+</script>
+
+</form>
+{{ endblock }}

@@ -1,0 +1,110 @@
+{{ extends "global/CSS_Page.html" }}
+{{ load otree }}
+
+{{ block title }}Quiz{{ endblock }}
+
+{{ block app_scripts }}
+<!-- Soll nicht zurück springen können -->
+<script>
+window.location.hash="no-back-button";
+window.location.hash="Again-No-back-button";//again because google chrome don't insert first hash into history
+window.onhashchange=function(){window.location.hash="no-back-button";}
+</script>
+{{ endblock }}
+
+{{ block content }}
+<div id="imagePlaceholder"> <img src="{% static "KodierungsTabelle.jpg" %}" alt="Table not found"></div>
+
+<table style="width:1000px;">
+    <tr><td colspan="3" class="td2nichtbold">Here you see <b>example information</b> on ..., similar to the screen you will see in ... round.</td></tr>
+
+    <tr><td colspan="3" class="td2nichtbold">Please select the correct answers to the two questions below to check your understanding.
+        <br> After the quiz, ... will start.</td></tr><br>
+    <tr><td colspan="3" class="td3">&nbsp;</td></tr>
+    <tr><td colspan="3" class="td3"><b>1)</b> How would you encode <b>AAA</b>?</td></tr>
+    <tr style="border: 3px solid #000;">
+
+        <td colspan="1">
+            <b>A</b>
+        </td>
+        <td colspan="1">
+            <b>B</b>
+        </td>
+        <td colspan="1">
+            <b>C</b>
+        </td>
+
+    </tr>
+    <tr style="border: 3px solid #000;">
+        <td>111222333</td>
+        <td>123123123</td>
+        <td>AAA</td>
+    </tr>
+    <tr style="border-top: 3px none #000;">
+
+        <td class="td4" colspan="3">
+            <b>{% formfield player.QuizKodieren1 %}</b>
+        </td>
+
+    </tr>
+
+
+    <tr><td colspan="3" class="td3"><b>2)</b> How would you encode <b>BBA</b>?</td></tr>
+    <tr colspan="3" style="border: 3px solid #000;">
+
+        <td colspan="1">
+            <b>A</b>
+        </td>
+        <td colspan="1">
+            <b>B</b>
+        </td>
+        <td colspan="1">
+            <b>C</b>
+        </td>
+
+    </tr>
+    <tr style="border: 3px solid #000;">
+        <td>222333444</td>
+        <td>BBA</td>
+        <td>234234234</td>
+    </tr>
+    <tr style="border-top: 3px none #000;">
+
+        <td colspan="3" class="td4">
+            <b>{% formfield player.QuizKodieren2 %}</b>
+        </td>
+
+    </tr>
+
+    <tr><td colspan="3" class="td3"><b>3)</b> ... BEZAHLUNG ...?</td></tr>
+    <tr colspan="3" style="border: 3px solid #000;">
+
+        <td colspan="1">
+            <b>A</b>
+        </td>
+        <td colspan="1">
+            <b>B</b>
+        </td>
+        <td colspan="1">
+            <b>C</b>
+        </td>
+
+    </tr>
+    <tr style="border: 3px solid #000;">
+        <td>10</td>
+        <td>100</td>
+        <td>50</td>
+    </tr>
+    <tr style="border-top: 3px none #000;">
+
+        <td colspan="1" class="td4">
+            <b>{% formfield player.QuizBezahlung %}</b>
+        </td>
+    </tr>
+
+</table>
+
+
+{% next_button %}
+
+{{ endblock }}

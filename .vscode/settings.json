@@ -1,0 +1,10 @@
+
+{
+  "python.defaultInterpreterPath": "D:\\otree\\otree_env\\Scripts\\python.exe",
+  "python.analysis.extraPaths": [
+    "D:\\otree\\AgeFactor",
+    "D:\\otree\\otree_env\\Lib\\site-packages"
+  ],
+  "python.analysis.typeCheckingMode": "off"
+}
+

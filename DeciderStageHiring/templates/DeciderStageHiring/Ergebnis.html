@@ -1,0 +1,28 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}Finished{% endblock %}
+
+{% block content %}
+<br>
+
+
+
+    <p>Your earnings: Your hired candidates completed <b>{{ player.participant.VerdientePunkte }}</b> tasks. Together with the basic fee, this corresponds to <b>{{ player.participant.payoff|to2 }}</b>.</p>
+
+
+
+<div>To ensure you receive payment, <b>please click the following link</b> to return to Prolific: <a href="https://app.prolific.com/submissions/complete?cc={{player.participant.StudienNumber}}">Back to Prolific</a>.
+    <br>If you experience any issues with the link, you can use the survey code: <b>{{player.participant.StudienNumber}}</b>.</div> <br>
+
+
+<b>Thank you very much for your participation!</b>
+
+<br>
+
+
+
+
+<!--{% next_button %}-->
+
+{% endblock %}

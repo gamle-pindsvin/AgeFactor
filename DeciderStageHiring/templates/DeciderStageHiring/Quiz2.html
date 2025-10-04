@@ -1,0 +1,68 @@
+{{ extends "global/CSS_Page.html" }}
+{{ load otree }}
+
+{{ block title }}Practice Part (3){{ endblock }}
+
+{{ block app_scripts }}
+<!-- Soll nicht zurück springen können -->
+<script>
+window.location.hash="no-back-button";
+window.location.hash="Again-No-back-button";//again because google chrome don't insert first hash into history
+window.onhashchange=function(){window.location.hash="no-back-button";}
+</script>
+{{ endblock }}
+
+{{ block content }}
+
+
+
+
+<div style="text-align: left;">
+    <br> Please answer the following comprehension question.
+</div>
+
+<div style="text-align: left;"> You have two attempts to answer correctly. If you cannot answer correctly within two trials, the study will end for you, and you will only receive &pound;{{ Constants.auszahlungAnQuizVersager|to2 }}. </div>
+<br>
+<br>
+
+
+<table border="0" style="width:100%; text-align:center; border-collapse: collapse;">
+
+
+    <tr><td colspan="3" class="td3"><b>In the Estimation Part, you will read, for example, that "A pair of two candidates solved {{Constants.quizAngenommeneAnzahlAntowrten}} tasks." What is your task as a manager?</b></td></tr>
+    <tr><td colspan="3" class="td3">(<i>Note: "{{Constants.quizAngenommeneAnzahlAntowrten}}" is an intentionally unrealistically high number.)</i></td></tr>
+    <tr colspan="3" style="border: 3px solid #000;">
+
+        <td colspan="1">
+            <b>a</b>
+        </td>
+        <td colspan="1">
+            <b>b </b>
+        </td>
+        <td colspan="1">
+            <b>c</b>
+        </td>
+
+    </tr>
+    <tr style="border: 3px solid #000;">
+        <td>To check if candidates encoded correctly.</td>
+        <td>To solve tasks myself.</td>
+        <td>To decide which candidate to hire.</td>
+    </tr>
+    <tr style="border-top: 3px none #000;">
+
+        <td colspan="1" class="td4">
+            <b>{% formfield player.QuizBezahlung %}</b>
+        </td>
+    </tr>
+
+</table>
+
+<div style="text-align: left;"><br>
+    <div style="text-align: left;"> After this screen, the Hiring Part will start. On the next screen, you will be given a brief introduction to how information is presented as a histogram and how to read it.</div>
+    <br><br>
+
+
+{% next_button %}
+
+{{ endblock }}

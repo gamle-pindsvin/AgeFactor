@@ -16,7 +16,8 @@ class Constants(BaseConstants):
     players_per_group = 8
     num_rounds = 1
     # Wie lange soll die Aufgabe gelöst werden
-    dauerDesThreatmentsInSekunden = 420
+    # TODO!! auf 420 setzen!!
+    dauerDesThreatmentsInSekunden = 42
     # Pence flat
     festerAnteilderBezahlung = 0.40
     # Pence pro richtige Antwort
@@ -86,6 +87,9 @@ class Player(BasePlayer):
 
     # ProlificID - Fehlerhinweis kann noch angezeigt werden
     HinweisLangeProlificID = models.BooleanField(initial=True)
+
+    # Hat abgebrochen
+    HatAbgebrochen = models.BooleanField(initial=False)
 
     # Zählt falsche Versuche beim Quiz
     FreiVersucheImQuiz = models.IntegerField(initial=3)
@@ -185,7 +189,11 @@ class Intro(Page):
         player.AnzahlRichtigerAntworten = 0
         player.participant.AnzahlRichtigerAntworten = 0
         player.FreiVersucheImQuiz = 5
-
+        # setzte "Abgebrochen"-Tag auf False (in Participant)           
+        player.participant.HatAbgebrochen = False
+        # Wenn jemand beim RealEffortTask NICHTS macht, muss er auch die Mindest-Fee erhalten
+        player.VerdientePunkte = Constants.festerAnteilderBezahlung    
+        player.participant.VerdientePunkte = Constants.festerAnteilderBezahlung
 
 class Intro2(Page):
     form_model = 'player'
@@ -253,10 +261,11 @@ class BeforeEstimation(Page):
         return (player.HatSichQualifiziert and player.round_number == 1)
     
 
-        
+        #   1 - Alt und mit einem Histogramm
         #   2 - Jung und mit einem Histogramm
         #   3 - Alt und mit ZWEI Histogrammen
         #   4 - Jung und mit ZWEI Histogrammen
+
 #  Rolle 1 - Alt und mit einem Histogramm
 class WageInformationA1(Page):
     form_model = 'player'
@@ -298,6 +307,7 @@ class RealEffortTask(Page):
     @staticmethod
     # Wird bei denen NICHT anzgezeigt, die das Quiz nicht geschafft haben.
     def is_displayed(player: Player):
+        print('$$ RealEffortTask is_displayed $$')
         # print('HatSichQualifiziert: ', player.HatSichQualifiziert)
         return player.HatSichQualifiziert
 
@@ -309,67 +319,102 @@ class RealEffortTask(Page):
 
     @staticmethod
     def live_method(player, data):
-        # Initial auszahlung = 0
-        auszahlung = 0.0
+        # Initial auszahlung = Fester Betrag, falls jemand SOFORT abbricht
+        print('$$ live Method $$')
+        auszahlung = Constants.festerAnteilderBezahlung
        # Nur wenn data nicht NULL ist UND keine -1 übergeben wurde (was das Button ABBRECHEN macht!)
         if data is not None and data != -1:
+            print('$$ live Method IF $$')
             # OK-Button
             player.participant.AnzahlRichtigerAntworten = data
             player.AnzahlRichtigerAntworten = data
             # print('$$ 1 $$ player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten , ' player.AnzahlRichtigerAntworten: ', player.AnzahlRichtigerAntworten)
 
             # BERECHNE die Auszahlung
-            auszahlung = Constants.festerAnteilderBezahlung + \
-                data*Constants.bezahlungProAntwort
-            player.VerdientePunkte = auszahlung
+            auszahlung =  auszahlung + data*Constants.bezahlungProAntwort
+
+            # die Auszahlung muss reingeschrieben werden. 
+            player.VerdientePunkte = auszahlung    
             player.participant.VerdientePunkte = auszahlung
 
             # Umrechnnen in verschiedene Währungen?
             player.payoff = auszahlung * Constants.waehrungsFaktor
             player.participant.payoff = auszahlung * Constants.waehrungsFaktor
 
-            print('player.participant.ProlificID: ', player.participant.ProlificID, ' player.participant.AnzahlRichtigerAntworten: ',
-                  player.participant.AnzahlRichtigerAntworten, ' player.participant.VerdientePunkte: ', player.participant.VerdientePunkte)
+
+
         else:
+            print('$$ live Method ELSE $$')
+            # setzte "Abgebrochen"-Tag            
+            player.HatAbgebrochen = True
+            player.participant.HatAbgebrochen = True
+
+            # Sofort abgebrochen, noch nichts verdient - WIRD JETZT SCHON auf INTRO gemacht
+
+            #if player.participant.VerdientePunkte is None or player.participant.VerdientePunkte < Constants.bezahlungProAntwort:
+            #    player.VerdientePunkte = auszahlung    
+            #    player.participant.VerdientePunkte = auszahlung
+
+          
+
             # Abbrechen-Button
-            print('ABBRECHEN 1: ', ' player.participant.AnzahlRichtigerAntworten: ',
-                  player.participant.AnzahlRichtigerAntworten)
+            #print('ABBRECHEN 1: ', ' player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten)
             # Die Auszahlung
+            #player.VerdientePunkte = auszahlung
+            #player.participant.VerdientePunkte = auszahlung
 
-            print(
-                '$$ 22222222222222222222222222222222222222222222222222222222222222222222  $$')
-            for key, value in player.participant.vars.items():
-                print(key, value)
+            # Umrechnnen in verschiedene Währungen?
+            #player.payoff = auszahlung * Constants.waehrungsFaktor
+            #player.participant.payoff = auszahlung * Constants.waehrungsFaktor
 
-            print(
-                '$$ 22222222222222222222222222222222222222222222222222222222222222222222  ENDE $$')
+            #print('$$ 22222222222222222222222222222222222222222222222222222222222222222222  $$')
+            #for key, value in player.participant.vars.items():
+            #    print(key, value)
 
-            if 'VerdientePunkte' in player.participant.vars:
-                wert = player.participant.vars['VerdientePunkte']
-                print(
-                    '$$ 22222222222222222222222222222222222222222222222222222222222222222222  $$ wert: ', wert)
-            else:
-                wert = None  # oder einen anderen Standardwert
+            #print('$$ 22222222222222222222222222222222222222222222222222222222222222222222  ENDE $$')
+
+            #if 'VerdientePunkte' in player.participant.vars:
+            #    wert = player.participant.vars['VerdientePunkte']            
+            #    print(
+            #        '$$ 22222222222222222222222222222222222222222222222222222222222222222222  $$ wert: ', wert)
+            #else:
+            #    wert = None  # oder einen anderen Standardwert
+
+ 
+
+        print('player.participant.ProlificID: ', player.participant.ProlificID, ' player.participant.AnzahlRichtigerAntworten: ',
+                  player.participant.AnzahlRichtigerAntworten, ' player.participant.VerdientePunkte: ', player.participant.VerdientePunkte)
 
 
             # if player.participant.VerdientePunkte is None:
             #    player.participant.VerdientePunkte = Constants.festerAnteilderBezahlung
             #    player.participant.AnzahlRichtigerAntworten = 0
 
-            print('ABBRECHEN 2: ', ' player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten,
+        print('ABBRECHEN 2: ', ' player.participant.AnzahlRichtigerAntworten: ', player.participant.AnzahlRichtigerAntworten,
                   ' player.participant.VerdientePunkte: ', player.participant.VerdientePunkte)
-            print('ABBRECHEN: ', ' player.AnzahlRichtigerAntworten: ', player.AnzahlRichtigerAntworten,
+        print('ABBRECHEN: ', ' player.AnzahlRichtigerAntworten: ', player.AnzahlRichtigerAntworten,
                   ' player.participant.VerdientePunkte: ', player.participant.VerdientePunkte)
-            return {player.id_in_group: 'next_page'}
+        return {player.id_in_group: 'next_page'}
+    
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened):
+        # Umrechnnen in verschiedene Währungen?
+        # Extra-Funktion an dieser Stelle, weil sonst die Teilnehmer, die NICHTS beantwortet haben, leer ausgehen.
+        player.payoff = player.VerdientePunkte * Constants.waehrungsFaktor
+        player.participant.payoff = player.VerdientePunkte * Constants.waehrungsFaktor  
 
 # Auszahlung und Statistik werden vorbereitet
-
 class AuszahlungUmfrage(Page):
 
     form_model = 'player'
     # GeburtsJahr wird EXTRA aufgeführt!! Wenn nicht funktioniert, wie unten.
     # form_fields = ['GeburtsJahr', 'Gender', 'Education', 'PoliticalOrientation']
     form_fields = ['GeburtsJahr', 'Gender', 'Education']
+
+    @staticmethod
+    # Wird bei denen NICHT anzgezeigt, die abgebrochen haben.
+    def is_displayed(player: Player):
+        return (not player.participant.HatAbgebrochen)
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
@@ -395,4 +440,4 @@ class Ergebnis(Page):
 
 
 
-page_sequence = [Intro, Intro2, Quiz, BeforeEstimation, WageInformationA1, WageInformationA2, WageInformationJ1, WageInformationJ2,  RealEffortTask, AuszahlungUmfrage, Ergebnis]
+page_sequence = [Intro, Intro2, Quiz, BeforeEstimation, , WageInformationA1, WageInformationA2, WageInformationJ1, WageInformationJ2, RealEffortTask, AuszahlungUmfrage, Ergebnis]
