@@ -61,7 +61,8 @@ class Constants(BaseConstants):
     timeOutSeconds = 6000
 
     # Wie lange soll die Aufgabe gelöst werden
-    dauerDesThreatmentsInSekunden = 30
+    # TODO - später auf 30 erhöhen
+    dauerDesThreatmentsInSekunden = 3
 
     # Werte für Young und Alt
     young = 'younger'
@@ -72,7 +73,7 @@ class Constants(BaseConstants):
     # Quiz-Versager
     auszahlungAnQuizVersager = 0.40
     # GBP sockel
-    festerAnteilDerBezahlung = 1.15
+    festerAnteilDerBezahlung = 1.25
     # Punkte umrechnung X Punkte = 0.01 GBP
     punkteUmrechnungInPenny = 2
 
@@ -203,6 +204,8 @@ class Player(BasePlayer):
     # Bei T3 und T4 sind es "older or the younger worker" 
     Entscheidung = models.StringField(choices=['One', 'Other', Constants.old, Constants.young], label="", blank=True)
 
+    # Auszahlung besteht aus dem festen Anteil und Bonus
+    bonus = models.FloatField(initial=0.0)
 
 # Und Eingaben der Entscheider, was sie denken, dass einer beigetragen hat
     Spieler1_Schaetzung = models.IntegerField(label='', blank=True, null=True)
@@ -503,7 +506,6 @@ class Intro(Page):
         if len(values['ProlificID']) != 24 and player.HinweisLangeProlificID :
             # nächstes Mal wird nicht nehr gewarnt
             player.HinweisLangeProlificID = False
-            #TODO - Text ggf. anpassen!
             return 'Are you sure? Prolific-ID is normally 24 characters long.'
 
     @staticmethod
@@ -594,9 +596,9 @@ class Intro(Page):
         #                       gruppe.gruppe3_sequenz1, ", " , gruppe.gruppe3_sequenz2, ", " ,gruppe.gruppe3_sequenz3, ", " ,gruppe.gruppe3_sequenz4, "], [" ,
         #                       gruppe.gruppe4_sequenz1, ", " , gruppe.gruppe4_sequenz2, ", " ,gruppe.gruppe4_sequenz3, ", " ,gruppe.gruppe4_sequenz4, "]]")
 
-        #TODO HIER NUR UM ALLES IN T2 zu testen - DANACH LÖSCHEN!!!!
-        player.zugeordneteRole = 3;
-        player.participant.zugeordneteRole = 3;
+        #TODO HIER NUR UM ALLES IN Tx zu testen - DANACH LÖSCHEN!!!!
+        player.zugeordneteRole = 4;
+        player.participant.zugeordneteRole = 4;
 
 
         # Neues Spiel - neue Auszahlung.
@@ -607,7 +609,7 @@ class Intro(Page):
         player.participant.VerdientePunkte = 0
         player.VerdientePunkteImTestSpiel = 0
         player.participant.VerdientePunkteImTestSpiel = 0
-
+        player.bonus = 0.0
         player.AnzahlRichtigerAntworten = 0
 
 
@@ -926,25 +928,9 @@ class SeiteFuerT3(Page):
             player.anzeigeLinks = Constants.young # junger links
             player.anzeigeRechts = Constants.old
 
-
-
-        #print(arbeitsergebnisse)
-        #print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker, ' real eff: ', player.realEffort);
-
         summe = player.gemeinsamesErgebnisBeiderWorker
-        inputFieldValue = player.field_maybe_none('Spieler1_Schaetzung')
-        berechnetesErgebnis = player.field_maybe_none('Spieler2_Aut_Berechnet')
-        if inputFieldValue is None:
-            # Behandle den Fall, wenn das inputFieldValue None ist
-            inputFieldValue = ""
-
-        if berechnetesErgebnis is None:
-            # Behandle den Fall, wenn das Ergebnis None ist
-            berechnetesErgebnis = ""
 
         return {
-            'calculated_field': berechnetesErgebnis,
-            'Spieler1_Schaetzung': inputFieldValue,
             'summe': summe
         }
 
@@ -1004,10 +990,6 @@ class SeiteFuerT3Bestaetigung(Page):
             player.anzeigeRechts = Constants.old
 
 
-
-        #print(arbeitsergebnisse)
-        #print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker, ' real eff: ', player.realEffort);
-
         summe = player.gemeinsamesErgebnisBeiderWorker
     
         return {
@@ -1046,7 +1028,7 @@ class SeiteFuerT4(Page):
         aktuelleSequenz = Constants.sequenzen[player.participant.gewaehlteSequenz-1]
         # Und jetzt das i-te Element
         arbeitsergebnisse = aktuelleSequenz[player.round_number - 1]
-        #print("arbeitsergebnisse:", arbeitsergebnisse)
+        print("arbeitsergebnisse:", arbeitsergebnisse)
         # Die Werte braucht man unten zur Berechung der Auszahlung. Die Summe aber auch als Anzeige, daher schon hier
         player.oldWorker = int(arbeitsergebnisse[0])
         player.youngWorker = int(arbeitsergebnisse[1])
@@ -1060,30 +1042,15 @@ class SeiteFuerT4(Page):
         if postitionAnzeige == 0:
             player.anzeigeLinks = Constants.old
             player.anzeigeRechts = Constants.young
-            player.realEffort = player.oldWorker # alter links
         else:
             player.anzeigeLinks = Constants.young
             player.anzeigeRechts = Constants.old
-            player.realEffort = player.youngWorker # junger links
 
-
-        #print(arbeitsergebnisse)
-        #print('old worker: ', player.oldWorker, ' young worker: ', player.youngWorker, ' real eff: ', player.realEffort);
 
         summe = player.gemeinsamesErgebnisBeiderWorker
-        inputFieldValue = player.field_maybe_none('Spieler1_Schaetzung')
-        berechnetesErgebnis = player.field_maybe_none('Spieler2_Aut_Berechnet')
-        if inputFieldValue is None:
-            # Behandle den Fall, wenn das inputFieldValue None ist
-            inputFieldValue = ""
 
-        if berechnetesErgebnis is None:
-            # Behandle den Fall, wenn das Ergebnis None ist
-            berechnetesErgebnis = ""
 
         return {
-            'calculated_field': berechnetesErgebnis,
-            'Spieler1_Schaetzung': inputFieldValue,
             'summe': summe
         }
 
@@ -1101,6 +1068,63 @@ class SeiteFuerT4(Page):
         player.participant.VerdientePunkte += neuePunkteInDieserRunde
         #print("Punkte neu: ",player.participant.VerdientePunkte)
 
+
+# Rolle 3 - Folgeseite mit der Frage, wie wichtig die Wahl war.  
+class SeiteFuerT4Bestaetigung(Page):
+    #timeout_seconds = Constants.dauerDesThreatmentsInSekunden
+    form_model = 'player'
+    form_fields = ["BestaetigungQ1", "BestaetigungQ2"]
+
+    @staticmethod
+    def is_displayed(player: Player):
+        # Wir wollen messen, wie lange der Spieler auf der Seite war. Hier ist die "Start-Zeit"
+        # Wir wollen auch Teile der Sekunden, daher time.perf_counter() und nicht time.time().
+        player.eintrittZeitAufDerSeite = time.perf_counter()
+        #print("SeiteFuerT3Bestaetigung: ",(player.participant.zugeordneteRole == 3  and player.HatSichQualifiziert))
+        return (player.participant.zugeordneteRole == 4  and player.HatSichQualifiziert and (player.round_number == Constants.num_rounds))
+
+    @staticmethod
+    def vars_for_template(player: Player):
+     
+        # Zuerst die Sequenz holen - (-1) weil Array ja mit 0 starte
+        aktuelleSequenz = Constants.sequenzen[player.participant.gewaehlteSequenz-1]
+        # Und jetzt das i-te Element
+        arbeitsergebnisse = aktuelleSequenz[player.round_number - 1]
+        #print("arbeitsergebnisse:", arbeitsergebnisse)
+        # Die Werte braucht man unten zur Berechung der Auszahlung. Die Summe aber auch als Anzeige, daher schon hier
+        player.oldWorker = int(arbeitsergebnisse[0])
+        player.youngWorker = int(arbeitsergebnisse[1])
+        player.gemeinsamesErgebnisBeiderWorker = player.oldWorker + player.youngWorker
+
+        # ist es ein Junger oder Alter Workler? 0 - alt, 1 - jung
+        # Man muss die ERSTE Runde lesen, danach werden die Felder neu Initialisiert
+        postitionAnzeige = getattr(player.in_round(1), f'jungOderAlt{player.round_number}')
+        #print("Runde: ", player.round_number, "postitionAnzeige: ", postitionAnzeige)
+
+        if postitionAnzeige == 0:
+            player.anzeigeLinks = Constants.old # alter links
+            player.anzeigeRechts = Constants.young
+        else:
+            player.anzeigeLinks = Constants.young # junger links
+            player.anzeigeRechts = Constants.old
+
+
+        summe = player.gemeinsamesErgebnisBeiderWorker
+    
+        return {
+            'summe': summe
+        }
+
+    # Berechne die Auszahlung für diese Runde und addiere sie zur Gesamtauszahlung
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened):
+        # Wir wollen messen, wie lange der Spieler auf der Seite war. Hier ist die "Verlass-Zeit"
+        dauerAufDerSeite = time.perf_counter() - player.eintrittZeitAufDerSeite
+        # Rundenzeiten des Spielers werden in Participant gespeichert.
+        speichereZeitAufDerSeite(player, dauerAufDerSeite)
+        player.participant.BestaetigungQ1 = player.BestaetigungQ1
+        player.participant.BestaetigungQ2 = player.BestaetigungQ2
+        print("BestaetigungQ1: ", player.BestaetigungQ1, " BestaetigungQ2: ", player.BestaetigungQ2)
 
 # Wie sicher ist der Probant bezüglich seiner Schätzung
 class SelbstEinschaetzungUmfrage(Page):
@@ -1133,12 +1157,18 @@ class AuszahlungUmfrage(Page):
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
-
-        verdient = player.participant.VerdientePunkte * Constants.bezahlungProRichtigeSchaetzung + Constants.festerAnteilDerBezahlung
+        # Verdiente Punkte werden mit dem Faktor 1:punkteUmrechnungInPenny (nach oben gerundet) in Pennys umgerechnet...
+        
+        verdient = math.ceil(player.participant.VerdientePunkte / Constants.punkteUmrechnungInPenny)/100
+        #  und in Bonus und festen Anteil aufgeteilt
+        bonus = verdient - Constants.festerAnteilDerBezahlung
         if (not player.HatSichQualifiziert):
             verdient = Constants.auszahlungAnQuizVersager
-        player.payoff = verdient;
-        player.participant.payoff = verdient;
+            bonus = 0.0
+        player.payoff = verdient
+        player.bonus = bonus
+        player.participant.payoff = verdient
+        player.participant.bonus = bonus
 
 
 # Ergebnis des Entscheidungsvorlage-Games wird angezeigt
@@ -1157,4 +1187,4 @@ class ErgebnisOhneQuiz(Page):
         return (not player.HatSichQualifiziert)
 
 
-page_sequence = [Intro, Intro2, Quiz, RealEffortTask, Quiz2, BeforeEstimation, SeiteFuerT1, SeiteFuerT2, SeiteFuerT3, SeiteFuerT4, SeiteFuerT3Bestaetigung, SelbstEinschaetzungUmfrage, AuszahlungUmfrage, Ergebnis, ErgebnisOhneQuiz]
+page_sequence = [Intro, Intro2, Quiz, RealEffortTask, Quiz2, BeforeEstimation, SeiteFuerT1, SeiteFuerT2, SeiteFuerT3, SeiteFuerT4, SeiteFuerT3Bestaetigung, SeiteFuerT4Bestaetigung, AuszahlungUmfrage, Ergebnis, ErgebnisOhneQuiz]

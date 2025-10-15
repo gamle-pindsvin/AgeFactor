@@ -79,33 +79,20 @@
 <form>
 
 
-    <table class="B-container">
+  <table class="B-container">
         <tr><td colspan="4">&nbsp;</td></tr>
         <tr>
             <td colspan="4">
 
                 <div>
                     <a href="javascript:void(0)">
-                        <img src="{% static 'HistogramAll.jpg' %}" alt="Histogram">
+                        <img src="{% static 'HistogramsBoth.png' %}" alt="Histogram">
                     </a>
                 </div>
-                <!-- Hier KEIN modales Fenster mehr -->
 
             </td>
         </tr>
 
-        <!-- 2 leere Zeilen als Abstand -->
-
-        <tr>
-            <td colspan="4" style="border-bottom: 2px solid black;">
-                &nbsp;
-            </td>
-        </tr>
-        <tr>
-            <td colspan="4" >
-                &nbsp;
-            </td>
-        </tr>
         <tr>
             <td colspan="4">
                 &nbsp;The candidates were recruited in the UK, with one <strong>aged 22-29</strong> and one <strong>aged 52-59</strong> per pair, <br>working independently on the encoding task.
@@ -113,26 +100,34 @@
         </tr>
         <tr>
             <td colspan="4">
-                Note that whether the left-hand field below refers to the older or the younger candidate <b>may change</b> from one estimate to the next.
+                Note that whether the left-hand field below refers to the older or the younger candidate <b>may change</b> from one hiring situation to the next.
             </td>
         </tr>
 
-
-        <!-- 2 leere Zeilen als Abstand ENDE -->
-        <!-- Beide zusammen -->
         <tr>
             <td colspan="4" style="text-align: center;">
                 The pair of two candidates solved a total of:
                 <span style="font-size: 130%;"><b>{% summe %} tasks</b></span>
             </td>
         </tr>
-
+        <!-- 1 leere Zeile als Abstand -->
         <tr>
-            <td colspan="4" style="text-align: center;font-size: 120%">
-               &nbsp;<strong>I want to hire the ...</strong>
+            <td colspan="4">
+                &nbsp;
             </td>
         </tr>
 
+
+        <tr>
+            <td colspan="4" style="text-align: center;font-size: 120%">
+               &nbsp;<strong>I want to hire ...</strong>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                &nbsp;
+            </td>
+        </tr>
 
         <tr>
 

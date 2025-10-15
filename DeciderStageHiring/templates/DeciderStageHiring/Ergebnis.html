@@ -8,10 +8,11 @@
 
 
 
-    <p>Your earnings: Your hired candidates completed <b>{{ player.participant.VerdientePunkte }}</b> tasks. Together with the basic fee, this corresponds to <b>{{ player.participant.payoff|to2 }}</b>.</p>
+    <p>Your earnings: Your hired candidates completed <b>{{ player.participant.VerdientePunkte }}</b> tasks. 
+        You earned <b>{{ player.participant.payoff|to2 }}</b> in total, consisting of the fixed amount of <b>&pound;{{ Constants.festerAnteilDerBezahlung|to2 }}</b> and a bonus of <b>&pound;{{ player.participant.bonus|to2 }}</b>.
+    </p>
 
-
-
+        
 <div>To ensure you receive payment, <b>please click the following link</b> to return to Prolific: <a href="https://app.prolific.com/submissions/complete?cc={{player.participant.StudienNumber}}">Back to Prolific</a>.
     <br>If you experience any issues with the link, you can use the survey code: <b>{{player.participant.StudienNumber}}</b>.</div> <br>
 
