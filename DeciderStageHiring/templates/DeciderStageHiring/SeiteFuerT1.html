@@ -6,7 +6,7 @@
 {{ block content }}
 <div>Candidate pair {{player.round_number}} of {{ Constants.num_rounds }}</div>
 <br>
-<div><b>Remember:</b>Your earnings measured in points will equal the number of tasks actually solved by your chosen candidate. <br>Your points will be converted into British pounds at a rate of {{ Constants.punkteUmrechnungInPenny }} points = £0.01.</div>
+<div><b>Remember:</b> Your earnings measured in points will equal the number of tasks actually solved by your chosen candidate. <br>Your points will be converted into British pounds at a rate of {{ Constants.punkteUmrechnungInPenny }} points = £0.01.</div>
 <br>
 
 
@@ -176,22 +176,6 @@
 </form>
 
 <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var inputField = document.getElementById('Spieler1_Schaetzung');
-            var calculatedField = document.getElementById('calculated_field');
-            var summeUebergeben =  {{ summe }};
-
-            if (inputField) {
-                inputField.addEventListener('input', function() {
-                    var inputValue = inputField.value;
-                    var parsedValue = parseInt(inputValue) || 0;
-                    var calculatedValue = summeUebergeben - parsedValue;
-                    calculatedField.value = calculatedValue;
-                });
-            } else {
-                console.error('Element with ID Spieler1_Schaetzung not found.');
-            }
-        });
 
         <!-- Soll nicht zurück springen können -->
         window.location.hash="no-back-button";

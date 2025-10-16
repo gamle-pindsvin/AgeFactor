@@ -1,0 +1,167 @@
+{{ extends "global/CSS_Page.html" }}
+{{ load otree }}
+
+{{ block title }}Before moving on{{ endblock }}
+
+{{ block content }}
+
+    <style>
+        img {
+          max-width: 100%;
+          height: auto;
+        }
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 20px;
+}
+
+
+.button-container button {
+    font-size: 1.4em;
+    padding: 15px 30px;
+    min-width: 180px;
+    border-radius: 8px;
+    background-color: #66b3ff; /* Helles Blau */
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.button-container button.selected {
+    background-color: #0066cc; /* Dunkelblau */
+    color: white;
+    border: none;
+}
+
+.info-wrapper {
+    font-size: 0.65em; /* Schrift kleiner */
+    border: 2px solid #ccc;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    margin-bottom: 30px;
+}
+
+/* Bild direkt sichtbar, nicht modal */
+.info-wrapper img {
+    max-width: 70%;
+    height: auto;
+    margin: 10px auto;
+    display: block;
+    border: 1px solid #aaa;
+    border-radius: 6px;
+}
+
+.info-wrapper .button-container button {
+    font-size: 0.9em;
+    padding: 8px 16px;
+    min-width: 120px;
+    border-radius: 6px;
+    border: none;
+    cursor: default;
+    pointer-events: none; /* deaktiviert Klick */
+    opacity: 0.8;
+}
+
+    </style>
+<div>The hiring phase is now complete. Before you begin the short survey that concludes the study,<br> we would like you to answer two brief questions about your most recent hiring decision, which we show to you again here:</div>
+<br>
+<div class="info-wrapper">
+    <div>Candidate pair {{player.round_number}} of {{ Constants.num_rounds }}</div>
+<br>
+<div><b>Remember:</b> Your earnings measured in points will equal the number of tasks actually solved by your chosen candidate. <br>Your points will be converted into British pounds at a rate of {{ Constants.punkteUmrechnungInPenny }} points = £0.01.</div>
+<br>
+
+
+
+<form>
+
+
+    <table class="B-container">
+        <tr><td colspan="4">&nbsp;</td></tr>
+        <tr>
+            <td colspan="4">
+
+                <div>
+                    <a href="javascript:void(0)">
+                        <img src="{% static 'HistogramAll.jpg' %}" alt="Histogram">
+                    </a>
+                </div>
+                <!-- Hier KEIN modales Fenster mehr -->
+
+            </td>
+        </tr>
+
+        <!-- 2 leere Zeilen als Abstand -->
+
+        <tr>
+            <td colspan="4" style="border-bottom: 2px solid black;">
+                &nbsp;
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="4">
+                &nbsp;The candidates were recruited in the UK, with one aged 22-29 and one aged 52-59 per team, <br>working independently on the encoding task.
+            </td>
+        </tr>
+
+
+        <!-- 2 leere Zeilen als Abstand ENDE -->
+        <!-- Beide zusammen -->
+        <tr>
+            <td colspan="4" style="text-align: center;">
+                The pair of two candidates solved a total of:
+                <span style="font-size: 130%;"><b>{% summe %} tasks</b></span>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="4" style="text-align: center;font-size: 120%">
+               &nbsp;<strong>I want to hire the ...</strong>
+            </td>
+        </tr>
+
+
+        <tr>
+
+            <td colspan="4">
+                <div class="button-container">
+                    <button
+                        name="Entscheidung"
+                        value="NichtClickbar"
+                        class="btn btn-primary btn-large {% if player.Entscheidung == 'One' %}selected{% endif %}">
+                        <b>this</b> worker
+                    </button>
+
+                    <button
+                        name="Entscheidung"
+                        value="NichtClickbar"
+                        class="btn btn-primary btn-large {% if player.Entscheidung == 'Other' %}selected{% endif %}">
+                        <b>the other</b> worker
+                    </button>
+                </div>
+            </td>
+
+
+        </tr>
+
+
+
+    </table>
+  </div>
+    
+<hr style="border-top: 2px dashed #999; margin: 30px 0;">
+<i>In that decision, you chose the candidate on the {% if player.Entscheidung == 'One' %}left{% else %}right{% endif %}.</i>
+<br>
+<br>
+
+{{ formfields }}
+{% next_button %}
+
+
+</form>
+
+{{ endblock }}
