@@ -190,13 +190,13 @@ class Player(BasePlayer):
                                                  ['3', 'Moderately important'],
                                                  ['4', 'Very important'],
                                                  ['5', 'Extremely important']], 
-                                                 widget=widgets.RadioSelectHorizontal, label='<b>Question 1</b>: How important was it for you to hire this person rather than the other?')
+                                                 widget=widgets.RadioSelectHorizontal, label='<b>Question 1</b>: How important was it for you to hire this worker rather than the other?')
     BestaetigungQ2 = models.StringField(choices=[['1', 'Not at all confident'],
                                                  ['2', 'Slightly confident'],
                                                  ['3', 'Moderately confident'],
                                                  ['4', 'Very confident'],
                                                  ['5', 'Extremely confident']], 
-                                                 widget=widgets.RadioSelectHorizontal, label='<b>Question 2</b>: How confident are you that you chose the right candidate?')
+                                                 widget=widgets.RadioSelectHorizontal, label='<b>Question 2</b>: How confident are you that you chose the best worker?')
 
 
     # Wir müssen speichern, welchen Worker der Entscheider einstellen will. 
@@ -648,8 +648,8 @@ class Intro2(Page):
     @staticmethod
     def vars_for_template(player: Player):
         # Constants.punkteUmrechnungInPenny = 0,01GBP, 
-        wertVon37Punkten = 0.37/Constants.punkteUmrechnungInPenny
-        wertVon37PunktenFormatiert=f"{wertVon37Punkten:.3f}"
+        wertVon37Punkten = 0.90/Constants.punkteUmrechnungInPenny
+        wertVon37PunktenFormatiert=f"{wertVon37Punkten:.2f}"
 
         return {
             'wertVon37Punkten': wertVon37PunktenFormatiert

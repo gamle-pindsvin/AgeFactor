@@ -54,6 +54,7 @@
     border-radius: 6px;
 }
 
+
 .info-wrapper .button-container button {
     font-size: 0.9em;
     padding: 8px 16px;
@@ -69,9 +70,9 @@
 <div>The hiring phase is now complete. Before you begin the short survey that concludes the study,<br> we would like you to answer two brief questions about your most recent hiring decision, which we show to you again here:</div>
 <br>
 <div class="info-wrapper">
-    <div>Candidate pair {{player.round_number}} of {{ Constants.num_rounds }}</div>
+    <div>Worker pair {{player.round_number}} of {{ Constants.num_rounds }}</div>
 <br>
-<div><b>Remember:</b> Your earnings measured in points will equal the number of tasks actually solved by your chosen candidate. <br>Your points will be converted into British pounds at a rate of {{ Constants.punkteUmrechnungInPenny }} points = £0.01.</div>
+<div><b>Remember:</b> Your earnings measured in points will equal the number of tasks actually solved by your chosen worker. <br>Your points will be converted into British pounds at a rate of {{ Constants.punkteUmrechnungInPenny }} points = £0.01.</div>
 <br>
 
 
@@ -108,7 +109,7 @@
         </tr>
         <tr>
             <td colspan="4">
-                &nbsp;The candidates were recruited in the UK, working independently on the encoding task.
+                &nbsp;The workers were recruited in the UK, working independently on the encoding task.
             </td>
         </tr>
 
@@ -117,14 +118,14 @@
         <!-- Beide zusammen -->
         <tr>
             <td colspan="4" style="text-align: center;">
-                The pair of two candidates solved a total of:
+                The pair of two workers solved a total of:
                 <span style="font-size: 130%;"><b>{% summe %} tasks</b></span>
             </td>
         </tr>
 
         <tr>
             <td colspan="4" style="text-align: center;font-size: 120%">
-               &nbsp;<strong>I want to hire the ...</strong>
+               &nbsp;<strong>I want to hire ...</strong>
             </td>
         </tr>
 
@@ -158,7 +159,12 @@
   </div>
     
 <hr style="border-top: 2px dashed #999; margin: 30px 0;">
-<i>In that decision, you chose the candidate on the {% if player.Entscheidung == 'One' %}left{% else %}right{% endif %}.</i>
+
+<div style="font-size: 1.45em; font-style: italic;">
+  In that decision, you chose to hire the worker <b>on the {% if player.Entscheidung == 'One' %}left{% else %}right{% endif %}</b>.
+</div>
+
+
 <br>
 <br>
 
