@@ -68,6 +68,11 @@ class Constants(BaseConstants):
     young = 'younger'
     old = 'older'
 
+    # Runden für Revision 1 und 2
+    # wo jeweils in jeder Sequenz der junge bzw. alte Worker besser ist
+    revisionJung = 1
+    revisionAlt = 9
+
 
     ########## ECHT ######### Echte Auszahlungen für Probalnden ### ECHT #######
     # Quiz-Versager
@@ -119,14 +124,14 @@ class Group(BaseGroup):
     gruppe1_sequenz3 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT1)
     gruppe1_sequenz4 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT1)
 
-    #gruppe2_sequenz1 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT2)
-    #gruppe2_sequenz2 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT2)
-    #gruppe2_sequenz3 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT2)
-    #gruppe2_sequenz4 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT2)
-    gruppe2_sequenz1 = models.IntegerField(initial=7)
-    gruppe2_sequenz2 = models.IntegerField(initial=6)
-    gruppe2_sequenz3 = models.IntegerField(initial=9)
-    gruppe2_sequenz4 = models.IntegerField(initial=7)
+    gruppe2_sequenz1 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT2)
+    gruppe2_sequenz2 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT2)
+    gruppe2_sequenz3 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT2)
+    gruppe2_sequenz4 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT2)
+    #gruppe2_sequenz1 = models.IntegerField(initial=7)
+    #gruppe2_sequenz2 = models.IntegerField(initial=6)
+    #gruppe2_sequenz3 = models.IntegerField(initial=9)
+    #gruppe2_sequenz4 = models.IntegerField(initial=7)
 
     gruppe3_sequenz1 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT3)
     gruppe3_sequenz2 = models.IntegerField(initial=Constants.maximalAnzahlSequenzProGruppeT3)
@@ -198,6 +203,11 @@ class Player(BasePlayer):
                                                  ['5', 'Extremely confident']], 
                                                  widget=widgets.RadioSelectHorizontal, label='<b>Question 2</b>: How confident are you that you chose the best worker?')
 
+
+    # Nach der letzten der 10 Entscheidungen gibt es zwei Fragen auf der Bestätigung-Seite
+    Revision1_Q = models.StringField(choices=[['1', 'Yes'],
+                                                 ['0', 'No']],
+                                                 widget=widgets.RadioSelectHorizontal, label='<b>Question</b>: Would you like to change your decision and hire the other worker?')
 
     # Wir müssen speichern, welchen Worker der Entscheider einstellen will. 
     # Bei T1 und T2 sind es "one worker" und "the other worker"
@@ -298,6 +308,12 @@ class Player(BasePlayer):
 
     # Checkbox für Consent
     Akzeptiert_bedingungen = models.BooleanField(label="", widget=widgets.CheckboxInput, blank=True)
+
+    # 50/50-Zufallszahl, ob junger oder alter besser ist für die Revisionen 1 und 2. 
+    # Sie sind immer jeweils anders, wenn R1 - z.B. Runde 1 wird, wird R2 - Runde 9 und umgekehrt. 
+    oldBetter = models.IntegerField(initial=-1)
+    revision1_AnzeigeRunde = models.IntegerField(initial=-1)
+    revision2_AnzeigeRunde = models.IntegerField(initial=-1)
 
 
 
@@ -566,7 +582,7 @@ class Intro(Page):
             else:
                 print("FEHLER: weiterRolleSuchen / zufallszahl: ", zufallszahl)
 
-        # Jetzt setzen wir, in welchen Runden Junge und in welcher Runde der alte zuerst angezeigt werden.
+        # Jetzt setzen wir, in welchen Runden Junge und in welcher Runde der alte im LINKEN Button angezeigt werden.
         # Generiere 5 verschiedene Integer zwischen 1 und 10
         random_integers = random.sample(range(1, 11), 5)
 
@@ -584,9 +600,9 @@ class Intro(Page):
                 setattr(player, f'jungOderAlt{i}', 1)  # junger Spieler zuerst
 
         # Ausgabe der Ergebnisse
-        #print("Gezogene Zahlen: ", random_integers)
-        #for i in range(1, 11):
-        #    print(f"player.jungOderAlt{i}: {getattr(player, f'jungOderAlt{i}')}")
+        print("Gezogene Zahlen: ", random_integers)
+        for i in range(1, 11):
+            print(f"player.jungOderAlt{i}: {getattr(player, f'jungOderAlt{i}')}")
 
 
         print("Rolle: ", player.zugeordneteRole, " Sequenz #: ",player.gewaehlteSequenz)
@@ -595,11 +611,6 @@ class Intro(Page):
                                gruppe.gruppe2_sequenz1, ", " , gruppe.gruppe2_sequenz2, ", " ,gruppe.gruppe2_sequenz3, ", " ,gruppe.gruppe2_sequenz4, "], [" ,
                                gruppe.gruppe3_sequenz1, ", " , gruppe.gruppe3_sequenz2, ", " ,gruppe.gruppe3_sequenz3, ", " ,gruppe.gruppe3_sequenz4, "], [" ,
                                gruppe.gruppe4_sequenz1, ", " , gruppe.gruppe4_sequenz2, ", " ,gruppe.gruppe4_sequenz3, ", " ,gruppe.gruppe4_sequenz4, "]]")
-
-        #TODO HIER NUR UM ALLES IN Tx zu testen - DANACH LÖSCHEN!!!!
-        #player.zugeordneteRole = 1;
-        #player.participant.zugeordneteRole = 1;
-
 
         # Neues Spiel - neue Auszahlung.
         player.payoff = 0
@@ -611,6 +622,30 @@ class Intro(Page):
         player.participant.VerdientePunkteImTestSpiel = 0
         player.bonus = 0.0
         player.AnzahlRichtigerAntworten = 0
+        
+        # Für Revision - ob der Alte oder der Junge besser sein sollen
+        revZufallszahl = random.randint(1, 2)
+        if (revZufallszahl == 1):
+            player.oldBetter = 1
+            player.revision1_AnzeigeRunde = Constants.revisionAlt
+            player.revision2_AnzeigeRunde = Constants.revisionJung
+            player.participant.oldBetter = player.oldBetter
+            player.participant.revision1_AnzeigeRunde = player.revision1_AnzeigeRunde
+            player.participant.revision2_AnzeigeRunde = player.revision2_AnzeigeRunde
+        elif revZufallszahl == 2:
+            player.oldBetter = 0
+            player.revision1_AnzeigeRunde = Constants.revisionJung
+            player.revision2_AnzeigeRunde = Constants.revisionAlt
+            player.participant.oldBetter = player.oldBetter
+            player.participant.revision1_AnzeigeRunde = player.revision1_AnzeigeRunde
+            player.participant.revision2_AnzeigeRunde = player.revision2_AnzeigeRunde
+        else:
+            print("FEHLER: old / revZufallszahl: ", revZufallszahl)
+        print("Rev1: revZufallszahl: ", revZufallszahl, " player.oldBetter: ", player.oldBetter, " player.participant.revision1_AnzeigeRunde: ", player.participant.revision1_AnzeigeRunde, " player.participant.revision2_AnzeigeRunde: ", player.participant.revision2_AnzeigeRunde)
+
+        #TODO HIER NUR UM ALLES IN Tx zu testen - DANACH LÖSCHEN!!!!
+        player.zugeordneteRole = 4;
+        player.participant.zugeordneteRole = 4;
 
 
 class Intro2(Page):
@@ -997,8 +1032,7 @@ class SeiteFuerT3(Page):
         player.youngWorker = int(arbeitsergebnisse[1])
         player.gemeinsamesErgebnisBeiderWorker = player.oldWorker + player.youngWorker
 
-        # ist es ein Junger oder Alter Workler? 0 - alt, 1 - jung
-        # Man muss die ERSTE Runde lesen, danach werden die Felder neu Initialisiert
+        # Zeigt man im LINKEN Button Old oder Young
         postitionAnzeige = getattr(player.in_round(1), f'jungOderAlt{player.round_number}')
         #print("Runde: ", player.round_number, "postitionAnzeige: ", postitionAnzeige)
 
@@ -1058,8 +1092,7 @@ class SeiteFuerT3Bestaetigung(Page):
         player.youngWorker = int(arbeitsergebnisse[1])
         player.gemeinsamesErgebnisBeiderWorker = player.oldWorker + player.youngWorker
 
-        # ist es ein Junger oder Alter Workler? 0 - alt, 1 - jung
-        # Man muss die ERSTE Runde lesen, danach werden die Felder neu Initialisiert
+        # Zeigt man im LINKEN Button Old oder Young
         postitionAnzeige = getattr(player.in_round(1), f'jungOderAlt{player.round_number}')
         #print("Runde: ", player.round_number, "postitionAnzeige: ", postitionAnzeige)
 
@@ -1090,7 +1123,7 @@ class SeiteFuerT3Bestaetigung(Page):
 
 
 
-# Rolle 4 - mit Nennung Jung/Alt und mit ZWEI Histogrammen
+# Rolle 4A - mit Nennung Jung/Alt und mit ZWEI Histogrammen
 class SeiteFuerT4(Page):
     #timeout_seconds = Constants.dauerDesThreatmentsInSekunden
     form_model = 'player'
@@ -1115,10 +1148,9 @@ class SeiteFuerT4(Page):
         player.youngWorker = int(arbeitsergebnisse[1])
         player.gemeinsamesErgebnisBeiderWorker = player.oldWorker + player.youngWorker
 
-        # ist es ein Junger oder Alter Workler? 0 - alt, 1 - jung
-        # Man muss die ERSTE Runde lesen, danach werden die Felder neu Initialisiert
+        # Zeigt man im LINKEN Button Old oder Young
         postitionAnzeige = getattr(player.in_round(1), f'jungOderAlt{player.round_number}')
-        #print("Runde: ", player.round_number, "postitionAnzeige: ", postitionAnzeige)
+        print("Runde: ", player.round_number, "postitionAnzeige: ", postitionAnzeige)
 
         if postitionAnzeige == 0:
             player.anzeigeLinks = Constants.old
@@ -1150,7 +1182,7 @@ class SeiteFuerT4(Page):
         #print("Punkte neu: ",player.participant.VerdientePunkte)
 
 
-# Rolle 3 - Folgeseite mit der Frage, wie wichtig die Wahl war.  
+# Rolle 4A - Folgeseite mit der Frage, wie wichtig die Wahl war.  
 class SeiteFuerT4Bestaetigung(Page):
     #timeout_seconds = Constants.dauerDesThreatmentsInSekunden
     form_model = 'player'
@@ -1177,8 +1209,7 @@ class SeiteFuerT4Bestaetigung(Page):
         player.youngWorker = int(arbeitsergebnisse[1])
         player.gemeinsamesErgebnisBeiderWorker = player.oldWorker + player.youngWorker
 
-        # ist es ein Junger oder Alter Workler? 0 - alt, 1 - jung
-        # Man muss die ERSTE Runde lesen, danach werden die Felder neu Initialisiert
+        # Zeigt man im LINKEN Button Old oder Young
         postitionAnzeige = getattr(player.in_round(1), f'jungOderAlt{player.round_number}')
         #print("Runde: ", player.round_number, "postitionAnzeige: ", postitionAnzeige)
 
@@ -1206,6 +1237,114 @@ class SeiteFuerT4Bestaetigung(Page):
         player.participant.BestaetigungQ1 = player.BestaetigungQ1
         player.participant.BestaetigungQ2 = player.BestaetigungQ2
         print("BestaetigungQ1: ", player.BestaetigungQ1, " BestaetigungQ2: ", player.BestaetigungQ2)
+
+# Rolle 4A - ERSTE Folgeseite mit der Frage, wie wichtig die Wahl war.  
+class SeiteFuerT4Revision1(Page):
+    #timeout_seconds = Constants.dauerDesThreatmentsInSekunden
+    form_model = 'player'
+    form_fields = ["Revision1_Q"]
+
+    @staticmethod
+    def is_displayed(player: Player):
+        # Wir wollen messen, wie lange der Spieler auf der Seite war. Hier ist die "Start-Zeit"
+        # Wir wollen auch Teile der Sekunden, daher time.perf_counter() und nicht time.time().
+        player.eintrittZeitAufDerSeite = time.perf_counter()
+        #print("SeiteFuerT3Bestaetigung: ",(player.participant.zugeordneteRole == 3  and player.HatSichQualifiziert))
+        return (player.participant.zugeordneteRole == 4  and player.HatSichQualifiziert and (player.round_number == Constants.num_rounds))
+
+    @staticmethod
+    def vars_for_template(player: Player):
+     
+        # Zuerst die Sequenz holen - (-1) weil Array ja mit 0 starte
+        aktuelleSequenz = Constants.sequenzen[player.participant.gewaehlteSequenz-1]
+        # Und jetzt das i-te Element
+        arbeitsergebnisse = aktuelleSequenz[player.round_number - 1]
+        #print("arbeitsergebnisse:", arbeitsergebnisse)
+        # Die Werte braucht man unten zur Berechung der Auszahlung. Die Summe aber auch als Anzeige, daher schon hier
+        player.oldWorker = int(arbeitsergebnisse[0])
+        player.youngWorker = int(arbeitsergebnisse[1])
+        player.gemeinsamesErgebnisBeiderWorker = player.oldWorker + player.youngWorker
+
+        # Zeigt man im LINKEN Button Old oder Young
+        postitionAnzeige = getattr(player.in_round(1), f'jungOderAlt{player.round_number}')
+        #print("Runde: ", player.round_number, "postitionAnzeige: ", postitionAnzeige)
+
+        if postitionAnzeige == 0:
+            player.anzeigeLinks = Constants.old # alter links
+            player.anzeigeRechts = Constants.young
+        else:
+            player.anzeigeLinks = Constants.young # junger links
+            player.anzeigeRechts = Constants.old
+
+
+        summe = player.in_round(player.participant.revision1_AnzeigeRunde).gemeinsamesErgebnisBeiderWorker
+
+        anzeigeLinksSelected = False
+        if player.in_round(player.participant.revision1_AnzeigeRunde).Entscheidung == player.in_round(player.participant.revision1_AnzeigeRunde).anzeigeLinks:
+            anzeigeLinksSelected = True
+    
+        print("Runde: ", player.participant.revision1_AnzeigeRunde, "player.participant.revision1_AnzeigeRunde: ", player.participant.revision1_AnzeigeRunde)
+        print("player.in_round(player.participant.revision1_AnzeigeRunde).Entscheidung: ", player.in_round(player.participant.revision1_AnzeigeRunde).Entscheidung, " player.in_round(player.participant.revision1_AnzeigeRunde).anzeigeLinks: ", player.in_round(player.participant.revision1_AnzeigeRunde).anzeigeLinks)
+        print("anzeigeLinksSelected: ", anzeigeLinksSelected)
+              
+        return {
+            'summe': summe,
+            'anzeigeLinksText': player.in_round(player.participant.revision1_AnzeigeRunde).anzeigeLinks,
+            'anzeigeRechtsText': player.in_round(player.participant.revision1_AnzeigeRunde).anzeigeRechts,
+            'anzeigeLinksSelected': anzeigeLinksSelected,
+            'Entscheidung': player.in_round(player.participant.revision1_AnzeigeRunde).Entscheidung
+
+        }
+
+    # Berechne die Auszahlung für diese Runde und addiere sie zur Gesamtauszahlung
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened):
+        # Wir wollen messen, wie lange der Spieler auf der Seite war. Hier ist die "Verlass-Zeit"
+        dauerAufDerSeite = time.perf_counter() - player.eintrittZeitAufDerSeite
+        # Rundenzeiten des Spielers werden in Participant gespeichert.
+        speichereZeitAufDerSeite(player, dauerAufDerSeite)
+        
+        player.participant.Revision1_Q = player.Revision1_Q
+        print('player.Revision1_Q: ', player.Revision1_Q)
+        # Die Entscheidung soll geändert werden
+        if player.Revision1_Q == '1':
+            # Hole die Auszahlungen, die in der relevanten Runde benutzt wurden
+            # Zuerst die Sequenz holen - (-1) weil Array ja mit 0 starte
+            aktuelleSequenz = Constants.sequenzen[player.participant.gewaehlteSequenz-1]
+            # Und jetzt das Element für die relevante Runde
+            relevanteRunde = player.participant.revision1_AnzeigeRunde
+            arbeitsergebnisse = aktuelleSequenz[relevanteRunde - 1]
+            print("arbeitsergebnisse:", arbeitsergebnisse)
+            # Die Werte braucht man unten zur Berechung der Auszahlung. Die Summe aber auch als Anzeige, daher schon hier
+            player.oldWorker = int(arbeitsergebnisse[0])
+            player.youngWorker = int(arbeitsergebnisse[1])
+
+            entscheidung = player.in_round(player.participant.revision1_AnzeigeRunde).Entscheidung
+            # ermittle, was in der relevanten Runde hinzugefügt wurde
+            if entscheidung is None:
+                print('SeiteFuerT4Revision1/before_next_page: entscheidung ist NULL!!')
+            elif entscheidung == Constants.old:
+                print('ALT: VerdientePunkte ALT: ', player.participant.VerdientePunkte)
+                abzug = berechneAuszahlungT34(player.oldWorker, player.youngWorker, Constants.old)
+                bonus = berechneAuszahlungT34(player.oldWorker, player.youngWorker, Constants.young)
+                player.participant.VerdientePunkte = player.participant.VerdientePunkte - abzug + bonus
+                print('VerdientePunkte NEU: ', player.participant.VerdientePunkte, ' abzug: ', abzug, ' bonus: ', bonus)
+            elif entscheidung == Constants.young:
+                print('JUNG: VerdientePunkte ALT: ', player.participant.VerdientePunkte)
+                abzug = berechneAuszahlungT34(player.oldWorker, player.youngWorker, Constants.young)
+                bonus = berechneAuszahlungT34(player.oldWorker, player.youngWorker, Constants.old)
+                player.participant.VerdientePunkte = player.participant.VerdientePunkte - abzug + bonus
+                print('VerdientePunkte NEU: ', player.participant.VerdientePunkte, ' abzug: ', abzug, ' bonus: ', bonus)
+            else:
+                print('FEHLER: SeiteFuerT4Revision1/before_next_page, Entscheidung nicht "Old" oder "Young" sondern: ', entscheidung)
+        else:
+             print('player.Revision1_Q ist NICHT 1 sondern: ', player.Revision1_Q)   
+    
+    
+
+        print("Revision1_Q: ", player.Revision1_Q)
+
+
 
 # Wie sicher ist der Probant bezüglich seiner Schätzung
 class SelbstEinschaetzungUmfrage(Page):
@@ -1278,4 +1417,4 @@ class ErgebnisOhneQuiz(Page):
         return (not player.HatSichQualifiziert)
 
 
-page_sequence = [Intro, Intro2, Quiz, RealEffortTask, Quiz2, BeforeEstimation, SeiteFuerT1, SeiteFuerT2, SeiteFuerT3, SeiteFuerT4, SeiteFuerT1Bestaetigung, SeiteFuerT2Bestaetigung, SeiteFuerT3Bestaetigung, SeiteFuerT4Bestaetigung, AuszahlungUmfrage, Ergebnis, ErgebnisOhneQuiz]
+page_sequence = [Intro, Intro2, Quiz, RealEffortTask, Quiz2, BeforeEstimation, SeiteFuerT1, SeiteFuerT2, SeiteFuerT3, SeiteFuerT4, SeiteFuerT1Bestaetigung, SeiteFuerT2Bestaetigung, SeiteFuerT3Bestaetigung, SeiteFuerT4Bestaetigung, SeiteFuerT4Revision1, AuszahlungUmfrage, Ergebnis, ErgebnisOhneQuiz]
