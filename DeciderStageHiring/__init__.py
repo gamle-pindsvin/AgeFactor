@@ -209,6 +209,10 @@ class Player(BasePlayer):
                                                  ['1', 'Change to the other worker']],
                                                  widget=widgets.RadioSelectHorizontal, label='<b>Question</b>: Do you want to keep your previous decision or change it?')
 
+    Revision2_Q = models.StringField(choices=[['0', 'Keep my previous decision'],
+                                                 ['1', 'Change to the other worker']],
+                                                 widget=widgets.RadioSelectHorizontal, label='<b>Question</b>: Do you want to keep your previous decision or change it?')
+
     # Wir müssen speichern, welchen Worker der Entscheider einstellen will. 
     # Bei T1 und T2 sind es "one worker" und "the other worker"
     # Bei T3 und T4 sind es "older or the younger worker" 
@@ -644,8 +648,8 @@ class Intro(Page):
         print("Rev1: revZufallszahl: ", revZufallszahl, " player.oldBetter: ", player.oldBetter, " player.participant.revision1_AnzeigeRunde: ", player.participant.revision1_AnzeigeRunde, " player.participant.revision2_AnzeigeRunde: ", player.participant.revision2_AnzeigeRunde)
 
         #TODO HIER NUR UM ALLES IN Tx zu testen - DANACH LÖSCHEN!!!!
-        player.zugeordneteRole = 4;
-        player.participant.zugeordneteRole = 4;
+        #player.zugeordneteRole = 1;
+        #player.participant.zugeordneteRole = player.zugeordneteRole;
 
 
 class Intro2(Page):
@@ -817,7 +821,8 @@ class SeiteFuerT1(Page):
         # Wir wollen messen, wie lange der Spieler auf der Seite war. Hier ist die "Start-Zeit"
         # Wir wollen auch Teile der Sekunden, daher time.perf_counter() und nicht time.time().
         player.eintrittZeitAufDerSeite = time.perf_counter()
-        return (player.participant.zugeordneteRole == 1 and player.HatSichQualifiziert)
+        #TODO player.participant.zugeordneteRole == 12 weil jetzt in 4 mit abgececkt, sollte natürlich player.participant.zugeordneteRole == 1)
+        return (player.participant.zugeordneteRole == 12 and player.HatSichQualifiziert)
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -868,7 +873,8 @@ class SeiteFuerT1Bestaetigung(Page):
         # Wir wollen auch Teile der Sekunden, daher time.perf_counter() und nicht time.time().
         player.eintrittZeitAufDerSeite = time.perf_counter()
         #print("SeiteFuerT3Bestaetigung: ",(player.participant.zugeordneteRole == 3  and player.HatSichQualifiziert))
-        return (player.participant.zugeordneteRole == 1  and player.HatSichQualifiziert and (player.round_number == Constants.num_rounds))
+        #TODO player.participant.zugeordneteRole == 12 weil jetzt in 4 mit abgececkt, sollte natürlich player.participant.zugeordneteRole == 1)
+        return (player.participant.zugeordneteRole == 12  and player.HatSichQualifiziert and (player.round_number == Constants.num_rounds))
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -1134,7 +1140,7 @@ class SeiteFuerT4(Page):
         # Wir wollen messen, wie lange der Spieler auf der Seite war. Hier ist die "Start-Zeit"
         # Wir wollen auch Teile der Sekunden, daher time.perf_counter() und nicht time.time().
         player.eintrittZeitAufDerSeite = time.perf_counter()
-        return (player.participant.zugeordneteRole == 4 and player.HatSichQualifiziert)
+        return ((player.participant.zugeordneteRole == 4 or player.participant.zugeordneteRole == 1) and player.HatSichQualifiziert)
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -1194,7 +1200,8 @@ class SeiteFuerT4Bestaetigung(Page):
         # Wir wollen auch Teile der Sekunden, daher time.perf_counter() und nicht time.time().
         player.eintrittZeitAufDerSeite = time.perf_counter()
         #print("SeiteFuerT3Bestaetigung: ",(player.participant.zugeordneteRole == 3  and player.HatSichQualifiziert))
-        return (player.participant.zugeordneteRole == 4  and player.HatSichQualifiziert and (player.round_number == Constants.num_rounds))
+        return ((player.participant.zugeordneteRole == 4 or player.participant.zugeordneteRole == 1) 
+                and player.HatSichQualifiziert and (player.round_number == Constants.num_rounds))
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -1250,7 +1257,8 @@ class SeiteFuerT4Revision1(Page):
         # Wir wollen auch Teile der Sekunden, daher time.perf_counter() und nicht time.time().
         player.eintrittZeitAufDerSeite = time.perf_counter()
         #print("SeiteFuerT3Bestaetigung: ",(player.participant.zugeordneteRole == 3  and player.HatSichQualifiziert))
-        return (player.participant.zugeordneteRole == 4  and player.HatSichQualifiziert and (player.round_number == Constants.num_rounds))
+        return ((player.participant.zugeordneteRole == 4 or player.participant.zugeordneteRole == 1) 
+                and player.HatSichQualifiziert and (player.round_number == Constants.num_rounds))
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -1347,6 +1355,115 @@ class SeiteFuerT4Revision1(Page):
 
         print("Revision1_Q: ", player.Revision1_Q)
 
+# Rolle 4A - ZWEITE Folgeseite mit der Frage, wie wichtig die Wahl war.  
+class SeiteFuerT4Revision2(Page):
+    #timeout_seconds = Constants.dauerDesThreatmentsInSekunden
+    form_model = 'player'
+    form_fields = ["Revision2_Q"]
+
+    @staticmethod
+    def is_displayed(player: Player):
+        # Wir wollen messen, wie lange der Spieler auf der Seite war. Hier ist die "Start-Zeit"
+        # Wir wollen auch Teile der Sekunden, daher time.perf_counter() und nicht time.time().
+        player.eintrittZeitAufDerSeite = time.perf_counter()
+        #print("SeiteFuerT3Bestaetigung: ",(player.participant.zugeordneteRole == 3  and player.HatSichQualifiziert))
+        return ((player.participant.zugeordneteRole == 4 or player.participant.zugeordneteRole == 1) 
+                and player.HatSichQualifiziert and (player.round_number == Constants.num_rounds))
+
+    @staticmethod
+    def vars_for_template(player: Player):
+     
+        # Zuerst die Sequenz holen - (-1) weil Array ja mit 0 starte
+        aktuelleSequenz = Constants.sequenzen[player.participant.gewaehlteSequenz-1]
+        # Und jetzt das i-te Element
+        arbeitsergebnisse = aktuelleSequenz[player.round_number - 1]
+        #print("arbeitsergebnisse:", arbeitsergebnisse)
+        # Die Werte braucht man unten zur Berechung der Auszahlung. Die Summe aber auch als Anzeige, daher schon hier
+        player.oldWorker = int(arbeitsergebnisse[0])
+        player.youngWorker = int(arbeitsergebnisse[1])
+        player.gemeinsamesErgebnisBeiderWorker = player.oldWorker + player.youngWorker
+
+        # Zeigt man im LINKEN Button Old oder Young
+        postitionAnzeige = getattr(player.in_round(1), f'jungOderAlt{player.round_number}')
+        #print("Runde: ", player.round_number, "postitionAnzeige: ", postitionAnzeige)
+
+        if postitionAnzeige == 0:
+            player.anzeigeLinks = Constants.old # alter links
+            player.anzeigeRechts = Constants.young
+        else:
+            player.anzeigeLinks = Constants.young # junger links
+            player.anzeigeRechts = Constants.old
+
+
+        summe = player.in_round(player.participant.revision2_AnzeigeRunde).gemeinsamesErgebnisBeiderWorker
+        anzeigeArbeitsergebnisse = aktuelleSequenz[player.participant.revision2_AnzeigeRunde - 1]
+
+        anzeigeLinksSelected = False
+        if player.in_round(player.participant.revision2_AnzeigeRunde).Entscheidung == player.in_round(player.participant.revision2_AnzeigeRunde).anzeigeLinks:
+            anzeigeLinksSelected = True
+    
+        print("Runde: ", player.participant.revision2_AnzeigeRunde, "player.participant.revision2_AnzeigeRunde: ", player.participant.revision2_AnzeigeRunde)
+        print("player.in_round(player.participant.revision2_AnzeigeRunde).Entscheidung: ", player.in_round(player.participant.revision2_AnzeigeRunde).Entscheidung, " player.in_round(player.participant.revision2_AnzeigeRunde).anzeigeLinks: ", player.in_round(player.participant.revision2_AnzeigeRunde).anzeigeLinks)
+        print("anzeigeLinksSelected: ", anzeigeLinksSelected)
+              
+        return {
+            'summe': summe,
+            'anteilOldWorker': anzeigeArbeitsergebnisse[0],
+            'anteilYoungWorker': anzeigeArbeitsergebnisse[1],
+            'anzeigeLinksText': player.in_round(player.participant.revision2_AnzeigeRunde).anzeigeLinks,
+            'anzeigeRechtsText': player.in_round(player.participant.revision2_AnzeigeRunde).anzeigeRechts,
+            'anzeigeLinksSelected': anzeigeLinksSelected,
+            'Entscheidung': player.in_round(player.participant.revision2_AnzeigeRunde).Entscheidung
+
+        }
+
+    # Berechne die Auszahlung für diese Runde und addiere sie zur Gesamtauszahlung
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened):
+        # Wir wollen messen, wie lange der Spieler auf der Seite war. Hier ist die "Verlass-Zeit"
+        dauerAufDerSeite = time.perf_counter() - player.eintrittZeitAufDerSeite
+        # Rundenzeiten des Spielers werden in Participant gespeichert.
+        speichereZeitAufDerSeite(player, dauerAufDerSeite)
+        
+        player.participant.Revision2_Q = player.Revision2_Q
+        print('player.Revision2_Q: ', player.Revision2_Q)
+        # Die Entscheidung soll geändert werden
+        if player.Revision2_Q == '1':
+            # Hole die Auszahlungen, die in der relevanten Runde benutzt wurden
+            # Zuerst die Sequenz holen - (-1) weil Array ja mit 0 starte
+            aktuelleSequenz = Constants.sequenzen[player.participant.gewaehlteSequenz-1]
+            # Und jetzt das Element für die relevante Runde
+            relevanteRunde = player.participant.revision2_AnzeigeRunde
+            arbeitsergebnisse = aktuelleSequenz[relevanteRunde - 1]
+            print("arbeitsergebnisse:", arbeitsergebnisse)
+            # Die Werte braucht man unten zur Berechung der Auszahlung. Die Summe aber auch als Anzeige, daher schon hier
+            player.oldWorker = int(arbeitsergebnisse[0])
+            player.youngWorker = int(arbeitsergebnisse[1])
+
+            entscheidung = player.in_round(player.participant.revision2_AnzeigeRunde).Entscheidung
+            # ermittle, was in der relevanten Runde hinzugefügt wurde
+            if entscheidung is None:
+                print('SeiteFuerT4Revision2/before_next_page: entscheidung ist NULL!!')
+            elif entscheidung == Constants.old:
+                print('ALT: VerdientePunkte ALT: ', player.participant.VerdientePunkte)
+                abzug = berechneAuszahlungT34(player.oldWorker, player.youngWorker, Constants.old)
+                bonus = berechneAuszahlungT34(player.oldWorker, player.youngWorker, Constants.young)
+                player.participant.VerdientePunkte = player.participant.VerdientePunkte - abzug + bonus
+                print('VerdientePunkte NEU: ', player.participant.VerdientePunkte, ' abzug: ', abzug, ' bonus: ', bonus)
+            elif entscheidung == Constants.young:
+                print('JUNG: VerdientePunkte ALT: ', player.participant.VerdientePunkte)
+                abzug = berechneAuszahlungT34(player.oldWorker, player.youngWorker, Constants.young)
+                bonus = berechneAuszahlungT34(player.oldWorker, player.youngWorker, Constants.old)
+                player.participant.VerdientePunkte = player.participant.VerdientePunkte - abzug + bonus
+                print('VerdientePunkte NEU: ', player.participant.VerdientePunkte, ' abzug: ', abzug, ' bonus: ', bonus)
+            else:
+                print('FEHLER: SeiteFuerT4Revision2/before_next_page, Entscheidung nicht "Old" oder "Young" sondern: ', entscheidung)
+        else:
+             print('player.Revision2_Q ist NICHT 1 sondern: ', player.Revision2_Q)   
+    
+    
+
+        print("Revision2_Q: ", player.Revision2_Q)
 
 
 # Wie sicher ist der Probant bezüglich seiner Schätzung
@@ -1420,4 +1537,4 @@ class ErgebnisOhneQuiz(Page):
         return (not player.HatSichQualifiziert)
 
 
-page_sequence = [Intro, Intro2, Quiz, RealEffortTask, Quiz2, BeforeEstimation, SeiteFuerT1, SeiteFuerT2, SeiteFuerT3, SeiteFuerT4, SeiteFuerT1Bestaetigung, SeiteFuerT2Bestaetigung, SeiteFuerT3Bestaetigung, SeiteFuerT4Bestaetigung, SeiteFuerT4Revision1, AuszahlungUmfrage, Ergebnis, ErgebnisOhneQuiz]
+page_sequence = [Intro, Intro2, Quiz, RealEffortTask, Quiz2, BeforeEstimation, SeiteFuerT1, SeiteFuerT2, SeiteFuerT3, SeiteFuerT4, SeiteFuerT1Bestaetigung, SeiteFuerT2Bestaetigung, SeiteFuerT3Bestaetigung, SeiteFuerT4Bestaetigung, SeiteFuerT4Revision1, SeiteFuerT4Revision2, AuszahlungUmfrage, Ergebnis, ErgebnisOhneQuiz]

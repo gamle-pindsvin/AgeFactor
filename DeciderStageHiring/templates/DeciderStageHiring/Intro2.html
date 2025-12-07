@@ -82,6 +82,11 @@ If a code was incorrect, the computer did not increase the tally of correct answ
 <div>Your payment will depend on the performance of the worker you hire. Specifically, your bonus (measured in points) will equal the number of tasks actually solved by your chosen worker. The better the worker you hire has performed in the task, the higher your bonus will be. At the end of the study, the points you earned will be converted into British pounds at a rate of {{ Constants.punkteUmrechnungInPenny }} points = £0.01. For example, hiring a worker who solved 90 tasks gives you 90 points, corresponding to &pound;{{ wertVon37Punkten }}. (Note: "90" is an intentionally unrealistically high number.)</div>
 <div>In addition, you will also receive a fixed amount of &pound;{{ Constants.festerAnteilDerBezahlung|to2 }}, irrespective of the performance of your hired workers.</div>
 <br>
+{% if player.participant.zugeordneteRole == 1 %}
+  <p>The worker you choose from each pair receives a bonus of &pound; 0.10 on top of their performance-based earnings; the other worker does not receive this bonus.</p>
+
+{% endif %}
+
 <div>Before entering the Hiring Part, we ask you to complete the Practice Part. There, you will answer a comprehension question, complete the encoding task yourself, and then answer a second comprehension question. You have two attempts to answer each comprehension question correctly. Using more than two attempts for one of the questions will end the study for you, and you will only receive &pound;{{ Constants.auszahlungAnQuizVersager|to2 }} as compensation. Note that in the Practice Part, no additional earnings are awarded for correct answers.</div>
 
 <br><br>

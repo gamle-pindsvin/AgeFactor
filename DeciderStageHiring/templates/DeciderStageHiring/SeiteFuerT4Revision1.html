@@ -1,7 +1,7 @@
 {{ extends "global/CSS_Page.html" }}
 {{ load otree }}
 
-{{ block title }}Review and Possible Revision of an Earlier Decision{{ endblock }}
+{{ block title }}Review and Possible Revision of an Earlier Decision 1{{ endblock }}
 
 {{ block content }}
 
@@ -68,11 +68,15 @@
     </style>
 
 
-<div>In this part, you will revisit one of your earlier hiring decisions. This is the first of two revision decisions.
+<div>In this part, you will <b>revisit one of your earlier hiring decisions</b>. This is the first of two revision decisions.
     <p>We now provide you with the actual individual performances of the two workers in this pair.</p>
     <p>You can keep your original decision or choose the other worker instead.</p>
     <p><strong>Whichever option you choose here — keeping your previous decision or selecting the other worker — will replace your earlier decision and count for your payment.</strong></p>
-
+    <p>
+        {% if player.participant.zugeordneteRole == 1 %}
+        <p>Also remember that the worker you choose will receive a bonus of &pound; 0.10 for being hired.</p>
+        {% endif %}
+    </p>
 </div>
 <br>
 <!-- AB HIER WIRD DIE LETZTE SEITE WIDERHOLT -->
@@ -81,6 +85,9 @@
     <div>Worker pair {{ player.participant.revision1_AnzeigeRunde }} of {{ Constants.num_rounds }}</div>
 <br>
 <div><b>Remember:</b> Your earnings measured in points will equal the number of tasks actually solved by your chosen worker. <br>Your points will be converted into British pounds at a rate of {{ Constants.punkteUmrechnungInPenny }} points = £0.01.</div>
+{% if player.participant.zugeordneteRole == 1 %}
+<p>Also remember that the worker you choose will receive a bonus of &pound; 0.10 for being hired.</p>
+{% endif %}
 <br>
 
 
@@ -174,18 +181,22 @@
         </div>
 <br>
 <br>        
-        <div style="text-align: center;font-size: 1.25em; font-style: italic;">
-                The <b>actual performances</b> of the two workers in that pair were: <br>
-        The <b>older</b> worker solved <span style="font-size: 130%;"><b>{% anteilOldWorker %} tasks,</b></span> and the <b>younger</b> worker solved <span style="font-size: 130%;"><b>{% anteilYoungWorker %} tasks</b></span>.
+        <div style="text-align: center;font-size: 1.25em;">
+                The <span style="font-size: 113%;font-weight:bold;">actual performances</span> of the two workers in that pair were: <br>
+        The <span style="font-size: 113%;font-weight:bold;">older</span> worker solved <span style="font-size: 113%;font-weight:bold;">{% anteilOldWorker %} tasks,</span> and the <b>younger</b> worker solved <span style="font-size: 113%;font-weight:bold;">{% anteilYoungWorker %} tasks</span>.
 
         </div>
 
-<br>
+
 <br>
         <div style="text-align: center;font-size: 1.25em; font-style: italic;">
                 {{ formfields }} 
         </div>
-
+<br>
+        <div>[Your payment will be based on your final hiring decisions, including the decision you make here.]</div>
+        <span style="font-size: 113%;font-weight:bold;">
+<br>
+<br> 
 {% next_button %}
 
 

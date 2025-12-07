@@ -5,8 +5,16 @@
 
 {{ block content }}
 <div>Worker pair {{player.round_number}} of {{ Constants.num_rounds }}</div>
+
 <br>
-<div><b>Remember:</b> Your earnings measured in points will equal the number of tasks actually solved by your chosen worker. <br>Your points will be converted into British pounds at a rate of {{ Constants.punkteUmrechnungInPenny }} points = £0.01.</div>
+<div><b>Remember:</b> Your <span style="font-size: 113%;font-weight:bold;">earnings</span> measured in points will equal the number of <span style="font-size: 113%;font-weight:bold;">tasks actually solved by your chosen worker. </span><br>Your points will be converted into British pounds at a rate of {{ Constants.punkteUmrechnungInPenny }} points = £0.01.</div>
+
+{% if player.participant.zugeordneteRole == 1 %}
+   <p>Also remember that the worker you choose will receive a bonus of &pound; 0.10 for being hired.</p>
+{% else %}
+   <p>player.participant.zugeordneteRole</p>
+{% endif %}
+
 <br>
 
 
