@@ -1,7 +1,7 @@
 {{ extends "global/CSS_Page.html" }}
 {{ load otree }}
 
-{{ block title }}Before moving on{{ endblock }}
+{{ block title }}Review and Possible Revision of an Earlier Decision{{ endblock }}
 
 {{ block content }}
 
@@ -67,10 +67,16 @@
 
     </style>
 
-<h1><b>REVISION 1</b></h1>
 
-<div>The hiring phase is now complete. Before you begin the short survey that concludes the study,<br> we would like you to answer two brief questions about your most recent hiring decision, which we show to you again here:</div>
+<div>In this part, you will revisit one of your earlier hiring decisions. This is the first of two revision decisions.
+    <p>We now provide you with the actual individual performances of the two workers in this pair.</p>
+    <p>You can keep your original decision or choose the other worker instead.</p>
+    <p><strong>Whichever option you choose here — keeping your previous decision or selecting the other worker — will replace your earlier decision and count for your payment.</strong></p>
+
+</div>
 <br>
+<!-- AB HIER WIRD DIE LETZTE SEITE WIDERHOLT -->
+
 <div class="info-wrapper">
     <div>Worker pair {{ player.participant.revision1_AnzeigeRunde }} of {{ Constants.num_rounds }}</div>
 <br>
@@ -159,15 +165,27 @@
 
     </table>
   </div>
-    
+ <!-- Hier geht es jetzt weiter mit einer durchgezogenen Linie -->   
 <hr style="border-top: 2px dashed #999; margin: 30px 0;">
-<div style="font-size: 1.45em; font-style: italic;">
-In that decision, you chose to hire <b>the {% Entscheidung %}</b> worker <b>on the {% if anzeigeLinksSelected %}left{% else %}right{% endif %}.</b>
-</div>
+        <div style="text-align: center;">
+                The pair of two workers solved a total of: <span style="font-size: 130%;"><b>{% summe %} tasks</b></span>
+                <br>
+                In that decision, you chose to hire <b>the {% Entscheidung %}</b> worker <b>on the {% if anzeigeLinksSelected %}left{% else %}right{% endif %}.</b>
+        </div>
 <br>
-<br>
+<br>        
+        <div style="text-align: center;font-size: 1.25em; font-style: italic;">
+                The <b>actual performances</b> of the two workers in that pair were: <br>
+        The <b>older</b> worker solved <span style="font-size: 130%;"><b>{% anteilOldWorker %} tasks,</b></span> and the <b>younger</b> worker solved <span style="font-size: 130%;"><b>{% anteilYoungWorker %} tasks</b></span>.
 
-{{ formfields }}
+        </div>
+
+<br>
+<br>
+        <div style="text-align: center;font-size: 1.25em; font-style: italic;">
+                {{ formfields }} 
+        </div>
+
 {% next_button %}
 
 

@@ -205,9 +205,9 @@ class Player(BasePlayer):
 
 
     # Nach der letzten der 10 Entscheidungen gibt es zwei Fragen auf der Bestätigung-Seite
-    Revision1_Q = models.StringField(choices=[['1', 'Yes'],
-                                                 ['0', 'No']],
-                                                 widget=widgets.RadioSelectHorizontal, label='<b>Question</b>: Would you like to change your decision and hire the other worker?')
+    Revision1_Q = models.StringField(choices=[['0', 'Keep my previous decision'],
+                                                 ['1', 'Change to the other worker']],
+                                                 widget=widgets.RadioSelectHorizontal, label='<b>Question</b>: Do you want to keep your previous decision or change it?')
 
     # Wir müssen speichern, welchen Worker der Entscheider einstellen will. 
     # Bei T1 und T2 sind es "one worker" und "the other worker"
@@ -1278,6 +1278,7 @@ class SeiteFuerT4Revision1(Page):
 
 
         summe = player.in_round(player.participant.revision1_AnzeigeRunde).gemeinsamesErgebnisBeiderWorker
+        anzeigeArbeitsergebnisse = aktuelleSequenz[player.participant.revision1_AnzeigeRunde - 1]
 
         anzeigeLinksSelected = False
         if player.in_round(player.participant.revision1_AnzeigeRunde).Entscheidung == player.in_round(player.participant.revision1_AnzeigeRunde).anzeigeLinks:
@@ -1289,6 +1290,8 @@ class SeiteFuerT4Revision1(Page):
               
         return {
             'summe': summe,
+            'anteilOldWorker': anzeigeArbeitsergebnisse[0],
+            'anteilYoungWorker': anzeigeArbeitsergebnisse[1],
             'anzeigeLinksText': player.in_round(player.participant.revision1_AnzeigeRunde).anzeigeLinks,
             'anzeigeRechtsText': player.in_round(player.participant.revision1_AnzeigeRunde).anzeigeRechts,
             'anzeigeLinksSelected': anzeigeLinksSelected,
